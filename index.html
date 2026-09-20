@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>架空路線マップメーカー</title>
+
+<link rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      crossorigin="">
+
+<style>
+*{
+  box-sizing:border-box;
+}
+
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  font-family:Arial,"Noto Sans JP",sans-serif;
+}
+
+body{
+  display:flex;
+  flex-direction:column;
+}
+
+#topbar{
+  height:58px;
+  min-height:58px;
+  background:#222;
+  color:white;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:6px;
+  z-index:2000;
+  overflow-x:auto;
+}
+
+#topbar h1{
+  font-size:17px;
+  margin:0 12px 0 4px;
+  white-space:nowrap;
+}
+
+button,
+select,
+input{
+  font:inherit;
+}
+
+button{
+  border:1px solid #777;
+  background:white;
+  color:#111;
+  border-radius:5px;
+  padding:7px 11px;
+  cursor:pointer;
+  white-space:nowrap;
+}
+
+button:hover{
+  background:#eee;
+}
+
+button.active{
+  background:#ff8800;
+  color:white;
+  border-color:#ff8800;
+}
+
+#main{
+  flex:1;
+  min-height:0;
+  display:flex;
+}
+
+#sidebar{
+  width:280px;
+  min-width:280px;
+  background:#f4f4f4;
+  border-right:1px solid #aaa;
+  overflow-y:auto;
+  padding:10px;
+  z-index:1500;
+}
+
+.section{
+  background:white;
+  border:1px solid #ccc;
+  border-radius:7px;
+  padding:10px;
+  margin-bottom:10px;
+}
+
+.section h2{
+  margin:0 0 8px;
+  font-size:15px;
+}
+
+.row{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  margin:6px 0;
+}
+
+.row label{
+  flex:1;
+  font-size:13px;
+}
+
+input[type="number"]{
+  width:80px;
+  padding:5px;
+}
+
+input[type="text"]{
+  width:100%;
+  padding:6px;
+}
+
+input[type="color"]{
+  width:55px;
+  height:35px;
+  padding:2px;
+}
+
+#routeList{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+}
+
+.routeItem{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  border:1px solid #ccc;
+  border-radius:5px;
+  padding:6px;
+  background:#fafafa;
+}
+
+.routeColor{
+  width:20px;
+  height:20px;
+  border-radius:50%;
+  border:1px solid #555;
+  flex:none;
+}
+
+.routeItem span{
+  flex:1;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+#map{
+  flex:1;
+  min-width:0;
+  min-height:0;
+  position:relative;
+}
+
+#mapMode{
+  position:absolute;
+  left:10px;
+  top:10px;
+  z-index:1000;
+  background:white;
+  border:1px solid #999;
+  border-radius:5px;
+  padding:6px 10px;
+  box-shadow:0 1px 5px #777;
+  font-size:13px;
+}
+
+.station-label{
+  background:transparent;
+  border:0;
+  box-shadow:none;
+  font-weight:bold;
+  color:#111;
+  white-space:nowrap;
+}
+
+.station-marker{
+  background:white;
+  border:3px solid #111;
+  border-radius:50%;
+}
+
+.point-marker{
+  background:#111;
+  border:2px solid white;
+  border-radius:50%;
+}
+
+.leaflet-div-icon{
+  background:transparent;
+  border:0;
+}
+
+#mobileToggle{
+  display:none;
+  position:absolute;
+  left:8px;
+  bottom:8px;
+  z-index:3000;
+}
+
+@media(max-width:800px){
+  #sidebar{
+    position:absolute;
+    left:0;
+    top:0;
+    bottom:0;
+    transform:translateX(-100%);
+    transition:.2s;
+    box-shadow:2px 0 8px #555;
+  }
+
+  #sidebar.open{
+    transform:translateX(0);
+  }
+
+  #mobileToggle{
+    display:block;
+  }
+
+  #topbar h1{
+    font-size:15px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div id="topbar">
+  <h1>架空路線マップメーカー</h1>
+
+  <button id="btnStation">駅を追加</button>
+  <button id="btnPoint">分岐・方向転換点</button>
+  <button id="btnRoute">路線を作成</button>
+  <button id="btnSelect" class="active">選択</button>
+  <button id="btnDelete">削除</button>
+</div>
+
+<div id="main">
+
+  <aside id="sidebar">
+
+    <div class="section">
+      <h2>現在の路線</h2>
+
+      <input id="routeName"
+             type="text"
+             placeholder="路線名">
+
+      <div class="row">
+        <label>路線色</label>
+        <input id="routeColor" type="color" value="#ff0000">
+      </div>
+
+      <div class="row">
+        <label>線の太さ</label>
+        <input id="routeWidth" type="number" value="6" min="1" max="30">
+      </div>
+
+      <button id="btnCreateRoute" style="width:100%">
+        路線を追加
+      </button>
+    </div>
+
+    <div class="section">
+      <h2>全体表示設定</h2>
+
+      <div class="row">
+        <label>線の太さ</label>
+        <input id="globalWidth" type="number" value="6" min="1" max="30">
+      </div>
+
+      <div class="row">
+        <label>駅の大きさ</label>
+        <input id="stationSize" type="number" value="12" min="4" max="40">
+      </div>
+
+      <div class="row">
+        <label>分岐・方向転換点</label>
+        <input id="pointSize" type="number" value="7" min="3" max="30">
+      </div>
+
+      <div class="row">
+        <label>駅名サイズ</label>
+        <input id="labelSize" type="number" value="14" min="8" max="40">
+      </div>
+
+      <button id="btnApply" style="width:100%">
+        全体設定を適用
+      </button>
+    </div>
+
+    <div class="section">
+      <h2>路線一覧</h2>
+      <div id="routeList"></div>
+    </div>
+
+    <div class="section">
+      <h2>保存</h2>
+
+      <div class="row">
+        <button id="btnSave" style="flex:1">保存</button>
+        <button id="btnLoad" style="flex:1">読込</button>
+      </div>
+
+      <div class="row">
+        <button id="btnExport" style="flex:1">JSON出力</button>
+        <button id="btnImport" style="flex:1">JSON読込</button>
+      </div>
+
+      <input id="fileInput"
+             type="file"
+             accept=".json,application/json"
+             style="display:none">
+    </div>
+
+    <div class="section">
+      <h2>操作方法</h2>
+      <div style="font-size:12px;line-height:1.7">
+        <b>駅を追加</b>：地図をクリックして駅を配置<br>
+        <b>分岐・方向転換点</b>：駅ではない点を配置<br>
+        <b>路線を作成</b>：駅・点を順番にクリック<br>
+        <b>選択</b>：駅・点をドラッグして移動<br>
+        <b>削除</b>：駅・点・路線をクリック<br>
+        <br>
+        点は「駅」と「分岐・方向転換点」の2種類だけです。
+      </div>
+    </div>
+
+  </aside>
+
+  <div id="map">
+    <div id="mapMode">モード：選択</div>
+  </div>
+
+  <button id="mobileToggle">メニュー</button>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        crossorigin=""></script>
+
+<script>
+(function(){
+
+"use strict";
+
+/* =========================
+   地図
+========================= */
+
+const map=L.map("map",{
+  zoomControl:true,
+  attributionControl:true,
+  rotate:false
+});
+
+L.tileLayer(
+  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+  {
+    maxZoom:19,
+    attribution:"© OpenStreetMap contributors"
+  }
+).addTo(map);
+
+map.setView([35.681236,139.767125],13);
+
+
+/* =========================
+   データ
+========================= */
+
+let stations=[];
+let points=[];
+let routes=[];
+
+let nextId=1;
+
+let mode="select";
+let currentRouteId=null;
+let routeDrawing=false;
+let drawingPoints=[];
+
+let settings={
+  globalWidth:6,
+  stationSize:12,
+  pointSize:7,
+  labelSize:14
+};
+
+
+/* =========================
+   ID
+========================= */
+
+function id(){
+  return nextId++;
+}
+
+
+/* =========================
+   DOM
+========================= */
+
+const sidebar=document.getElementById("sidebar");
+const modeText=document.getElementById("mapMode");
+
+const btnStation=document.getElementById("btnStation");
+const btnPoint=document.getElementById("btnPoint");
+const btnRoute=document.getElementById("btnRoute");
+const btnSelect=document.getElementById("btnSelect");
+const btnDelete=document.getElementById("btnDelete");
+
+const routeName=document.getElementById("routeName");
+const routeColor=document.getElementById("routeColor");
+const routeWidth=document.getElementById("routeWidth");
+
+const globalWidth=document.getElementById("globalWidth");
+const stationSize=document.getElementById("stationSize");
+const pointSize=document.getElementById("pointSize");
+const labelSize=document.getElementById("labelSize");
+
+const routeList=document.getElementById("routeList");
+
+
+/* =========================
+   レイヤー
+========================= */
+
+const routeLayer=L.layerGroup().addTo(map);
+const markerLayer=L.layerGroup().addTo(map);
+
+
+/* =========================
+   モード
+========================= */
+
+function setMode(newMode){
+
+  mode=newMode;
+
+  if(routeDrawing){
+    routeDrawing=false;
+    drawingPoints=[];
+  }
+
+  btnStation.classList.remove("active");
+  btnPoint.classList.remove("active");
+  btnRoute.classList.remove("active");
+  btnSelect.classList.remove("active");
+  btnDelete.classList.remove("active");
+
+  if(newMode==="station"){
+    btnStation.classList.add("active");
+    modeText.textContent="モード：駅を追加";
+  }
+
+  if(newMode==="point"){
+    btnPoint.classList.add("active");
+    modeText.textContent="モード：分岐・方向転換点を追加";
+  }
+
+  if(newMode==="route"){
+    btnRoute.classList.add("active");
+    modeText.textContent="モード：路線を作成";
+  }
+
+  if(newMode==="select"){
+    btnSelect.classList.add("active");
+    modeText.textContent="モード：選択";
+  }
+
+  if(newMode==="delete"){
+    btnDelete.classList.add("active");
+    modeText.textContent="モード：削除";
+  }
+}
+
+btnStation.onclick=()=>setMode("station");
+btnPoint.onclick=()=>setMode("point");
+btnRoute.onclick=()=>{
+
+  if(!currentRouteId){
+    alert("先に路線を追加してください。");
+    return;
+  }
+
+  routeDrawing=true;
+  drawingPoints=[];
+  setMode("route");
+};
+
+btnSelect.onclick=()=>setMode("select");
+btnDelete.onclick=()=>setMode("delete");
+
+
+/* =========================
+   地図クリック
+========================= */
+
+map.on("click",function(e){
+
+  if(mode==="station"){
+    addStation(e.latlng);
+    return;
+  }
+
+  if(mode==="point"){
+    addPoint(e.latlng);
+    return;
+  }
+
+  if(mode==="route" && routeDrawing){
+    chooseRoutePoint(e.latlng);
+    return;
+  }
+});
+
+
+/* =========================
+   駅追加
+========================= */
+
+function addStation(latlng){
+
+  const name=prompt("駅名を入力してください。");
+
+  if(name===null){
+    return;
+  }
+
+  const station={
+    id:id(),
+    name:name.trim() || "駅",
+    lat:latlng.lat,
+    lng:latlng.lng,
+    marker:null
+  };
+
+  stations.push(station);
+
+  render();
+}
+
+
+/* =========================
+   分岐・方向転換点
+========================= */
+
+function addPoint(latlng){
+
+  const point={
+    id:id(),
+    lat:latlng.lat,
+    lng:latlng.lng,
+    marker:null
+  };
+
+  points.push(point);
+
+  render();
+}
+
+
+/* =========================
+   点を検索
+========================= */
+
+function getAllPoints(){
+
+  return stations.concat(points);
+}
+
+function findPoint(idValue){
+
+  return getAllPoints().find(p=>p.id===idValue) || null;
+}
+
+
+/* =========================
+   路線作成
+========================= */
+
+function chooseRoutePoint(latlng){
+
+  const candidates=getAllPoints();
+
+  let nearest=null;
+  let nearestDistance=Infinity;
+
+  candidates.forEach(p=>{
+
+    const d=map.distance(
+      latlng,
+      L.latLng(p.lat,p.lng)
+    );
+
+    if(d<nearestDistance){
+      nearestDistance=d;
+      nearest=p;
+    }
+
+  });
+
+  /*
+    クリック地点から一番近い既存の駅・点を選ぶ。
+    300m以上離れている場合は選択しない。
+  */
+
+  if(!nearest || nearestDistance>300){
+    alert("駅または分岐・方向転換点の近くをクリックしてください。");
+    return;
+  }
+
+  if(drawingPoints.includes(nearest.id)){
+    return;
+  }
+
+  drawingPoints.push(nearest.id);
+
+  if(drawingPoints.length>=2){
+    redrawRoutePreview();
+  }
+
+  if(drawingPoints.length>=2){
+
+    const finish=confirm(
+      "現在の点までで路線を確定しますか？\n\n" +
+      "「キャンセル」でさらに点を追加できます。"
+    );
+
+    if(finish){
+      finishRoute();
+    }
+  }
+}
+
+
+/* =========================
+   路線確定
+========================= */
+
+function finishRoute(){
+
+  if(drawingPoints.length<2){
+    alert("2点以上必要です。");
+    return;
+  }
+
+  const route=routes.find(r=>r.id===currentRouteId);
+
+  if(!route){
+    alert("路線がありません。");
+    return;
+  }
+
+  route.pointIds=drawingPoints.slice();
+
+  routeDrawing=false;
+  drawingPoints=[];
+
+  render();
+  setMode("select");
+}
+
+
+/* =========================
+   路線プレビュー
+========================= */
+
+let previewLine=null;
+
+function redrawRoutePreview(){
+
+  if(previewLine){
+    map.removeLayer(previewLine);
+    previewLine=null;
+  }
+
+  const latlngs=drawingPoints
+    .map(findPoint)
+    .filter(Boolean)
+    .map(p=>[p.lat,p.lng]);
+
+  if(latlngs.length>=2){
+
+    previewLine=L.polyline(
+      latlngs,
+      {
+        color:routeColor.value,
+        weight:Number(routeWidth.value)||6,
+        opacity:.55,
+        dashArray:"8 8"
+      }
+    ).addTo(map);
+  }
+}
+
+
+/* =========================
+   路線追加
+========================= */
+
+document.getElementById("btnCreateRoute").onclick=function(){
+
+  const name=routeName.value.trim();
+
+  if(!name){
+    alert("路線名を入力してください。");
+    return;
+  }
+
+  const route={
+    id:id(),
+    name:name,
+    color:routeColor.value,
+    width:Number(routeWidth.value)||6,
+    pointIds:[]
+  };
+
+  routes.push(route);
+
+  currentRouteId=route.id;
+
+  routeName.value="";
+
+  renderRoutes();
+};
+
+
+/* =========================
+   マーカー作成
+========================= */
+
+function createStationIcon(){
+
+  const size=settings.stationSize;
+
+  return L.divIcon({
+    className:"",
+    html:
+      '<div class="station-marker" ' +
+      'style="width:'+size+'px;height:'+size+'px;"></div>',
+    iconSize:[size,size],
+    iconAnchor:[size/2,size/2]
+  });
+}
+
+function createPointIcon(){
+
+  const size=settings.pointSize;
+
+  return L.divIcon({
+    className:"",
+    html:
+      '<div class="point-marker" ' +
+      'style="width:'+size+'px;height:'+size+'px;"></div>',
+    iconSize:[size,size],
+    iconAnchor:[size/2,size/2]
+  });
+}
+
+
+/* =========================
+   ドラッグ
+========================= */
+
+function enableDrag(marker,obj){
+
+  marker.on("dragend",function(){
+
+    if(mode!=="select"){
+      return;
+    }
+
+    const pos=marker.getLatLng();
+
+    obj.lat=pos.lat;
+    obj.lng=pos.lng;
+
+    renderRoutes();
+  });
+}
+
+
+/* =========================
+   マーカークリック
+========================= */
+
+function markerClick(obj,e){
+
+  L.DomEvent.stopPropagation(e);
+
+  if(mode==="delete"){
+
+    deleteObject(obj);
+    return;
+  }
+
+  if(mode==="route" && routeDrawing){
+
+    if(!drawingPoints.includes(obj.id)){
+
+      drawingPoints.push(obj.id);
+
+      redrawRoutePreview();
+    }
+
+    return;
+  }
+}
+
+
+/* =========================
+   削除
+========================= */
+
+function deleteObject(obj){
+
+  if(obj.name!==undefined){
+
+    stations=stations.filter(x=>x.id!==obj.id);
+
+  }else{
+
+    points=points.filter(x=>x.id!==obj.id);
+  }
+
+  routes.forEach(r=>{
+    r.pointIds=r.pointIds.filter(x=>x!==obj.id);
+  });
+
+  render();
+}
+
+
+/* =========================
+   描画
+========================= */
+
+function render(){
+
+  markerLayer.clearLayers();
+
+  stations.forEach(station=>{
+
+    const marker=L.marker(
+      [station.lat,station.lng],
+      {
+        icon:createStationIcon(),
+        draggable:true,
+        autoPan:false
+      }
+    );
+
+    marker.bindTooltip(
+      station.name,
+      {
+        permanent:true,
+        direction:"top",
+        offset:[0,-settings.stationSize/2-3],
+        className:"station-label"
+      }
+    );
+
+    marker.on("click",e=>markerClick(station,e));
+
+    enableDrag(marker,station);
+
+    marker.addTo(markerLayer);
+
+    station.marker=marker;
+
+    const tooltip=marker.getTooltip();
+
+    if(tooltip && tooltip._contentNode){
+      tooltip._contentNode.style.fontSize=
+        settings.labelSize+"px";
+    }
+
+  });
+
+
+  points.forEach(point=>{
+
+    const marker=L.marker(
+      [point.lat,point.lng],
+      {
+        icon:createPointIcon(),
+        draggable:true,
+        autoPan:false
+      }
+    );
+
+    marker.on("click",e=>markerClick(point,e));
+
+    enableDrag(marker,point);
+
+    marker.addTo(markerLayer);
+
+    point.marker=marker;
+  });
+
+
+  renderRoutes();
+  renderRoutesList();
+}
+
+
+/* =========================
+   路線描画
+========================= */
+
+function renderRoutes(){
+
+  routeLayer.clearLayers();
+
+  routes.forEach(route=>{
+
+    const latlngs=route.pointIds
+      .map(findPoint)
+      .filter(Boolean)
+      .map(p=>[p.lat,p.lng]);
+
+    if(latlngs.length<2){
+      return;
+    }
+
+    const line=L.polyline(
+      latlngs,
+      {
+        color:route.color,
+        weight:settings.globalWidth,
+        opacity:1,
+        lineCap:"round",
+        lineJoin:"round"
+      }
+    );
+
+    line.on("click",function(e){
+
+      L.DomEvent.stopPropagation(e);
+
+      if(mode==="delete"){
+
+        routes=routes.filter(r=>r.id!==route.id);
+
+        if(currentRouteId===route.id){
+          currentRouteId=null;
+        }
+
+        render();
+      }
+
+      if(mode==="select"){
+        currentRouteId=route.id;
+        updateRouteForm(route);
+        renderRoutesList();
+      }
+    });
+
+    line.addTo(routeLayer);
+
+    /*
+      路線名を路線の中央付近に表示
+    */
+
+    if(latlngs.length>=2){
+
+      const middle=
+        latlngs[Math.floor(latlngs.length/2)];
+
+      const label=L.marker(
+        middle,
+        {
+          interactive:false,
+          icon:L.divIcon({
+            className:"",
+            html:
+              '<div style="' +
+              'font-size:13px;' +
+              'font-weight:bold;' +
+              'white-space:nowrap;' +
+              'background:rgba(255,255,255,.8);' +
+              'padding:1px 4px;' +
+              'border-radius:3px;' +
+              '">' +
+              escapeHTML(route.name) +
+              '</div>',
+            iconSize:null
+          })
+        }
+      );
+
+      label.addTo(routeLayer);
+    }
+
+  });
+
+}
+
+
+/* =========================
+   HTMLエスケープ
+========================= */
+
+function escapeHTML(str){
+
+  return String(str)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
+
+
+/* =========================
+   路線一覧
+========================= */
+
+function renderRoutesList(){
+
+  routeList.innerHTML="";
+
+  routes.forEach(route=>{
+
+    const item=document.createElement("div");
+    item.className="routeItem";
+
+    const color=document.createElement("div");
+    color.className="routeColor";
+    color.style.background=route.color;
+
+    const span=document.createElement("span");
+    span.textContent=route.name;
+
+    const select=document.createElement("button");
+    select.textContent="選択";
+
+    select.onclick=function(){
+
+      currentRouteId=route.id;
+      updateRouteForm(route);
+    };
+
+    item.appendChild(color);
+    item.appendChild(span);
+    item.appendChild(select);
+
+    routeList.appendChild(item);
+  });
+}
+
+
+/* =========================
+   路線フォーム
+========================= */
+
+function updateRouteForm(route){
+
+  routeName.value=route.name;
+  routeColor.value=route.color;
+  routeWidth.value=route.width;
+}
+
+
+/* =========================
+   路線設定変更
+========================= */
+
+routeName.addEventListener("input",function(){
+
+  const route=routes.find(r=>r.id===currentRouteId);
+
+  if(!route)return;
+
+  route.name=this.value;
+
+  renderRoutes();
+  renderRoutesList();
+});
+
+routeColor.addEventListener("input",function(){
+
+  const route=routes.find(r=>r.id===currentRouteId);
+
+  if(!route)return;
+
+  route.color=this.value;
+
+  renderRoutes();
+  renderRoutesList();
+});
+
+routeWidth.addEventListener("input",function(){
+
+  const route=routes.find(r=>r.id===currentRouteId);
+
+  if(!route)return;
+
+  route.width=Number(this.value)||6;
+
+  renderRoutes();
+});
+
+
+/* =========================
+   全体設定
+========================= */
+
+document.getElementById("btnApply").onclick=function(){
+
+  settings.globalWidth=
+    Number(globalWidth.value)||6;
+
+  settings.stationSize=
+    Number(stationSize.value)||12;
+
+  settings.pointSize=
+    Number(pointSize.value)||7;
+
+  settings.labelSize=
+    Number(labelSize.value)||14;
+
+  render();
+};
+
+
+/* =========================
+   保存
+========================= */
+
+document.getElementById("btnSave").onclick=function(){
+
+  const data={
+    version:1,
+    stations:stations.map(s=>({
+      id:s.id,
+      name:s.name,
+      lat:s.lat,
+      lng:s.lng
+    })),
+    points:points.map(p=>({
+      id:p.id,
+      lat:p.lat,
+      lng:p.lng
+    })),
+    routes:routes.map(r=>({
+      id:r.id,
+      name:r.name,
+      color:r.color,
+      width:r.width,
+      pointIds:r.pointIds
+    })),
+    settings:settings,
+    center:map.getCenter(),
+    zoom:map.getZoom()
+  };
+
+  localStorage.setItem(
+    "fictionalRouteMap",
+    JSON.stringify(data)
+  );
+
+  alert("保存しました。");
+};
+
+
+/* =========================
+   読込
+========================= */
+
+document.getElementById("btnLoad").onclick=function(){
+
+  const raw=localStorage.getItem(
+    "fictionalRouteMap"
+  );
+
+  if(!raw){
+    alert("保存データがありません。");
+    return;
+  }
+
+  try{
+
+    loadData(JSON.parse(raw));
+
+    alert("読み込みました。");
+
+  }catch(e){
+
+    alert("保存データを読み込めませんでした。");
+  }
+};
+
+
+/* =========================
+   データ読み込み
+========================= */
+
+function loadData(data){
+
+  stations=(data.stations||[]).map(s=>({
+    id:s.id,
+    name:s.name,
+    lat:s.lat,
+    lng:s.lng,
+    marker:null
+  }));
+
+  points=(data.points||[]).map(p=>({
+    id:p.id,
+    lat:p.lat,
+    lng:p.lng,
+    marker:null
+  }));
+
+  routes=(data.routes||[]).map(r=>({
+    id:r.id,
+    name:r.name,
+    color:r.color,
+    width:r.width,
+    pointIds:Array.isArray(r.pointIds)
+      ? r.pointIds.slice()
+      : []
+  }));
+
+  if(data.settings){
+    settings=Object.assign(
+      settings,
+      data.settings
+    );
+  }
+
+  const allIds=
+    stations.map(x=>Number(x.id))
+    .concat(points.map(x=>Number(x.id)))
+    .concat(routes.map(x=>Number(x.id)))
+    .filter(Number.isFinite);
+
+  nextId=
+    allIds.length
+      ? Math.max.apply(null,allIds)+1
+      : 1;
+
+  if(data.center){
+
+    map.setView(
+      [data.center.lat,data.center.lng],
+      data.zoom||13
+    );
+  }
+
+  globalWidth.value=settings.globalWidth;
+  stationSize.value=settings.stationSize;
+  pointSize.value=settings.pointSize;
+  labelSize.value=settings.labelSize;
+
+  render();
+}
+
+
+/* =========================
+   JSON出力
+========================= */
+
+document.getElementById("btnExport").onclick=function(){
+
+  const data={
+    version:1,
+    stations:stations.map(s=>({
+      id:s.id,
+      name:s.name,
+      lat:s.lat,
+      lng:s.lng
+    })),
+    points:points.map(p=>({
+      id:p.id,
+      lat:p.lat,
+      lng:p.lng
+    })),
+    routes:routes.map(r=>({
+      id:r.id,
+      name:r.name,
+      color:r.color,
+      width:r.width,
+      pointIds:r.pointIds
+    })),
+    settings:settings,
+    center:map.getCenter(),
+    zoom:map.getZoom()
+  };
+
+  const blob=new Blob(
+    [JSON.stringify(data,null,2)],
+    {type:"application/json"}
+  );
+
+  const url=URL.createObjectURL(blob);
+
+  const a=document.createElement("a");
+
+  a.href=url;
+  a.download="fictional-route-map.json";
+
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+
+  URL.revokeObjectURL(url);
+};
+
+
+/* =========================
+   JSON読込
+========================= */
+
+document.getElementById("btnImport").onclick=function(){
+
+  document.getElementById("fileInput").click();
+};
+
+document.getElementById("fileInput").addEventListener(
+  "change",
+  function(){
+
+    const file=this.files[0];
+
+    if(!file)return;
+
+    const reader=new FileReader();
+
+    reader.onload=function(){
+
+      try{
+
+        loadData(JSON.parse(reader.result));
+
+        alert("JSONを読み込みました。");
+
+      }catch(e){
+
+        alert("JSONファイルが正しくありません。");
+      }
+
+    };
+
+    reader.readAsText(file);
+
+    this.value="";
+  }
+);
+
+
+/* =========================
+   モバイルメニュー
+========================= */
+
+document.getElementById("mobileToggle").onclick=function(){
+
+  sidebar.classList.toggle("open");
+};
+
+
+/* =========================
+   初期描画
+========================= */
+
+render();
+
+})();
+</script>
+
+</body>
+</html>
