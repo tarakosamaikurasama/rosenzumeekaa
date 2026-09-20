@@ -28,7 +28,7 @@ body{
 }
 
 /* =========================
-   上部
+   上部バー
 ========================= */
 
 #topbar{
@@ -84,8 +84,8 @@ body{
 }
 
 #sidebar{
-  width:300px;
-  min-width:300px;
+  width:310px;
+  min-width:310px;
   background:#f2f2f2;
   border-right:1px solid #aaa;
   overflow-y:auto;
@@ -163,10 +163,6 @@ input[type="color"]{
   line-height:1.6;
 }
 
-#selectedName{
-  margin-top:5px;
-}
-
 /* =========================
    路線一覧
 ========================= */
@@ -219,6 +215,7 @@ input[type="color"]{
   border-radius:4px;
   background:white;
   cursor:pointer;
+  white-space:nowrap;
 }
 
 /* =========================
@@ -243,6 +240,20 @@ input[type="color"]{
   padding:7px 10px;
   font-size:13px;
   box-shadow:0 1px 5px rgba(0,0,0,.35);
+}
+
+#connectionDisplay{
+  position:absolute;
+  left:10px;
+  top:52px;
+  z-index:2000;
+  background:white;
+  border:1px solid #888;
+  border-radius:5px;
+  padding:7px 10px;
+  font-size:12px;
+  box-shadow:0 1px 5px rgba(0,0,0,.35);
+  display:none;
 }
 
 #north{
@@ -297,7 +308,7 @@ input[type="color"]{
 }
 
 /* =========================
-   駅名直接入力
+   駅名入力
 ========================= */
 
 .mapNameEditor{
@@ -361,38 +372,58 @@ input[type="color"]{
 
 <body>
 
+<!-- =========================
+     上部
+========================= -->
+
 <div id="topbar">
 
   <div id="title">
     架空路線マップメーカー
   </div>
 
-  <button class="toolButton active" id="selectMode">
+  <button
+    class="toolButton active"
+    id="selectMode">
     選択
   </button>
 
-  <button class="toolButton" id="moveMode">
+  <button
+    class="toolButton"
+    id="moveMode">
     移動
   </button>
 
-  <button class="toolButton" id="stationMode">
+  <button
+    class="toolButton"
+    id="stationMode">
     駅を追加
   </button>
 
-  <button class="toolButton" id="branchMode">
+  <button
+    class="toolButton"
+    id="branchMode">
     分岐・方向転換点
   </button>
 
-  <button class="toolButton" id="deleteMode">
+  <button
+    class="toolButton"
+    id="deleteMode">
     削除
   </button>
 
 </div>
 
 
+<!-- =========================
+     メイン
+========================= -->
+
 <div id="main">
 
   <aside id="sidebar">
+
+    <!-- 選択中 -->
 
     <div class="section">
 
@@ -407,47 +438,57 @@ input[type="color"]{
     </div>
 
 
+    <!-- 路線作成 -->
+
     <div class="section">
 
       <div class="sectionTitle">
-        路線
+        路線を作成
       </div>
 
       <input
         id="routeName"
         type="text"
-        placeholder="路線名"
-      >
+        placeholder="路線名">
 
       <div class="row">
-        <label>路線色</label>
+
+        <label>
+          路線色
+        </label>
+
         <input
           id="routeColor"
           type="color"
-          value="#ff0000"
-        >
+          value="#ff0000">
+
       </div>
 
       <div class="row">
-        <label>線の太さ</label>
+
+        <label>
+          線の太さ
+        </label>
+
         <input
           id="routeWidth"
           type="number"
           min="1"
           max="30"
-          value="6"
-        >
+          value="6">
+
       </div>
 
       <button
         class="actionButton"
-        id="addRoute"
-      >
+        id="addRoute">
         路線を追加
       </button>
 
     </div>
 
+
+    <!-- 全体設定 -->
 
     <div class="section">
 
@@ -456,58 +497,75 @@ input[type="color"]{
       </div>
 
       <div class="row">
-        <label>線の太さ</label>
+
+        <label>
+          線の太さ
+        </label>
+
         <input
           id="globalWidth"
           type="number"
           min="1"
           max="30"
-          value="6"
-        >
+          value="6">
+
       </div>
 
       <div class="row">
-        <label>駅の大きさ</label>
+
+        <label>
+          駅の大きさ
+        </label>
+
         <input
           id="globalStationSize"
           type="number"
           min="4"
           max="40"
-          value="12"
-        >
+          value="12">
+
       </div>
 
       <div class="row">
-        <label>分岐点の大きさ</label>
+
+        <label>
+          分岐点の大きさ
+        </label>
+
         <input
           id="globalBranchSize"
           type="number"
           min="3"
           max="30"
-          value="7"
-        >
+          value="7">
+
       </div>
 
       <div class="row">
-        <label>駅名の大きさ</label>
+
+        <label>
+          駅名の大きさ
+        </label>
+
         <input
           id="globalLabelSize"
           type="number"
           min="8"
           max="40"
-          value="14"
-        >
+          value="14">
+
       </div>
 
       <button
         class="actionButton"
-        id="applySettings"
-      >
+        id="applySettings">
         全体設定を適用
       </button>
 
     </div>
 
+
+    <!-- 路線一覧 -->
 
     <div class="section">
 
@@ -520,6 +578,8 @@ input[type="color"]{
     </div>
 
 
+    <!-- データ -->
+
     <div class="section">
 
       <div class="sectionTitle">
@@ -530,15 +590,13 @@ input[type="color"]{
 
         <button
           class="actionButton"
-          id="saveData"
-        >
+          id="saveData">
           保存
         </button>
 
         <button
           class="actionButton"
-          id="loadData"
-        >
+          id="loadData">
           読込
         </button>
 
@@ -548,15 +606,13 @@ input[type="color"]{
 
         <button
           class="actionButton"
-          id="exportData"
-        >
+          id="exportData">
           JSON出力
         </button>
 
         <button
           class="actionButton"
-          id="importData"
-        >
+          id="importData">
           JSON読込
         </button>
 
@@ -566,11 +622,12 @@ input[type="color"]{
         type="file"
         id="fileInput"
         accept=".json,application/json"
-        style="display:none"
-      >
+        style="display:none">
 
     </div>
 
+
+    <!-- 操作方法 -->
 
     <div class="section">
 
@@ -578,37 +635,67 @@ input[type="color"]{
         操作方法
       </div>
 
-      <div style="font-size:12px;line-height:1.8">
+      <div
+        style="font-size:12px;line-height:1.8">
 
-        <b>路線を選択</b><br>
-        路線一覧から路線を選択すると、
-        その路線に点を順番に接続できます。
-
-        <br><br>
-
-        <b>連続接続</b><br>
-        路線を選択した状態で<br>
-        駅A → 駅B → 分岐点C → 駅D<br>
-        とクリックすると、順番に接続されます。
+        <b>① 駅を追加</b><br>
+        「駅を追加」を押して地図をクリック。
+        駅名を直接入力できます。
 
         <br><br>
 
-        <b>重要</b><br>
-        駅→駅、駅→分岐点、
-        分岐点→分岐点のすべてを接続できます。
+        <b>② 分岐・方向転換点</b><br>
+        「分岐・方向転換点」を押して
+        地図上をクリックします。
 
         <br><br>
 
-        <b>駅名</b><br>
-        駅を追加すると、地図上に駅名入力欄が出ます。
-        直接入力できます。
-        選択後も駅名を変更できます。
+        <b>③ 路線を作成</b><br>
+        路線名・色を設定して
+        「路線を追加」を押します。
 
         <br><br>
 
-        <b>移動</b><br>
-        駅や分岐点をドラッグします。
+        <b>④ 接続</b><br>
+        路線一覧で「選択」を押します。
+
+        <br>
+        その後、
+
+        <br>
+
+        駅A → 駅B → 分岐点C → 駅D
+
+        <br>
+
+        の順番でクリックします。
+
+        <br><br>
+
+        すると自動的に、
+
+        <br>
+
+        A-B<br>
+        B-C<br>
+        C-D
+
+        <br>
+
+        が作られます。
+
+        <br><br>
+
+        <b>⑤ 移動</b><br>
+        「移動」を選択して
+        駅・分岐点をドラッグします。
         接続された線も追従します。
+
+        <br><br>
+
+        <b>⑥ 削除</b><br>
+        「削除」を選択して
+        駅・分岐点・線をクリックします。
 
       </div>
 
@@ -617,10 +704,18 @@ input[type="color"]{
   </aside>
 
 
+  <!-- =========================
+       地図
+  ========================= -->
+
   <div id="map">
 
     <div id="modeDisplay">
       モード：選択
+    </div>
+
+    <div id="connectionDisplay">
+      路線接続：最初の点をクリック
     </div>
 
     <div id="north">
@@ -628,6 +723,7 @@ input[type="color"]{
     </div>
 
   </div>
+
 
   <button id="menuButton">
     メニュー
@@ -644,8 +740,6 @@ crossorigin="">
 
 <script>
 
-(function(){
-
 "use strict";
 
 
@@ -653,10 +747,11 @@ crossorigin="">
    地図
 ========================================================= */
 
-const map=L.map("map",{
+const map = L.map("map",{
   zoomControl:true,
   attributionControl:true
 });
+
 
 L.tileLayer(
   "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -665,6 +760,7 @@ L.tileLayer(
     attribution:"© OpenStreetMap contributors"
   }
 ).addTo(map);
+
 
 map.setView(
   [35.681236,139.767125],
@@ -676,38 +772,96 @@ map.setView(
    レイヤー
 ========================================================= */
 
-const lineLayer=L.layerGroup().addTo(map);
-const pointLayer=L.layerGroup().addTo(map);
+const lineLayer =
+  L.layerGroup().addTo(map);
+
+const pointLayer =
+  L.layerGroup().addTo(map);
 
 
 /* =========================================================
    データ
 ========================================================= */
 
-let stations=[];
-let branches=[];
-let connections=[];
-let routes=[];
+let stations = [];
 
-let nextId=1;
+let branches = [];
 
-let selectedRouteId=null;
-let selectedPointId=null;
+let connections = [];
 
-let mode="select";
+let routes = [];
 
-let firstConnectionPoint=null;
+let nextId = 1;
 
 
 /* =========================================================
-   設定
+   選択
 ========================================================= */
 
-let settings={
+let selectedRouteId = null;
+
+let selectedPointId = null;
+
+
+/*
+  現在の路線接続で
+  「直前にクリックされた点」
+*/
+
+let connectingPointId = null;
+
+
+/* =========================================================
+   モード
+========================================================= */
+
+let mode = "select";
+
+
+const modeButtons = {
+
+  select:
+    document.getElementById(
+      "selectMode"
+    ),
+
+  move:
+    document.getElementById(
+      "moveMode"
+    ),
+
+  station:
+    document.getElementById(
+      "stationMode"
+    ),
+
+  branch:
+    document.getElementById(
+      "branchMode"
+    ),
+
+  delete:
+    document.getElementById(
+      "deleteMode"
+    )
+
+};
+
+
+/* =========================================================
+   全体設定
+========================================================= */
+
+let settings = {
+
   globalWidth:6,
+
   stationSize:12,
+
   branchSize:7,
+
   labelSize:14
+
 };
 
 
@@ -716,16 +870,22 @@ let settings={
 ========================================================= */
 
 function createId(){
+
   return nextId++;
+
 }
 
 
 /* =========================================================
-   全点
+   全点取得
 ========================================================= */
 
 function allPoints(){
-  return stations.concat(branches);
+
+  return stations.concat(
+    branches
+  );
+
 }
 
 
@@ -733,96 +893,175 @@ function allPoints(){
    点検索
 ========================================================= */
 
-function findPoint(pointId){
+function findPoint(id){
 
-  return allPoints().find(
-    p=>p.id===pointId
-  ) || null;
+  const station =
+    stations.find(
+      s => s.id === id
+    );
+
+  if(station){
+    return station;
+  }
+
+
+  const branch =
+    branches.find(
+      b => b.id === id
+    );
+
+  if(branch){
+    return branch;
+  }
+
+
+  return null;
 
 }
 
 
 /* =========================================================
-   モード
+   モード変更
 ========================================================= */
-
-const modeButtons={
-  select:document.getElementById("selectMode"),
-  move:document.getElementById("moveMode"),
-  station:document.getElementById("stationMode"),
-  branch:document.getElementById("branchMode"),
-  delete:document.getElementById("deleteMode")
-};
-
 
 function setMode(newMode){
 
-  mode=newMode;
+  mode = newMode;
 
-  firstConnectionPoint=null;
+  /*
+    モード変更時には
+    接続途中を解除
+  */
 
-  Object.values(modeButtons).forEach(
-    b=>b.classList.remove("active")
+  connectingPointId = null;
+
+
+  Object.values(
+    modeButtons
+  ).forEach(
+    button => {
+      button.classList.remove(
+        "active"
+      );
+    }
   );
 
-  modeButtons[newMode].classList.add("active");
 
-  const names={
+  modeButtons[newMode]
+    .classList.add("active");
+
+
+  const names = {
+
     select:"選択",
+
     move:"移動",
+
     station:"駅を追加",
+
     branch:"分岐・方向転換点",
+
     delete:"削除"
+
   };
+
 
   document.getElementById(
     "modeDisplay"
-  ).textContent=
-    "モード："+names[newMode];
+  ).textContent =
+    "モード：" +
+    names[newMode];
+
+
+  updateConnectionDisplay();
 
   render();
 
 }
 
 
-modeButtons.select.onclick=()=>{
-  setMode("select");
-};
+/* =========================================================
+   モードボタン
+========================================================= */
 
-modeButtons.move.onclick=()=>{
-  setMode("move");
-};
+modeButtons.select.onclick =
+  function(){
 
-modeButtons.station.onclick=()=>{
-  setMode("station");
-};
+    setMode("select");
 
-modeButtons.branch.onclick=()=>{
-  setMode("branch");
-};
+  };
 
-modeButtons.delete.onclick=()=>{
-  setMode("delete");
-};
+
+modeButtons.move.onclick =
+  function(){
+
+    setMode("move");
+
+  };
+
+
+modeButtons.station.onclick =
+  function(){
+
+    setMode("station");
+
+  };
+
+
+modeButtons.branch.onclick =
+  function(){
+
+    setMode("branch");
+
+  };
+
+
+modeButtons.delete.onclick =
+  function(){
+
+    setMode("delete");
+
+  };
 
 
 /* =========================================================
    地図クリック
 ========================================================= */
 
-map.on("click",function(e){
+map.on(
+  "click",
+  function(e){
 
-  if(mode==="station"){
-    addStation(e.latlng);
-    return;
+    if(mode === "station"){
+
+      addStation(
+        e.latlng
+      );
+
+      return;
+
+    }
+
+
+    if(mode === "branch"){
+
+      addBranch(
+        e.latlng
+      );
+
+      return;
+
+    }
+
+
+    /*
+      路線接続中でも、
+      空白をクリックした場合は
+      何もしない
+    */
+
   }
-
-  if(mode==="branch"){
-    addBranch(e.latlng);
-    return;
-  }
-
-});
+);
 
 
 /* =========================================================
@@ -831,61 +1070,83 @@ map.on("click",function(e){
 
 function addStation(latlng){
 
-  const station={
+  const station = {
+
     id:createId(),
+
     name:"",
+
     lat:latlng.lat,
+
     lng:latlng.lng
+
   };
 
-  stations.push(station);
 
-  selectedPointId=station.id;
+  stations.push(
+    station
+  );
+
+
+  selectedPointId =
+    station.id;
+
 
   render();
 
-  openNameEditor(station);
+
+  openNameEditor(
+    station
+  );
 
 }
 
 
 /* =========================================================
-   駅名入力
+   駅名直接入力
 ========================================================= */
 
 function openNameEditor(station){
 
-  const size=settings.stationSize;
+  const editor =
+    L.marker(
+      [
+        station.lat,
+        station.lng
+      ],
+      {
+        interactive:true,
 
-  const editor=L.marker(
-    [station.lat,station.lng],
-    {
-      interactive:true,
-      zIndexOffset:5000,
-      icon:L.divIcon({
+        zIndexOffset:5000,
 
-        className:"",
+        icon:L.divIcon({
 
-        html:
-          '<div class="mapNameEditor">'+
-          '<input id="stationNameEditor" '+
-          'type="text" '+
-          'placeholder="駅名を入力">'+
-          '</div>',
+          className:"",
 
-        iconSize:null,
+          html:
+            '<div class="mapNameEditor">'+
+            '<input id="stationNameEditor" '+
+            'type="text" '+
+            'placeholder="駅名を入力">'+
+            '</div>',
 
-        iconAnchor:[
-          75,
-          size/2
-        ]
+          iconSize:null,
 
-      })
-    }
-  ).addTo(map);
+          iconAnchor:[
+            75,
+            settings.stationSize/2
+          ]
+
+        })
+
+      }
+    );
 
 
-  const input=
+  editor.addTo(map);
+
+
+  const input =
     document.getElementById(
       "stationNameEditor"
     );
@@ -894,16 +1155,18 @@ function openNameEditor(station){
   input.focus();
 
 
-  input.value=station.name;
+  input.value =
+    station.name;
 
 
   input.addEventListener(
     "input",
     function(){
 
-      station.name=this.value;
+      station.name =
+        this.value;
 
-      renderStationLabelsOnly();
+      render();
 
     }
   );
@@ -913,20 +1176,25 @@ function openNameEditor(station){
     "keydown",
     function(e){
 
-      if(e.key==="Enter"){
+      if(e.key === "Enter"){
 
-        station.name=
+        station.name =
           this.value.trim();
 
-        map.removeLayer(editor);
+        map.removeLayer(
+          editor
+        );
 
         render();
 
       }
 
-      if(e.key==="Escape"){
 
-        map.removeLayer(editor);
+      if(e.key === "Escape"){
+
+        map.removeLayer(
+          editor
+        );
 
         render();
 
@@ -940,11 +1208,17 @@ function openNameEditor(station){
     "blur",
     function(){
 
-      station.name=
+      station.name =
         this.value.trim();
 
-      if(map.hasLayer(editor)){
-        map.removeLayer(editor);
+      if(
+        map.hasLayer(editor)
+      ){
+
+        map.removeLayer(
+          editor
+        );
+
       }
 
       render();
@@ -961,269 +1235,27 @@ function openNameEditor(station){
 
 function addBranch(latlng){
 
-  const branch={
+  const branch = {
+
     id:createId(),
+
     lat:latlng.lat,
+
     lng:latlng.lng
+
   };
 
-  branches.push(branch);
 
-  selectedPointId=branch.id;
-
-  render();
-
-}
-
-
-/* =========================================================
-   点クリック
-========================================================= */
-
-function pointClicked(point,e){
-
-  L.DomEvent.stopPropagation(e);
-
-
-  /* 削除 */
-
-  if(mode==="delete"){
-
-    deletePoint(point);
-
-    return;
-  }
-
-
-  /* 路線が選択されている場合
-     クリックするだけで連続接続 */
-
-  if(selectedRouteId){
-
-    connectPointToSelectedRoute(point);
-
-    return;
-  }
-
-
-  /* 選択 */
-
-  selectedPointId=point.id;
-
-  updateSelectedInfo();
-
-  render();
-
-}
-
-
-/* =========================================================
-   選択路線への連続接続
-========================================================= */
-
-function connectPointToSelectedRoute(point){
-
-  const route=
-    routes.find(
-      r=>r.id===selectedRouteId
-    );
-
-  if(!route){
-    return;
-  }
-
-
-  /*
-    直前にクリックした点を取得。
-    路線内で最後に追加された点から
-    今回クリックした点へ接続する。
-  */
-
-  const routeConnections=
-    connections.filter(
-      c=>c.routeId===route.id
-    );
-
-
-  let lastPointId=null;
-
-
-  if(routeConnections.length){
-
-    /*
-      路線の末端を探す。
-
-      「一直線につなぐ」操作なので、
-      最後に追加した接続のBを末端として扱う。
-    */
-
-    const last=
-      routeConnections[
-        routeConnections.length-1
-      ];
-
-    lastPointId=last.b;
-
-  }
-
-
-  /*
-    初回なら、この点を路線の開始点にする。
-  */
-
-  if(lastPointId===null){
-
-    selectedPointId=point.id;
-
-    updateSelectedInfo();
-
-    render();
-
-    return;
-  }
-
-
-  /*
-    同じ点なら何もしない
-  */
-
-  if(lastPointId===point.id){
-
-    selectedPointId=point.id;
-
-    updateSelectedInfo();
-
-    return;
-  }
-
-
-  const previous=
-    findPoint(lastPointId);
-
-
-  if(!previous){
-    return;
-  }
-
-
-  createConnection(
-    previous,
-    point,
-    route.id
+  branches.push(
+    branch
   );
 
 
-  selectedPointId=point.id;
-
-  render();
-
-}
-
-
-/* =========================================================
-   接続作成
-========================================================= */
-
-function createConnection(
-  pointA,
-  pointB,
-  routeId
-){
-
-  const exists=
-    connections.some(
-      c=>
-        c.routeId===routeId &&
-        (
-          (
-            c.a===pointA.id &&
-            c.b===pointB.id
-          ) ||
-          (
-            c.a===pointB.id &&
-            c.b===pointA.id
-          )
-        )
-    );
-
-
-  if(exists){
-    return;
-  }
-
-
-  connections.push({
-
-    id:createId(),
-
-    a:pointA.id,
-
-    b:pointB.id,
-
-    routeId:routeId
-
-  });
-
-}
-
-
-/* =========================================================
-   点削除
-========================================================= */
-
-function deletePoint(point){
-
-  stations=
-    stations.filter(
-      s=>s.id!==point.id
-    );
-
-  branches=
-    branches.filter(
-      b=>b.id!==point.id
-    );
-
-  connections=
-    connections.filter(
-      c=>
-        c.a!==point.id &&
-        c.b!==point.id
-    );
-
-
-  if(selectedPointId===point.id){
-    selectedPointId=null;
-  }
+  selectedPointId =
+    branch.id;
 
 
   render();
-
-}
-
-
-/* =========================================================
-   線クリック
-========================================================= */
-
-function connectionClicked(
-  connection,
-  e
-){
-
-  L.DomEvent.stopPropagation(e);
-
-
-  if(mode==="delete"){
-
-    connections=
-      connections.filter(
-        c=>c.id!==connection.id
-      );
-
-    render();
-
-    return;
-  }
 
 }
 
@@ -1234,7 +1266,9 @@ function connectionClicked(
 
 function stationIcon(selected){
 
-  const size=settings.stationSize;
+  const size =
+    settings.stationSize;
+
 
   return L.divIcon({
 
@@ -1242,10 +1276,14 @@ function stationIcon(selected){
 
     html:
       '<div class="station-marker '+
-      (selected?"selected-marker":"")+
+      (
+        selected
+          ? "selected-marker"
+          : ""
+      )+
       '" style="' +
-      'width:'+size+'px;' +
-      'height:'+size+'px;' +
+      "width:"+size+"px;" +
+      "height:"+size+"px;" +
       '"></div>',
 
     iconSize:[
@@ -1269,7 +1307,9 @@ function stationIcon(selected){
 
 function branchIcon(selected){
 
-  const size=settings.branchSize;
+  const size =
+    settings.branchSize;
+
 
   return L.divIcon({
 
@@ -1277,10 +1317,14 @@ function branchIcon(selected){
 
     html:
       '<div class="branch-marker '+
-      (selected?"selected-marker":"")+
+      (
+        selected
+          ? "selected-marker"
+          : ""
+      )+
       '" style="' +
-      'width:'+size+'px;' +
-      'height:'+size+'px;' +
+      "width:"+size+"px;" +
+      "height:"+size+"px;" +
       '"></div>',
 
     iconSize:[
@@ -1299,6 +1343,508 @@ function branchIcon(selected){
 
 
 /* =========================================================
+   点クリック
+========================================================= */
+
+function pointClicked(
+  point,
+  e
+){
+
+  L.DomEvent.stopPropagation(e);
+
+
+  /* =========================
+     削除
+  ========================= */
+
+  if(mode === "delete"){
+
+    deletePoint(
+      point
+    );
+
+    return;
+
+  }
+
+
+  /* =========================
+     移動
+  ========================= */
+
+  if(mode === "move"){
+
+    selectedPointId =
+      point.id;
+
+    updateSelectedInfo();
+
+    render();
+
+    return;
+
+  }
+
+
+  /*
+    路線が選択されている場合は
+    接続処理を優先
+  */
+
+  if(
+    selectedRouteId !== null
+  ){
+
+    connectPoint(
+      point
+    );
+
+    return;
+
+  }
+
+
+  /* =========================
+     通常選択
+  ========================= */
+
+  selectedPointId =
+    point.id;
+
+  updateSelectedInfo();
+
+  render();
+
+}
+
+
+/* =========================================================
+   接続
+========================================================= */
+
+function connectPoint(point){
+
+  /*
+    路線が存在するか
+  */
+
+  const route =
+    routes.find(
+      r =>
+        r.id ===
+        selectedRouteId
+    );
+
+
+  if(!route){
+
+    selectedRouteId =
+      null;
+
+    connectingPointId =
+      null;
+
+    updateConnectionDisplay();
+
+    render();
+
+    return;
+
+  }
+
+
+  /*
+    1個目
+  */
+
+  if(
+    connectingPointId === null
+  ){
+
+    connectingPointId =
+      point.id;
+
+    selectedPointId =
+      point.id;
+
+    updateConnectionDisplay();
+
+    render();
+
+    return;
+
+  }
+
+
+  /*
+    同じ点を連続クリック
+  */
+
+  if(
+    connectingPointId ===
+    point.id
+  ){
+
+    return;
+
+  }
+
+
+  /*
+    前の点
+  */
+
+  const previousPoint =
+    findPoint(
+      connectingPointId
+    );
+
+
+  if(!previousPoint){
+
+    connectingPointId =
+      point.id;
+
+    updateConnectionDisplay();
+
+    render();
+
+    return;
+
+  }
+
+
+  /*
+    線を作成
+  */
+
+  createConnection(
+    previousPoint,
+    point,
+    route.id
+  );
+
+
+  /*
+    今回の点を
+    次の開始点にする
+  */
+
+  connectingPointId =
+    point.id;
+
+
+  selectedPointId =
+    point.id;
+
+
+  updateConnectionDisplay();
+
+  render();
+
+}
+
+
+/* =========================================================
+   接続作成
+========================================================= */
+
+function createConnection(
+  pointA,
+  pointB,
+  routeId
+){
+
+  if(!pointA || !pointB){
+    return;
+  }
+
+
+  if(pointA.id === pointB.id){
+    return;
+  }
+
+
+  const route =
+    routes.find(
+      r =>
+        r.id === routeId
+    );
+
+
+  if(!route){
+    return;
+  }
+
+
+  /*
+    同じ路線に
+    同じ線が存在するか
+  */
+
+  const exists =
+    connections.some(
+      connection => {
+
+        if(
+          connection.routeId !==
+          routeId
+        ){
+
+          return false;
+
+        }
+
+
+        const normal =
+          connection.a ===
+            pointA.id &&
+          connection.b ===
+            pointB.id;
+
+
+        const reverse =
+          connection.a ===
+            pointB.id &&
+          connection.b ===
+            pointA.id;
+
+
+        return (
+          normal ||
+          reverse
+        );
+
+      }
+    );
+
+
+  if(exists){
+
+    /*
+      既存線でも
+      次の点として扱う
+    */
+
+    return;
+
+  }
+
+
+  connections.push({
+
+    id:createId(),
+
+    a:pointA.id,
+
+    b:pointB.id,
+
+    routeId:routeId
+
+  });
+
+}
+
+
+/* =========================================================
+   接続状態表示
+========================================================= */
+
+function updateConnectionDisplay(){
+
+  const display =
+    document.getElementById(
+      "connectionDisplay"
+    );
+
+
+  if(
+    selectedRouteId === null
+  ){
+
+    display.style.display =
+      "none";
+
+    return;
+
+  }
+
+
+  const route =
+    routes.find(
+      r =>
+        r.id ===
+        selectedRouteId
+    );
+
+
+  if(!route){
+
+    display.style.display =
+      "none";
+
+    return;
+
+  }
+
+
+  display.style.display =
+    "block";
+
+
+  if(
+    connectingPointId === null
+  ){
+
+    display.textContent =
+      "「"+
+      route.name+
+      "」：最初の点をクリック";
+
+  }else{
+
+    const point =
+      findPoint(
+        connectingPointId
+      );
+
+
+    let name =
+      "分岐点";
+
+
+    if(point){
+
+      const station =
+        stations.find(
+          s =>
+            s.id === point.id
+        );
+
+
+      if(station){
+
+        name =
+          station.name ||
+          "駅";
+
+      }
+
+    }
+
+
+    display.textContent =
+      "「"+
+      route.name+
+      "」："+
+      name+
+      " → 次の点をクリック";
+
+  }
+
+}
+
+
+/* =========================================================
+   点削除
+========================================================= */
+
+function deletePoint(point){
+
+  stations =
+    stations.filter(
+      s =>
+        s.id !==
+        point.id
+    );
+
+
+  branches =
+    branches.filter(
+      b =>
+        b.id !==
+        point.id
+    );
+
+
+  connections =
+    connections.filter(
+      c =>
+        c.a !== point.id &&
+        c.b !== point.id
+    );
+
+
+  if(
+    selectedPointId ===
+    point.id
+  ){
+
+    selectedPointId =
+      null;
+
+  }
+
+
+  if(
+    connectingPointId ===
+    point.id
+  ){
+
+    connectingPointId =
+      null;
+
+  }
+
+
+  render();
+
+}
+
+
+/* =========================================================
+   線クリック
+========================================================= */
+
+function connectionClicked(
+  connection,
+  e
+){
+
+  L.DomEvent.stopPropagation(e);
+
+
+  /*
+    削除モード
+  */
+
+  if(mode === "delete"){
+
+    connections =
+      connections.filter(
+        c =>
+          c.id !==
+          connection.id
+      );
+
+
+    render();
+
+    return;
+
+  }
+
+
+  /*
+    線をクリックしても
+    接続状態を壊さない
+  */
+
+}
+
+
+/* =========================================================
    点描画
 ========================================================= */
 
@@ -1307,27 +1853,35 @@ function renderPoints(){
   pointLayer.clearLayers();
 
 
-  /* 駅 */
+  /* =========================
+     駅
+  ========================= */
 
   stations.forEach(
-    station=>{
+    station => {
 
-      const marker=
+      const marker =
         L.marker(
           [
             station.lat,
             station.lng
           ],
           {
-            icon:stationIcon(
-              selectedPointId===
-              station.id
-            ),
+            icon:
+              stationIcon(
+                selectedPointId ===
+                station.id
+              ),
+
             draggable:
-              mode==="move"
+              mode === "move"
           }
         );
 
+
+      /*
+        駅名
+      */
 
       if(station.name){
 
@@ -1337,11 +1891,16 @@ function renderPoints(){
           ),
           {
             permanent:true,
+
             direction:"top",
+
             offset:[
               0,
-              -(settings.stationSize/2)-4
+              -(
+                settings.stationSize/2
+              )-4
             ],
+
             className:
               "station-label"
           }
@@ -1352,7 +1911,7 @@ function renderPoints(){
 
       marker.on(
         "click",
-        e=>
+        e =>
           pointClicked(
             station,
             e
@@ -1362,58 +1921,72 @@ function renderPoints(){
 
       marker.on(
         "dragend",
-        e=>{
+        e => {
 
-          if(mode!=="move"){
+          if(
+            mode !== "move"
+          ){
+
             return;
+
           }
 
-          const pos=
+
+          const position =
             e.target.getLatLng();
 
-          station.lat=
-            pos.lat;
 
-          station.lng=
-            pos.lng;
+          station.lat =
+            position.lat;
 
-          renderLines();
+
+          station.lng =
+            position.lng;
+
+
+          render();
 
         }
       );
 
 
-      marker.addTo(pointLayer);
+      marker.addTo(
+        pointLayer
+      );
 
     }
   );
 
 
-  /* 分岐点 */
+  /* =========================
+     分岐点
+  ========================= */
 
   branches.forEach(
-    branch=>{
+    branch => {
 
-      const marker=
+      const marker =
         L.marker(
           [
             branch.lat,
             branch.lng
           ],
           {
-            icon:branchIcon(
-              selectedPointId===
-              branch.id
-            ),
+            icon:
+              branchIcon(
+                selectedPointId ===
+                branch.id
+              ),
+
             draggable:
-              mode==="move"
+              mode === "move"
           }
         );
 
 
       marker.on(
         "click",
-        e=>
+        e =>
           pointClicked(
             branch,
             e
@@ -1423,78 +1996,38 @@ function renderPoints(){
 
       marker.on(
         "dragend",
-        e=>{
+        e => {
 
-          if(mode!=="move"){
+          if(
+            mode !== "move"
+          ){
+
             return;
+
           }
 
-          const pos=
+
+          const position =
             e.target.getLatLng();
 
-          branch.lat=
-            pos.lat;
 
-          branch.lng=
-            pos.lng;
+          branch.lat =
+            position.lat;
 
-          renderLines();
+
+          branch.lng =
+            position.lng;
+
+
+          render();
 
         }
       );
 
 
-      marker.addTo(pointLayer);
-
-    }
-  );
-
-}
-
-
-/* =========================================================
-   駅名だけ更新
-========================================================= */
-
-function renderStationLabelsOnly(){
-
-  stations.forEach(
-    station=>{
-
-      if(!station.marker){
-        return;
-      }
-
-      const tooltip=
-        station.marker.getTooltip();
-
-      if(tooltip){
-
-        tooltip.setContent(
-          escapeHTML(
-            station.name
-          )
-        );
-
-      }else if(station.name){
-
-        station.marker.bindTooltip(
-          escapeHTML(
-            station.name
-          ),
-          {
-            permanent:true,
-            direction:"top",
-            offset:[
-              0,
-              -(settings.stationSize/2)-4
-            ],
-            className:
-              "station-label"
-          }
-        );
-
-      }
+      marker.addTo(
+        pointLayer
+      );
 
     }
   );
@@ -1512,62 +2045,80 @@ function renderLines(){
 
 
   connections.forEach(
-    connection=>{
+    connection => {
 
-      const a=
+      const pointA =
         findPoint(
           connection.a
         );
 
-      const b=
+
+      const pointB =
         findPoint(
           connection.b
         );
 
 
-      if(!a || !b){
+      if(
+        !pointA ||
+        !pointB
+      ){
+
         return;
+
       }
 
 
-      const route=
+      const route =
         routes.find(
-          r=>r.id===
-          connection.routeId
+          r =>
+            r.id ===
+            connection.routeId
         );
 
 
       if(!route){
+
         return;
+
       }
 
 
-      const line=
+      const line =
         L.polyline(
           [
             [
-              a.lat,
-              a.lng
+              pointA.lat,
+              pointA.lng
             ],
             [
-              b.lat,
-              b.lng
+              pointB.lat,
+              pointB.lng
             ]
           ],
           {
-            color:route.color,
+
+            color:
+              route.color,
+
             weight:
               settings.globalWidth,
+
             opacity:1,
-            lineCap:"round",
-            lineJoin:"round"
+
+            lineCap:
+              "round",
+
+            lineJoin:
+              "round"
+
           }
         );
 
 
       line.on(
         "click",
-        e=>
+        e =>
           connectionClicked(
             connection,
             e
@@ -1575,7 +2126,9 @@ function renderLines(){
       );
 
 
-      line.addTo(lineLayer);
+      line.addTo(
+        lineLayer
+      );
 
     }
   );
@@ -1587,55 +2140,76 @@ function renderLines(){
 
 
 /* =========================================================
-   路線名
+   路線名表示
 ========================================================= */
 
 function renderRouteLabels(){
 
   routes.forEach(
-    route=>{
+    route => {
 
-      const routeConnections=
+      const routeConnections =
         connections.filter(
-          c=>
-            c.routeId===
+          c =>
+            c.routeId ===
             route.id
         );
 
 
-      if(!routeConnections.length){
+      if(
+        !routeConnections.length
+      ){
+
         return;
+
       }
 
 
-      const middle=
+      const middle =
         routeConnections[
           Math.floor(
-            routeConnections.length/2
+            routeConnections.length / 2
           )
         ];
 
 
-      const a=
-        findPoint(middle.a);
+      const pointA =
+        findPoint(
+          middle.a
+        );
 
-      const b=
-        findPoint(middle.b);
+
+      const pointB =
+        findPoint(
+          middle.b
+        );
 
 
-      if(!a || !b){
+      if(
+        !pointA ||
+        !pointB
+      ){
+
         return;
+
       }
 
 
-      const lat=
-        (a.lat+b.lat)/2;
+      const lat =
+        (
+          pointA.lat +
+          pointB.lat
+        ) / 2;
 
-      const lng=
-        (a.lng+b.lng)/2;
+
+      const lng =
+        (
+          pointA.lng +
+          pointB.lng
+        ) / 2;
 
 
-      const label=
+      const label =
         L.marker(
           [
             lat,
@@ -1643,52 +2217,42 @@ function renderRouteLabels(){
           ],
           {
             interactive:false,
-            icon:L.divIcon({
 
-              className:"",
+            icon:
+              L.divIcon({
 
-              html:
-                '<div style="' +
-                'font-size:13px;' +
-                'font-weight:bold;' +
-                'background:rgba(255,255,255,.88);' +
-                'padding:2px 5px;' +
-                'border-radius:3px;' +
-                'white-space:nowrap;' +
-                '">' +
-                escapeHTML(
-                  route.name
-                ) +
-                '</div>',
+                className:"",
 
-              iconSize:null
+                html:
+                  '<div style="' +
+                  "font-size:"+
+                  settings.labelSize+
+                  "px;" +
+                  "font-weight:bold;" +
+                  "background:rgba(255,255,255,.88);" +
+                  "padding:2px 5px;" +
+                  "border-radius:3px;" +
+                  "white-space:nowrap;" +
+                  '">' +
+                  escapeHTML(
+                    route.name
+                  ) +
+                  "</div>",
 
-            })
+                iconSize:null
+
+              })
+
           }
         );
 
 
-      label.addTo(lineLayer);
+      label.addTo(
+        lineLayer
+      );
 
     }
   );
-
-}
-
-
-/* =========================================================
-   描画
-========================================================= */
-
-function render(){
-
-  renderLines();
-
-  renderPoints();
-
-  renderRouteList();
-
-  updateSelectedInfo();
 
 }
 
@@ -1699,22 +2263,25 @@ function render(){
 
 function updateSelectedInfo(){
 
-  const box=
+  const box =
     document.getElementById(
       "selectedInfo"
     );
 
 
-  if(!selectedPointId){
+  if(
+    selectedPointId === null
+  ){
 
-    box.textContent=
+    box.textContent =
       "何も選択されていません";
 
     return;
+
   }
 
 
-  const point=
+  const point =
     findPoint(
       selectedPointId
     );
@@ -1722,34 +2289,37 @@ function updateSelectedInfo(){
 
   if(!point){
 
-    box.textContent=
+    box.textContent =
       "何も選択されていません";
 
     return;
+
   }
 
 
-  const station=
+  const station =
     stations.find(
-      s=>s.id===point.id
+      s =>
+        s.id ===
+        point.id
     );
 
 
   if(station){
 
-    box.innerHTML=
-      "駅<br>"+
-      '<input id="selectedName" '+
-      'type="text" '+
-      'value="'+
+    box.innerHTML =
+      "駅名<br>" +
+      '<input id="selectedName" ' +
+      'type="text" ' +
+      'value="' +
       escapeAttribute(
         station.name
-      )+
-      '" '+
-      'placeholder="駅名">';
+      ) +
+      '" ' +
+      'placeholder="駅名を入力">';
 
 
-    const input=
+    const input =
       document.getElementById(
         "selectedName"
       );
@@ -1759,17 +2329,18 @@ function updateSelectedInfo(){
       "input",
       function(){
 
-        station.name=
+        station.name =
           this.value;
 
-        renderStationLabelsOnly();
+        render();
 
       }
     );
 
+
   }else{
 
-    box.textContent=
+    box.textContent =
       "分岐・方向転換点";
 
   }
@@ -1784,11 +2355,26 @@ function updateSelectedInfo(){
 function escapeHTML(text){
 
   return String(text)
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#039;");
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+    .replace(
+      /</g,
+      "&lt;"
+    )
+    .replace(
+      />/g,
+      "&gt;"
+    )
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+    .replace(
+      /'/g,
+      "&#039;"
+    );
 
 }
 
@@ -1796,10 +2382,22 @@ function escapeHTML(text){
 function escapeAttribute(text){
 
   return String(text)
-    .replace(/&/g,"&amp;")
-    .replace(/"/g,"&quot;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;");
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+    .replace(
+      /</g,
+      "&lt;"
+    )
+    .replace(
+      />/g,
+      "&gt;"
+    );
 
 }
 
@@ -1810,9 +2408,10 @@ function escapeAttribute(text){
 
 document.getElementById(
   "addRoute"
-).onclick=function(){
+).onclick =
+function(){
 
-  const route={
+  const route = {
 
     id:createId(),
 
@@ -1820,7 +2419,8 @@ document.getElementById(
       document.getElementById(
         "routeName"
       ).value.trim()
-      ||"新しい路線",
+      ||
+      "新しい路線",
 
     color:
       document.getElementById(
@@ -1832,24 +2432,155 @@ document.getElementById(
         document.getElementById(
           "routeWidth"
         ).value
-      )||6
+      ) || 6
 
   };
 
 
-  routes.push(route);
+  routes.push(
+    route
+  );
 
-  selectedRouteId=
+
+  /*
+    作成した路線を
+    自動選択
+  */
+
+  selectedRouteId =
     route.id;
+
+
+  /*
+    新しい路線なので
+    接続開始点はなし
+  */
+
+  connectingPointId =
+    null;
+
 
   document.getElementById(
     "routeName"
-  ).value="";
+  ).value = "";
 
+
+  updateConnectionDisplay();
 
   render();
 
 };
+
+
+/* =========================================================
+   路線名変更
+========================================================= */
+
+document.getElementById(
+  "routeName"
+).addEventListener(
+  "input",
+  function(){
+
+    const route =
+      routes.find(
+        r =>
+          r.id ===
+          selectedRouteId
+      );
+
+
+    if(!route){
+
+      return;
+
+    }
+
+
+    route.name =
+      this.value;
+
+
+    renderLines();
+
+    updateConnectionDisplay();
+
+  }
+);
+
+
+/* =========================================================
+   路線色変更
+========================================================= */
+
+document.getElementById(
+  "routeColor"
+).addEventListener(
+  "input",
+  function(){
+
+    const route =
+      routes.find(
+        r =>
+          r.id ===
+          selectedRouteId
+      );
+
+
+    if(!route){
+
+      return;
+
+    }
+
+
+    route.color =
+      this.value;
+
+
+    renderLines();
+
+    renderRouteList();
+
+  }
+);
+
+
+/* =========================================================
+   路線幅変更
+========================================================= */
+
+document.getElementById(
+  "routeWidth"
+).addEventListener(
+  "input",
+  function(){
+
+    const route =
+      routes.find(
+        r =>
+          r.id ===
+          selectedRouteId
+      );
+
+
+    if(!route){
+
+      return;
+
+    }
+
+
+    route.width =
+      Number(
+        this.value
+      ) || 6;
+
+
+    renderLines();
+
+  }
+);
 
 
 /* =========================================================
@@ -1858,61 +2589,69 @@ document.getElementById(
 
 function renderRouteList(){
 
-  const list=
+  const list =
     document.getElementById(
       "routeList"
     );
 
-  list.innerHTML="";
+
+  list.innerHTML = "";
 
 
   routes.forEach(
-    route=>{
+    route => {
 
-      const item=
+      const item =
         document.createElement(
           "div"
         );
 
-      item.className=
-        "routeItem"+
+
+      item.className =
+        "routeItem" +
         (
-          selectedRouteId===
+          selectedRouteId ===
           route.id
-            ?" selected"
-            :""
+            ? " selected"
+            : ""
         );
 
 
-      const color=
+      const color =
         document.createElement(
           "div"
         );
 
-      color.className=
+
+      color.className =
         "routeColor";
 
-      color.style.background=
+
+      color.style.background =
         route.color;
 
 
-      const nameBox=
+      const nameBox =
         document.createElement(
           "div"
         );
 
-      nameBox.className=
+
+      nameBox.className =
         "routeName";
 
 
-      const input=
+      const input =
         document.createElement(
           "input"
         );
 
-      input.type="text";
 
-      input.value=
+      input.type =
+        "text";
+
+
+      input.value =
         route.name;
 
 
@@ -1920,51 +2659,37 @@ function renderRouteList(){
         "input",
         function(){
 
-          route.name=
+          route.name =
             this.value;
 
           renderLines();
+
+          updateConnectionDisplay();
 
         }
       );
 
 
-      const select=
+      const select =
         document.createElement(
           "button"
         );
 
-      select.className=
+
+      select.className =
         "routeSelect";
 
-      select.textContent=
+
+      select.textContent =
         "選択";
 
 
-      select.onclick=
+      select.onclick =
         function(){
 
-          selectedRouteId=
-            route.id;
-
-          document.getElementById(
-            "routeName"
-          ).value=
-            route.name;
-
-          document.getElementById(
-            "routeColor"
-          ).value=
-            route.color;
-
-          document.getElementById(
-            "routeWidth"
-          ).value=
-            route.width;
-
-          selectedPointId=null;
-
-          render();
+          selectRoute(
+            route.id
+          );
 
         };
 
@@ -1973,17 +2698,21 @@ function renderRouteList(){
         input
       );
 
+
       item.appendChild(
         color
       );
+
 
       item.appendChild(
         nameBox
       );
 
+
       item.appendChild(
         select
       );
+
 
       list.appendChild(
         item
@@ -1996,82 +2725,65 @@ function renderRouteList(){
 
 
 /* =========================================================
-   路線設定
+   路線選択
 ========================================================= */
 
-document.getElementById(
-  "routeName"
-).addEventListener(
-  "input",
-  function(){
+function selectRoute(routeId){
 
-    const route=
-      routes.find(
-        r=>r.id===
-        selectedRouteId
-      );
-
-    if(!route){
-      return;
-    }
-
-    route.name=
-      this.value;
-
-    render();
-
-  }
-);
+  selectedRouteId =
+    routeId;
 
 
-document.getElementById(
-  "routeColor"
-).addEventListener(
-  "input",
-  function(){
+  /*
+    重要：
+    路線を選択した時点では
+    まだどの点から接続するか
+    決めない
+  */
 
-    const route=
-      routes.find(
-        r=>r.id===
-        selectedRouteId
-      );
-
-    if(!route){
-      return;
-    }
-
-    route.color=
-      this.value;
-
-    render();
-
-  }
-);
+  connectingPointId =
+    null;
 
 
-document.getElementById(
-  "routeWidth"
-).addEventListener(
-  "input",
-  function(){
+  selectedPointId =
+    null;
 
-    const route=
-      routes.find(
-        r=>r.id===
-        selectedRouteId
-      );
 
-    if(!route){
-      return;
-    }
+  const route =
+    routes.find(
+      r =>
+        r.id ===
+        routeId
+    );
 
-    route.width=
-      Number(this.value)||6;
 
-    render();
+  if(route){
+
+    document.getElementById(
+      "routeName"
+    ).value =
+      route.name;
+
+
+    document.getElementById(
+      "routeColor"
+    ).value =
+      route.color;
+
+
+    document.getElementById(
+      "routeWidth"
+    ).value =
+      route.width;
 
   }
-);
+
+
+  updateConnectionDisplay();
+
+  render();
+
+}
 
 
 /* =========================================================
@@ -2080,38 +2792,39 @@ document.getElementById(
 
 document.getElementById(
   "applySettings"
-).onclick=function(){
+).onclick =
+function(){
 
-  settings.globalWidth=
+  settings.globalWidth =
     Number(
       document.getElementById(
         "globalWidth"
       ).value
-    )||6;
+    ) || 6;
 
 
-  settings.stationSize=
+  settings.stationSize =
     Number(
       document.getElementById(
         "globalStationSize"
       ).value
-    )||12;
+    ) || 12;
 
 
-  settings.branchSize=
+  settings.branchSize =
     Number(
       document.getElementById(
         "globalBranchSize"
       ).value
-    )||7;
+    ) || 7;
 
 
-  settings.labelSize=
+  settings.labelSize =
     Number(
       document.getElementById(
         "globalLabelSize"
       ).value
-    )||14;
+    ) || 14;
 
 
   render();
@@ -2125,17 +2838,17 @@ document.getElementById(
 
 function makeData(){
 
-  const center=
+  const center =
     map.getCenter();
 
 
   return {
 
-    version:3,
+    version:4,
 
     stations:
       stations.map(
-        s=>({
+        s => ({
           id:s.id,
           name:s.name,
           lat:s.lat,
@@ -2143,18 +2856,20 @@ function makeData(){
         })
       ),
 
+
     branches:
       branches.map(
-        b=>({
+        b => ({
           id:b.id,
           lat:b.lat,
           lng:b.lng
         })
       ),
 
+
     connections:
       connections.map(
-        c=>({
+        c => ({
           id:c.id,
           a:c.a,
           b:c.b,
@@ -2162,9 +2877,10 @@ function makeData(){
         })
       ),
 
+
     routes:
       routes.map(
-        r=>({
+        r => ({
           id:r.id,
           name:r.name,
           color:r.color,
@@ -2172,19 +2888,23 @@ function makeData(){
         })
       ),
 
+
     settings:
       Object.assign(
         {},
         settings
       ),
 
+
     selectedRouteId:
       selectedRouteId,
+
 
     center:{
       lat:center.lat,
       lng:center.lng
     },
+
 
     zoom:
       map.getZoom()
@@ -2200,7 +2920,8 @@ function makeData(){
 
 document.getElementById(
   "saveData"
-).onclick=function(){
+).onclick =
+function(){
 
   localStorage.setItem(
     "fictionalRouteMap",
@@ -2218,26 +2939,33 @@ document.getElementById(
 
 document.getElementById(
   "loadData"
-).onclick=function(){
+).onclick =
+function(){
 
-  const raw=
+  const raw =
     localStorage.getItem(
       "fictionalRouteMap"
     );
 
 
   if(!raw){
+
     return;
+
   }
 
 
   try{
 
     loadData(
-      JSON.parse(raw)
+      JSON.parse(
+        raw
+      )
     );
 
-  }catch(e){}
+  }catch(e){
+
+  }
 
 };
 
@@ -2248,69 +2976,84 @@ document.getElementById(
 
 function loadData(data){
 
-  stations=
+  stations =
     Array.isArray(
       data.stations
     )
-      ?data.stations.map(
-        s=>({
+      ?
+      data.stations.map(
+        s => ({
           id:s.id,
-          name:s.name||"",
+          name:s.name || "",
           lat:Number(s.lat),
           lng:Number(s.lng)
         })
       )
-      :[];
+      :
+      [];
 
 
-  branches=
+  branches =
     Array.isArray(
       data.branches
     )
-      ?data.branches.map(
-        b=>({
+      ?
+      data.branches.map(
+        b => ({
           id:b.id,
           lat:Number(b.lat),
           lng:Number(b.lng)
         })
       )
-      :[];
+      :
+      [];
 
 
-  routes=
+  routes =
     Array.isArray(
       data.routes
     )
-      ?data.routes.map(
-        r=>({
+      ?
+      data.routes.map(
+        r => ({
           id:r.id,
-          name:r.name||"新しい路線",
-          color:r.color||"#ff0000",
-          width:Number(r.width)||6
+          name:
+            r.name ||
+            "新しい路線",
+          color:
+            r.color ||
+            "#ff0000",
+          width:
+            Number(r.width) ||
+            6
         })
       )
-      :[];
+      :
+      [];
 
 
-  connections=
+  connections =
     Array.isArray(
       data.connections
     )
-      ?data.connections.map(
-        c=>({
+      ?
+      data.connections.map(
+        c => ({
           id:c.id,
           a:c.a,
           b:c.b,
           routeId:c.routeId
         })
       )
-      :[];
+      :
+      [];
 
 
   if(data.settings){
 
-    settings=
+    settings =
       Object.assign(
+        {},
         settings,
         data.settings
       );
@@ -2318,54 +3061,64 @@ function loadData(data){
   }
 
 
-  selectedRouteId=
-    data.selectedRouteId||
+  selectedRouteId =
+    data.selectedRouteId ||
     null;
 
 
-  const ids=
+  selectedPointId =
+    null;
+
+
+  connectingPointId =
+    null;
+
+
+  const ids =
     stations
       .concat(branches)
       .concat(routes)
       .concat(connections)
       .map(
-        x=>Number(x.id)
+        x => Number(x.id)
       )
       .filter(
         Number.isFinite
       );
 
 
-  nextId=
+  nextId =
     ids.length
-      ?Math.max.apply(
-        null,
-        ids
-      )+1
-      :1;
+      ?
+        Math.max.apply(
+          null,
+          ids
+        ) + 1
+      :
+        1;
 
 
   document.getElementById(
     "globalWidth"
-  ).value=
+  ).value =
     settings.globalWidth;
 
 
   document.getElementById(
     "globalStationSize"
-  ).value=
+  ).value =
     settings.stationSize;
 
 
   document.getElementById(
     "globalBranchSize"
-  ).value=
+  ).value =
     settings.branchSize;
 
 
   document.getElementById(
     "globalLabelSize"
-  ).value=
+  ).value =
     settings.labelSize;
 
 
@@ -2376,11 +3129,13 @@ function loadData(data){
         data.center.lat,
         data.center.lng
       ],
-      data.zoom||13
+      data.zoom || 13
     );
 
   }
 
+
+  updateConnectionDisplay();
 
   render();
 
@@ -2393,9 +3148,10 @@ function loadData(data){
 
 document.getElementById(
   "exportData"
-).onclick=function(){
+).onclick =
+function(){
 
-  const blob=
+  const blob =
     new Blob(
       [
         JSON.stringify(
@@ -2411,31 +3167,40 @@ document.getElementById(
     );
 
 
-  const url=
+  const url =
     URL.createObjectURL(
       blob
     );
 
 
-  const a=
+  const a =
     document.createElement(
       "a"
     );
 
 
-  a.href=url;
+  a.href =
+    url;
 
-  a.download=
+
+  a.download =
     "fictional-route-map.json";
 
 
-  document.body.appendChild(a);
+  document.body.appendChild(
+    a
+  );
+
 
   a.click();
 
+
   a.remove();
 
-  URL.revokeObjectURL(url);
+
+  URL.revokeObjectURL(
+    url
+  );
 
 };
 
@@ -2446,7 +3211,8 @@ document.getElementById(
 
 document.getElementById(
   "importData"
-).onclick=function(){
+).onclick =
+function(){
 
   document.getElementById(
     "fileInput"
@@ -2461,19 +3227,22 @@ document.getElementById(
   "change",
   function(){
 
-    const file=
+    const file =
       this.files[0];
 
+
     if(!file){
+
       return;
+
     }
 
 
-    const reader=
+    const reader =
       new FileReader();
 
 
-    reader.onload=
+    reader.onload =
       function(){
 
         try{
@@ -2484,26 +3253,32 @@ document.getElementById(
             )
           );
 
-        }catch(e){}
+        }catch(e){
+
+        }
 
       };
 
 
-    reader.readAsText(file);
+    reader.readAsText(
+      file
+    );
 
-    this.value="";
+
+    this.value = "";
 
   }
 );
 
 
 /* =========================================================
-   モバイル
+   モバイルメニュー
 ========================================================= */
 
 document.getElementById(
   "menuButton"
-).onclick=function(){
+).onclick =
+function(){
 
   document.getElementById(
     "sidebar"
@@ -2520,9 +3295,26 @@ document.getElementById(
 
 render();
 
-})();
+
+/* =========================================================
+   初期路線表示
+========================================================= */
+
+function render(){
+
+  renderLines();
+
+  renderPoints();
+
+  renderRouteList();
+
+  updateSelectedInfo();
+
+  updateConnectionDisplay();
+
+}
 
 </script>
 
 </body>
-</html>
+        </html>
