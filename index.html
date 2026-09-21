@@ -2,5181 +2,2708 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
-<title>架空路線マップメーカー</title>
-
-<link
-  rel="stylesheet"
-  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  crossorigin=""
->
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>架空鉄道・バスマップメーカー</title>
 
 <style>
 *{
   box-sizing:border-box;
 }
-
-html,
-body{
+html,body{
+  margin:0;
   width:100%;
   height:100%;
-  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP","Yu Gothic",sans-serif;
+  color:#222;
+  background:#f4f5f7;
   overflow:hidden;
-  font-family:
-    Arial,
-    "Noto Sans JP",
-    sans-serif;
-  color:#171717;
-  background:#f4f4f4;
 }
-
-button,
-input{
-  font-family:inherit;
+button,input,select{
+  font:inherit;
 }
-
 button{
   cursor:pointer;
 }
 
-#app{
+:root{
+  --orange:#f47b20;
+  --dark:#20242a;
+  --border:#d9dde3;
+  --panel:#fff;
+  --muted:#6b7280;
+}
+
+/* =========================
+   全体
+========================= */
+.app{
+  display:flex;
   width:100%;
   height:100%;
+}
+
+/* =========================
+   サイドバー
+========================= */
+.sidebar{
+  width:270px;
+  min-width:270px;
+  height:100%;
+  background:#fff;
+  border-right:1px solid #d8dce2;
+  display:flex;
+  flex-direction:column;
+  z-index:50;
+}
+
+.logo{
+  height:72px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:12px 16px;
+  border-bottom:1px solid #e2e5e9;
+}
+
+.logoMark{
+  width:44px;
+  height:44px;
+  border-radius:13px;
+  background:#e66b2c;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex:none;
+  position:relative;
+}
+.logoMark:before{
+  content:"";
+  width:27px;
+  height:27px;
+  border:6px solid white;
+  border-radius:50%;
+}
+.logoMark:after{
+  content:"";
+  position:absolute;
+  width:6px;
+  height:21px;
+  background:white;
+  transform:rotate(45deg);
+}
+
+.logoText{
+  min-width:0;
+}
+.logoText strong{
+  display:block;
+  font-size:15px;
+  line-height:1.35;
+}
+.logoText span{
+  display:block;
+  color:#777;
+  font-size:11px;
+}
+
+.menu{
+  padding:12px;
+  overflow-y:auto;
+  flex:1;
+}
+
+.menuSection{
+  margin:0 0 18px;
+}
+.menuTitle{
+  font-size:11px;
+  color:#9298a1;
+  font-weight:700;
+  padding:7px 10px;
+  letter-spacing:.08em;
+}
+
+.menuButton{
+  width:100%;
+  min-height:44px;
+  border:0;
+  border-radius:9px;
+  background:transparent;
+  display:flex;
+  align-items:center;
+  gap:11px;
+  padding:9px 11px;
+  text-align:left;
+  color:#30343a;
+  white-space:nowrap;
+}
+.menuButton:hover{
+  background:#f3f5f7;
+}
+.menuButton.active{
+  background:#fff0e7;
+  color:#d85f18;
+  font-weight:700;
+}
+.menuIcon{
+  width:22px;
+  text-align:center;
+  font-size:17px;
+  flex:none;
+}
+
+.exampleBox{
+  margin:10px 12px 14px;
+  padding:11px;
+  background:#f6f7f9;
+  border:1px solid #e2e5e9;
+  border-radius:10px;
+  font-size:12px;
+}
+.exampleBox b{
+  display:block;
+  margin-bottom:5px;
+}
+
+/* =========================
+   メイン
+========================= */
+.main{
+  flex:1;
+  min-width:0;
+  min-height:0;
   display:flex;
   flex-direction:column;
 }
 
-/* =========================================================
-   TOP BAR
-========================================================= */
-
-#topbar{
-  height:60px;
-  min-height:60px;
+.topbar{
+  height:64px;
+  min-height:64px;
+  background:#fff;
+  border-bottom:1px solid #dfe2e7;
   display:flex;
   align-items:center;
-  gap:7px;
-  padding:7px 10px;
-  background:#202020;
-  color:#fff;
-  overflow-x:auto;
-  z-index:9000;
+  gap:10px;
+  padding:9px 14px;
+  z-index:30;
 }
 
-#appTitle{
-  font-size:17px;
+.topTitle{
+  font-size:18px;
   font-weight:800;
+  margin-right:auto;
   white-space:nowrap;
-  margin-right:8px;
 }
 
 .toolButton{
-  height:42px;
+  height:38px;
   padding:0 13px;
-  border:1px solid #777;
-  border-radius:6px;
+  border:1px solid #d6dae0;
   background:#fff;
-  color:#111;
-  font-size:13px;
-  font-weight:700;
-  white-space:nowrap;
-  flex:none;
+  border-radius:8px;
+  color:#30343a;
 }
-
 .toolButton:hover{
-  background:#ededed;
+  background:#f5f6f7;
 }
-
+.toolButton.primary{
+  background:var(--orange);
+  border-color:var(--orange);
+  color:#fff;
+}
 .toolButton.active{
-  background:#dd6a34;
-  border-color:#dd6a34;
+  background:#20242a;
+  border-color:#20242a;
   color:#fff;
 }
 
-/* =========================================================
-   MAIN
-========================================================= */
-
-#main{
+.workspace{
   flex:1;
   min-height:0;
   display:flex;
   position:relative;
 }
 
-#sidebar{
-  width:330px;
-  min-width:330px;
-  height:100%;
-  background:#f1f1f1;
-  border-right:1px solid #bcbcbc;
-  overflow-y:auto;
-  padding:10px;
-  z-index:6000;
-}
-
-.section{
-  background:#fff;
-  border:1px solid #d0d0d0;
-  border-radius:8px;
-  padding:10px;
-  margin-bottom:10px;
-}
-
-.sectionTitle{
-  font-size:15px;
-  font-weight:800;
-  margin-bottom:9px;
-}
-
-.smallText{
-  font-size:12px;
-  line-height:1.65;
-  color:#444;
-}
-
-.row{
-  display:flex;
-  align-items:center;
-  gap:7px;
-  margin:7px 0;
-}
-
-.row label{
+.mapArea{
   flex:1;
-  font-size:13px;
+  min-width:0;
+  min-height:0;
+  position:relative;
+  overflow:hidden;
+  background:#e8edf0;
+}
+
+/* =========================
+   地図
+========================= */
+.mapViewport{
+  position:absolute;
+  inset:0;
+  overflow:hidden;
+  background:#dfe9e5;
+  cursor:grab;
+}
+.mapViewport.dragging{
+  cursor:grabbing;
+}
+
+.mapWorld{
+  position:absolute;
+  left:0;
+  top:0;
+  width:1800px;
+  height:1300px;
+  transform-origin:0 0;
+}
+
+.cityMap{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+}
+
+/* 地図上の情報 */
+.mapLabel{
+  position:absolute;
+  pointer-events:none;
+  color:#7a828b;
+  font-size:12px;
+  font-weight:600;
+  text-shadow:
+    0 1px 2px white,
+    0 -1px 2px white,
+    1px 0 2px white,
+    -1px 0 2px white;
+}
+.mapLabel.big{
+  font-size:20px;
+  color:#68717a;
+}
+.mapLabel.water{
+  color:#558da5;
+}
+
+/* =========================
+   SVG上の路線・駅
+========================= */
+.routeLayer{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  overflow:visible;
+  pointer-events:none;
+}
+
+.routePath{
+  fill:none;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  pointer-events:stroke;
+  cursor:pointer;
+}
+
+.stationLayer{
+  position:absolute;
+  inset:0;
+}
+
+.stationPoint{
+  position:absolute;
+  width:18px;
+  height:18px;
+  margin-left:-9px;
+  margin-top:-9px;
+  border-radius:50%;
+  border:3px solid #222;
+  background:#fff;
+  z-index:10;
+  cursor:pointer;
+  box-shadow:0 1px 5px #0004;
+}
+.stationPoint.junction{
+  width:14px;
+  height:14px;
+  margin-left:-7px;
+  margin-top:-7px;
+  border-width:3px;
+  background:#222;
+}
+.stationPoint.selected{
+  outline:4px solid #ff8a3d55;
+}
+.stationPoint.connectStart{
+  outline:5px solid #20a46355;
+}
+.stationPoint:hover{
+  transform:scale(1.15);
+}
+
+.stationName{
+  position:absolute;
+  transform:translate(12px,-50%);
+  white-space:nowrap;
+  font-size:12px;
+  font-weight:700;
+  color:#24272c;
+  text-shadow:
+    0 1px 2px white,
+    0 -1px 2px white,
+    1px 0 2px white,
+    -1px 0 2px white;
+  pointer-events:none;
+}
+.stationCode{
+  display:block;
+  color:#666d75;
+  font-size:9px;
   font-weight:600;
 }
 
-input[type="text"],
-input[type="number"]{
-  width:100%;
-  min-width:0;
-  border:1px solid #aaa;
-  border-radius:5px;
-  background:#fff;
-  padding:8px;
-  outline:none;
-}
-
-input[type="text"]:focus,
-input[type="number"]:focus{
-  border-color:#dd6a34;
-  box-shadow:0 0 0 2px rgba(221,106,52,.12);
-}
-
-input[type="color"]{
-  width:58px;
-  height:35px;
-  padding:2px;
-  border:1px solid #999;
-  border-radius:5px;
-  background:#fff;
-}
-
-.primaryButton{
-  width:100%;
-  min-height:40px;
-  border:0;
-  border-radius:6px;
-  background:#222;
-  color:#fff;
-  font-weight:700;
-  padding:8px;
-}
-
-.primaryButton:hover{
-  background:#000;
-}
-
-.secondaryButton{
-  width:100%;
-  min-height:38px;
-  border:1px solid #999;
-  border-radius:6px;
-  background:#fff;
-  color:#111;
-  font-weight:700;
-  padding:7px;
-}
-
-.secondaryButton:hover{
-  background:#eee;
-}
-
-/* =========================================================
-   MAP
-========================================================= */
-
-#map{
-  flex:1;
-  min-width:0;
-  min-height:0;
-  position:relative;
-  background:#ddd;
-}
-
-#modeDisplay{
+/* =========================
+   地図操作
+========================= */
+.mapControls{
   position:absolute;
-  left:10px;
-  top:10px;
-  z-index:2000;
-  background:#fff;
-  border:1px solid #888;
-  border-radius:6px;
-  padding:8px 11px;
-  font-size:13px;
-  font-weight:700;
-  box-shadow:0 2px 7px rgba(0,0,0,.25);
-}
-
-#connectionDisplay{
-  position:absolute;
-  left:10px;
-  top:55px;
-  z-index:2000;
-  display:none;
-  background:#fff;
-  border:1px solid #888;
-  border-radius:6px;
-  padding:8px 11px;
-  font-size:12px;
-  box-shadow:0 2px 7px rgba(0,0,0,.25);
-}
-
-#north{
-  position:absolute;
-  right:12px;
-  top:12px;
-  width:45px;
-  height:45px;
-  z-index:2000;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  border:1px solid #888;
-  border-radius:50%;
-  background:#fff;
-  font-size:21px;
-  font-weight:900;
-  box-shadow:0 2px 7px rgba(0,0,0,.25);
-}
-
-/* =========================================================
-   MAP MARKERS
-========================================================= */
-
-.station-marker{
-  border-radius:50%;
-  background:#fff;
-  border:3px solid #111;
-}
-
-.branch-marker{
-  border-radius:50%;
-  background:#111;
-  border:2px solid #fff;
-}
-
-.selected-marker{
-  box-shadow:
-    0 0 0 3px #ff8800,
-    0 0 10px rgba(255,136,0,.9);
-}
-
-.connection-start-marker{
-  box-shadow:
-    0 0 0 4px #ff8800,
-    0 0 12px rgba(255,136,0,.9);
-}
-
-.station-label{
-  background:#fff;
-  color:#111;
-  border:1px solid #999;
-  border-radius:4px;
-  padding:2px 5px;
-  font-size:13px;
-  font-weight:800;
-  box-shadow:0 1px 3px rgba(0,0,0,.2);
-  white-space:nowrap;
-}
-
-.station-label:before{
-  display:none;
-}
-
-/* =========================================================
-   NAME EDITOR
-========================================================= */
-
-.mapNameEditor{
-  background:#fff;
-  border:2px solid #dd6a34;
-  border-radius:6px;
-  padding:4px;
-  box-shadow:0 3px 10px rgba(0,0,0,.35);
-}
-
-.mapNameEditor input{
-  width:180px;
-  border:0;
-  outline:0;
-  padding:6px;
-  font-size:14px;
-}
-
-/* =========================================================
-   ROUTE LIST
-========================================================= */
-
-.routeList{
-  display:flex;
-  flex-direction:column;
-  gap:7px;
-}
-
-.routeItem{
-  display:flex;
-  align-items:center;
-  gap:7px;
-  padding:7px;
-  border:1px solid #ccc;
-  border-radius:7px;
-  background:#fafafa;
-}
-
-.routeItem.selected{
-  border:2px solid #dd6a34;
-}
-
-.routeColor{
-  width:22px;
-  height:22px;
-  flex:none;
-  border-radius:50%;
-  border:1px solid #555;
-}
-
-.routeItemName{
-  flex:1;
-  min-width:0;
-}
-
-.routeItemName input{
-  width:100%;
-  padding:4px;
-  border:0;
-  background:transparent;
-  outline:0;
-  font-weight:700;
-}
-
-.routeCodeSmall{
-  font-size:11px;
-  color:#555;
-}
-
-.routeSelectButton{
-  flex:none;
-  border:1px solid #999;
-  border-radius:5px;
-  background:#fff;
-  padding:6px 8px;
-  font-weight:700;
-}
-
-/* =========================================================
-   LISTS
-========================================================= */
-
-.simpleList{
+  right:15px;
+  top:15px;
+  z-index:20;
   display:flex;
   flex-direction:column;
   gap:5px;
 }
+.mapControl{
+  width:38px;
+  height:38px;
+  background:#fff;
+  border:1px solid #d5d9de;
+  border-radius:8px;
+  font-size:20px;
+  box-shadow:0 2px 8px #0002;
+}
+.scaleText{
+  background:#fff;
+  border:1px solid #d5d9de;
+  border-radius:7px;
+  padding:5px 7px;
+  font-size:10px;
+  text-align:center;
+}
 
-.listButton{
+.north{
+  position:absolute;
+  right:17px;
+  bottom:18px;
+  width:42px;
+  height:58px;
+  z-index:20;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  font-weight:800;
+  font-size:11px;
+  color:#333;
+  text-shadow:0 1px white;
+}
+.northArrow{
+  width:0;
+  height:0;
+  border-left:9px solid transparent;
+  border-right:9px solid transparent;
+  border-bottom:27px solid #222;
+  margin-top:3px;
+}
+.northArrow:after{
+  content:"";
+  display:block;
+  width:0;
+  height:0;
+  border-left:5px solid transparent;
+  border-right:5px solid transparent;
+  border-top:16px solid #fff;
+  transform:translate(-5px,8px);
+}
+
+/* =========================
+   右パネル
+========================= */
+.panel{
+  width:390px;
+  min-width:390px;
+  height:100%;
+  background:#fff;
+  border-left:1px solid #dce0e5;
+  overflow:auto;
+  z-index:25;
+}
+
+.panelInner{
+  padding:18px;
+}
+
+.panel h2{
+  font-size:20px;
+  margin:0 0 5px;
+}
+.panel h3{
+  font-size:14px;
+  margin:20px 0 9px;
+}
+.panelDescription{
+  color:#727982;
+  font-size:12px;
+  margin-bottom:15px;
+}
+
+.formGroup{
+  margin-bottom:12px;
+}
+.formGroup label{
+  display:block;
+  font-size:11px;
+  font-weight:700;
+  color:#5f6670;
+  margin-bottom:5px;
+}
+.input{
   width:100%;
+  height:39px;
+  border:1px solid #d4d8de;
+  border-radius:7px;
+  padding:0 10px;
+  background:#fff;
+  outline:none;
+}
+.input:focus{
+  border-color:#f07828;
+  box-shadow:0 0 0 3px #f0782820;
+}
+
+.colorRow{
+  display:flex;
+  gap:8px;
+}
+.colorInput{
+  width:52px;
+  height:39px;
+  padding:3px;
+  border:1px solid #d4d8de;
+  border-radius:7px;
+  background:#fff;
+}
+.colorText{
+  flex:1;
+}
+
+.two{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:9px;
+}
+
+.buttonRow{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+}
+.smallButton{
+  min-height:35px;
+  padding:0 10px;
+  border:1px solid #d4d8de;
+  background:#fff;
+  border-radius:7px;
+}
+.smallButton:hover{
+  background:#f4f5f7;
+}
+.smallButton.danger{
+  color:#c73838;
+}
+
+.status{
+  min-height:38px;
+  padding:9px 10px;
+  border-radius:7px;
+  background:#f5f6f8;
+  color:#555d66;
+  font-size:12px;
+  line-height:1.5;
+}
+
+.routeCard{
+  border:1px solid #dfe2e6;
+  border-radius:10px;
+  margin-bottom:9px;
+  overflow:hidden;
+  background:#fff;
+  cursor:pointer;
+}
+.routeCard:hover{
+  border-color:#b8bdc5;
+}
+.routeCardHead{
   display:flex;
   align-items:center;
-  gap:8px;
-  border:1px solid #ccc;
-  border-radius:6px;
-  background:#fff;
-  padding:7px;
-  text-align:left;
+  gap:9px;
+  padding:10px;
 }
-
-.listButton:hover{
-  background:#f3f3f3;
-}
-
-.listNumber{
-  width:45px;
-  flex:none;
-  text-align:center;
+.routeBadge{
+  width:42px;
+  height:42px;
+  border-radius:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#fff;
   font-size:12px;
   font-weight:900;
+  flex:none;
+}
+.routeCardTitle{
+  font-weight:800;
+  font-size:14px;
+}
+.routeCardSub{
+  color:#737a83;
+  font-size:10px;
+  margin-top:2px;
 }
 
-.listText{
-  flex:1;
-  min-width:0;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
+.stationList{
+  border-top:1px solid #e5e7ea;
 }
-
-/* =========================================================
-   OVERLAY / DETAILS
-========================================================= */
-
-#detailView{
-  position:absolute;
-  inset:0;
-  z-index:10000;
-  display:none;
-  background:#f4f4f4;
-  overflow:auto;
-}
-
-#detailView.show{
-  display:block;
-}
-
-.detailHeader{
-  min-height:64px;
+.stationListItem{
   display:flex;
   align-items:center;
   gap:10px;
-  padding:10px 14px;
-  background:#202020;
-  color:#fff;
-  position:sticky;
-  top:0;
-  z-index:20;
-}
-
-.backButton{
-  min-width:80px;
-  height:40px;
-  border:1px solid #888;
-  border-radius:6px;
-  background:#fff;
-  color:#111;
-  font-weight:800;
-}
-
-.detailHeaderTitle{
-  font-size:18px;
-  font-weight:900;
-}
-
-.detailBody{
-  width:min(1000px,100%);
-  margin:0 auto;
-  padding:20px;
-}
-
-/* =========================================================
-   CSS RAIL LOGO
-========================================================= */
-
-.railLogo{
-  --logo-size:120px;
-
-  width:var(--logo-size);
-  height:var(--logo-size);
-  flex:none;
-
-  border-radius:25%;
-  background:#dd6a34;
-
-  display:flex;
-  align-items:center;
-  justify-content:center;
-
-  padding:16%;
-  box-shadow:
-    inset 0 0 0 1px rgba(0,0,0,.08);
-}
-
-.railLogoInner{
-  width:100%;
-  height:100%;
-  background:#fff;
-
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-
-  color:#111;
-  overflow:hidden;
-}
-
-.railLogoCode{
-  font-family:
-    Arial Black,
-    Arial,
-    sans-serif;
-
-  font-size:34%;
-  line-height:.9;
-  font-weight:1000;
-  letter-spacing:-.06em;
-}
-
-.railLogoNumber{
-  margin-top:7%;
-  font-family:
-    Arial Black,
-    Arial,
-    sans-serif;
-
-  font-size:32%;
-  line-height:.9;
-  font-weight:1000;
-}
-
-.railLogo.large{
-  --logo-size:180px;
-  border-radius:27%;
-  padding:13%;
-}
-
-.railLogo.large .railLogoCode{
-  font-size:39%;
-}
-
-.railLogo.large .railLogoNumber{
-  display:none;
-}
-
-.railLogo.small{
-  --logo-size:70px;
-  border-radius:22%;
-  padding:14%;
-}
-
-.railLogo.small .railLogoCode{
-  font-size:36%;
-}
-
-.railLogo.small .railLogoNumber{
-  font-size:31%;
-  margin-top:8%;
-}
-
-/* =========================================================
-   ROUTE DETAIL
-========================================================= */
-
-.routeHero{
-  display:flex;
-  align-items:center;
-  gap:28px;
-  padding:20px;
-  background:#fff;
-  border:1px solid #d2d2d2;
-  border-radius:12px;
-  margin-bottom:18px;
-}
-
-.routeHeroInfo{
-  min-width:0;
-}
-
-.routeHeroName{
-  font-size:36px;
-  font-weight:1000;
-  line-height:1.15;
-  margin-bottom:7px;
-}
-
-.routeHeroCode{
-  display:inline-block;
-  border-radius:5px;
-  padding:5px 10px;
-  background:#222;
-  color:#fff;
-  font-size:15px;
-  font-weight:900;
-  letter-spacing:.05em;
-}
-
-.routeHeroDescription{
-  margin-top:14px;
-  color:#555;
-  font-size:13px;
-}
-
-.routeDetailSection{
-  background:#fff;
-  border:1px solid #d2d2d2;
-  border-radius:12px;
-  padding:16px;
-  margin-bottom:16px;
-}
-
-.routeDetailSectionTitle{
-  font-size:21px;
-  font-weight:1000;
-  margin-bottom:13px;
-}
-
-.stationRouteList{
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-}
-
-.routeStationRow{
-  min-height:80px;
-  display:flex;
-  align-items:center;
-  gap:15px;
-  border:1px solid #ddd;
-  border-radius:8px;
-  background:#fff;
-  padding:8px 12px;
+  min-height:42px;
+  padding:6px 10px;
   cursor:pointer;
 }
-
-.routeStationRow:hover{
-  background:#f8f8f8;
+.stationListItem:hover{
+  background:#f7f8f9;
 }
-
-.routeStationLogo{
-  width:64px;
+.stationListNumber{
+  width:42px;
   flex:none;
-  display:flex;
-  justify-content:center;
-}
-
-.routeStationInfo{
-  flex:1;
-  min-width:0;
-}
-
-.routeStationCode{
-  font-size:13px;
-  font-weight:900;
+  font-size:10px;
+  font-weight:800;
   color:#555;
-  margin-bottom:3px;
+}
+.stationListName{
+  font-size:12px;
+  font-weight:700;
 }
 
-.routeStationName{
-  font-size:20px;
-  font-weight:900;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
+.empty{
+  padding:25px 10px;
+  text-align:center;
+  color:#858c94;
+  font-size:12px;
 }
 
-.routeStationArrow{
-  color:#999;
-  font-size:22px;
-  font-weight:900;
-}
-
-/* =========================================================
-   STATION DETAIL
-========================================================= */
-
+/* =========================
+   駅詳細
+========================= */
 .stationHero{
-  background:#fff;
-  border:1px solid #d2d2d2;
+  border:1px solid #e0e3e7;
   border-radius:12px;
-  padding:24px;
-  margin-bottom:18px;
+  padding:18px;
+  margin-bottom:15px;
+  background:linear-gradient(135deg,#fff,#f6f7f9);
 }
-
 .stationHeroName{
-  font-size:42px;
-  font-weight:1000;
-  line-height:1.1;
+  font-size:26px;
+  font-weight:900;
 }
-
 .stationHeroSub{
-  margin-top:7px;
-  color:#666;
-  font-size:13px;
+  margin-top:4px;
+  color:#747b83;
+  font-size:11px;
 }
 
-.stationRoutes{
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-}
-
-.stationRouteCard{
+.routeMini{
   display:flex;
   align-items:center;
-  gap:16px;
-  background:#fff;
-  border:1px solid #d2d2d2;
-  border-radius:12px;
-  padding:14px;
+  gap:11px;
+  border:1px solid #e0e3e7;
+  border-radius:10px;
+  padding:10px;
+  margin-bottom:8px;
+  cursor:pointer;
 }
-
-.stationRouteCardInfo{
-  flex:1;
+.routeMini:hover{
+  background:#f7f8fa;
+}
+.routeMiniBadge{
+  width:45px;
+  height:45px;
+  border-radius:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#fff;
+  font-weight:900;
+  font-size:11px;
+  flex:none;
+}
+.routeMiniText{
   min-width:0;
 }
-
-.stationRouteCardName{
-  font-size:24px;
-  font-weight:1000;
-}
-
-.stationRouteCardCode{
-  margin-top:3px;
-  color:#666;
-  font-weight:800;
-}
-
-.stationRouteDetailButton{
-  flex:none;
-  border:0;
-  border-radius:7px;
-  background:#222;
-  color:#fff;
-  padding:11px 14px;
-  font-weight:900;
-}
-
-.stationRouteDetailButton:hover{
-  background:#000;
-}
-
-/* =========================================================
-   EMPTY
-========================================================= */
-
-.emptyBox{
-  padding:30px 10px;
-  text-align:center;
-  color:#777;
+.routeMiniText b{
+  display:block;
   font-size:13px;
 }
-
-/* =========================================================
-   MOBILE
-========================================================= */
-
-#mobileMenuButton{
-  display:none;
-  position:absolute;
-  left:10px;
-  bottom:10px;
-  z-index:7000;
-  border:1px solid #777;
-  border-radius:7px;
-  background:#fff;
-  padding:10px 13px;
+.routeMiniText span{
+  display:block;
+  font-size:10px;
+  color:#777e86;
+  margin-top:2px;
+}
+.detailLink{
+  margin-left:auto;
+  color:#d8611c;
+  font-size:11px;
   font-weight:800;
-  box-shadow:0 2px 7px rgba(0,0,0,.3);
 }
 
-@media(max-width:850px){
+/* =========================
+   接続中バー
+========================= */
+.connectBar{
+  position:absolute;
+  left:50%;
+  top:14px;
+  transform:translateX(-50%);
+  z-index:40;
+  display:none;
+  align-items:center;
+  gap:10px;
+  background:#20242a;
+  color:#fff;
+  padding:9px 13px;
+  border-radius:9px;
+  box-shadow:0 4px 15px #0004;
+  font-size:12px;
+}
+.connectBar.show{
+  display:flex;
+}
+.connectBarColor{
+  width:13px;
+  height:13px;
+  border-radius:50%;
+}
+.connectBar button{
+  border:1px solid #ffffff44;
+  background:#ffffff12;
+  color:#fff;
+  border-radius:5px;
+  padding:4px 8px;
+}
 
-  #sidebar{
+/* =========================
+   レスポンシブ
+========================= */
+@media(max-width:900px){
+  .sidebar{
+    width:72px;
+    min-width:72px;
+  }
+  .logoText,
+  .menuTitle,
+  .menuButton span:not(.menuIcon),
+  .exampleBox{
+    display:none;
+  }
+  .logo{
+    justify-content:center;
+    padding:10px;
+  }
+  .menuButton{
+    justify-content:center;
+    padding:9px;
+  }
+  .panel{
+    width:330px;
+    min-width:330px;
+  }
+}
+@media(max-width:700px){
+  .panel{
     position:absolute;
-    left:0;
+    right:0;
     top:0;
     bottom:0;
-    transform:translateX(-100%);
-    transition:transform .2s;
-    box-shadow:3px 0 12px rgba(0,0,0,.35);
+    width:min(390px,92vw);
+    min-width:0;
+    box-shadow:-5px 0 20px #0002;
   }
-
-  #sidebar.open{
-    transform:translateX(0);
+  .topbar .toolButton:not(.primary){
+    display:none;
   }
-
-  #mobileMenuButton{
-    display:block;
-  }
-
-  .routeHero{
-    flex-direction:column;
-    align-items:flex-start;
-  }
-
-  .routeHeroName{
-    font-size:28px;
-  }
-
-  .stationHeroName{
-    font-size:32px;
-  }
-
-  .detailBody{
-    padding:12px;
-  }
-
-  .stationRouteCard{
-    flex-wrap:wrap;
-  }
-
-  .stationRouteDetailButton{
-    width:100%;
-  }
-
-}
-
-/* =========================================================
-   VERY SMALL
-========================================================= */
-
-@media(max-width:500px){
-
-  #appTitle{
+  .topTitle{
     font-size:14px;
   }
-
-  .toolButton{
-    padding:0 9px;
-    font-size:12px;
-  }
-
-  .routeStationName{
-    font-size:17px;
-  }
-
 }
 </style>
 </head>
 
 <body>
 
-<div id="app">
+<div class="app">
 
-  <!-- =====================================================
-       TOP BAR
-  ====================================================== -->
+  <!-- =====================
+       左メニュー
+  ====================== -->
+  <aside class="sidebar">
 
-  <div id="topbar">
-
-    <div id="appTitle">
-      架空路線マップメーカー
+    <div class="logo">
+      <div class="logoMark"></div>
+      <div class="logoText">
+        <strong>路線マップメーカー</strong>
+        <span>Rail / Bus Map Studio</span>
+      </div>
     </div>
 
-    <button
-      class="toolButton active"
-      id="modeSelect">
-      選択
-    </button>
+    <div class="menu">
 
-    <button
-      class="toolButton"
-      id="modeMove">
-      移動
-    </button>
+      <div class="menuSection">
+        <div class="menuTitle">作成</div>
 
-    <button
-      class="toolButton"
-      id="modeStation">
-      駅を追加
-    </button>
-
-    <button
-      class="toolButton"
-      id="modeBranch">
-      分岐・方向転換点
-    </button>
-
-    <button
-      class="toolButton"
-      id="modeDelete">
-      削除
-    </button>
-
-    <button
-      class="toolButton"
-      id="clearRouteSelection">
-      路線選択解除
-    </button>
-
-  </div>
-
-
-  <!-- =====================================================
-       MAIN
-  ====================================================== -->
-
-  <div id="main">
-
-    <aside id="sidebar">
-
-      <!-- 選択中 -->
-
-      <div class="section">
-
-        <div class="sectionTitle">
-          選択中
-        </div>
-
-        <div
-          id="selectedInfo"
-          class="smallText">
-          何も選択されていません
-        </div>
-
-      </div>
-
-
-      <!-- 路線作成 -->
-
-      <div class="section">
-
-        <div class="sectionTitle">
-          路線を作成
-        </div>
-
-        <div class="smallText">
-          路線コードは JY、JC、JT など自由に設定できます。
-        </div>
-
-        <div style="height:7px"></div>
-
-        <input
-          id="routeName"
-          type="text"
-          placeholder="路線名（例：中央線）">
-
-        <div style="height:7px"></div>
-
-        <input
-          id="routeCode"
-          type="text"
-          placeholder="路線コード（例：JC）"
-          maxlength="6"
-          autocomplete="off">
-
-        <div class="row">
-
-          <label>
-            路線色
-          </label>
-
-          <input
-            id="routeColor"
-            type="color"
-            value="#ff0000">
-
-        </div>
-
-        <div class="row">
-
-          <label>
-            路線固有の線幅
-          </label>
-
-          <input
-            id="routeWidth"
-            type="number"
-            min="1"
-            max="40"
-            value="6">
-
-        </div>
-
-        <button
-          class="primaryButton"
-          id="addRoute">
-          路線を追加
+        <button class="menuButton active" id="menuMap">
+          <span class="menuIcon">▣</span>
+          <span>マップ</span>
         </button>
 
-      </div>
-
-
-      <!-- 全体設定 -->
-
-      <div class="section">
-
-        <div class="sectionTitle">
-          全体表示設定
-        </div>
-
-        <div class="row">
-
-          <label>
-            線の太さ
-          </label>
-
-          <input
-            id="globalWidth"
-            type="number"
-            min="1"
-            max="40"
-            value="6">
-
-        </div>
-
-        <div class="row">
-
-          <label>
-            駅の大きさ
-          </label>
-
-          <input
-            id="stationSize"
-            type="number"
-            min="5"
-            max="50"
-            value="14">
-
-        </div>
-
-        <div class="row">
-
-          <label>
-            分岐点の大きさ
-          </label>
-
-          <input
-            id="branchSize"
-            type="number"
-            min="4"
-            max="40"
-            value="8">
-
-        </div>
-
-        <div class="row">
-
-          <label>
-            駅名の文字サイズ
-          </label>
-
-          <input
-            id="labelSize"
-            type="number"
-            min="8"
-            max="40"
-            value="13">
-
-        </div>
-
-        <button
-          class="secondaryButton"
-          id="applySettings">
-          一括設定を適用
+        <button class="menuButton" id="menuAddStation">
+          <span class="menuIcon">●</span>
+          <span>駅・分岐点を追加</span>
         </button>
 
-      </div>
-
-
-      <!-- 路線一覧 -->
-
-      <div class="section">
-
-        <div class="sectionTitle">
-          路線一覧
-        </div>
-
-        <div
-          id="routeList"
-          class="routeList">
-        </div>
-
-      </div>
-
-
-      <!-- 駅一覧 -->
-
-      <div class="section">
-
-        <div class="sectionTitle">
-          駅一覧
-        </div>
-
-        <div
-          id="stationList"
-          class="simpleList">
-        </div>
-
-      </div>
-
-
-      <!-- データ -->
-
-      <div class="section">
-
-        <div class="sectionTitle">
-          データ
-        </div>
-
-        <button
-          class="primaryButton"
-          id="saveData">
-          ローカル保存
+        <button class="menuButton" id="menuConnect">
+          <span class="menuIcon">╱</span>
+          <span>接続（線をつなぐ）</span>
         </button>
 
-        <div style="height:7px"></div>
+        <button class="menuButton" id="menuMove">
+          <span class="menuIcon">✥</span>
+          <span>移動モード</span>
+        </button>
+      </div>
 
-        <button
-          class="secondaryButton"
-          id="loadData">
-          ローカル読込
+      <div class="menuSection">
+        <div class="menuTitle">情報</div>
+
+        <button class="menuButton" id="menuRoutes">
+          <span class="menuIcon">≡</span>
+          <span>路線一覧</span>
         </button>
 
-        <div style="height:7px"></div>
+        <button class="menuButton" id="menuStations">
+          <span class="menuIcon">○</span>
+          <span>駅一覧</span>
+        </button>
+      </div>
 
-        <button
-          class="secondaryButton"
-          id="exportData">
-          JSONを書き出す
+      <div class="menuSection">
+        <div class="menuTitle">設定</div>
+
+        <button class="menuButton" id="menuSettings">
+          <span class="menuIcon">⚙</span>
+          <span>マップ設定</span>
         </button>
 
-        <div style="height:7px"></div>
-
-        <button
-          class="secondaryButton"
-          id="importData">
-          JSONを読み込む
+        <button class="menuButton" id="menuExample">
+          <span class="menuIcon">★</span>
+          <span>山手線の例を読み込む</span>
         </button>
-
-        <input
-          type="file"
-          id="fileInput"
-          accept=".json,application/json"
-          style="display:none">
-
       </div>
 
-
-      <!-- 操作説明 -->
-
-      <div class="section">
-
-        <div class="sectionTitle">
-          接続方法
-        </div>
-
-        <div class="smallText">
-
-          路線一覧の「選択」を押すと接続モードになります。
-
-          <br><br>
-
-          例えば
-
-          <b>豊田 → 日野 → 立川 → 国立</b>
-
-          とクリックすると、
-
-          <br><br>
-
-          豊田―日野<br>
-          日野―立川<br>
-          立川―国立
-
-          <br><br>
-
-          の3本が作成されます。
-
-          <br><br>
-
-          同じ点を連続してクリックしても、
-          自分自身への線は作成されません。
-
-          <br><br>
-
-          分岐点も駅と同じようにクリックできます。
-
-        </div>
-
-      </div>
-
-    </aside>
-
-
-    <div id="map">
-
-      <div id="modeDisplay">
-        モード：選択
-      </div>
-
-      <div id="connectionDisplay">
-      </div>
-
-      <div id="north">
-        N
+      <div class="exampleBox">
+        <b>操作</b>
+        駅・分岐点を配置してから「接続」を選択。<br>
+        路線を選択中は駅を順番にクリックするだけで接続できます。
       </div>
 
     </div>
+  </aside>
 
+  <!-- =====================
+       メイン
+  ====================== -->
+  <main class="main">
 
-    <button id="mobileMenuButton">
-      メニュー
-    </button>
+    <header class="topbar">
+      <div class="topTitle" id="topTitle">路線マップ</div>
 
+      <button class="toolButton" id="newMapButton">新規</button>
+      <button class="toolButton" id="saveButton">保存</button>
+      <button class="toolButton" id="resetViewButton">地図を中央へ</button>
+      <button class="toolButton primary" id="connectTopButton">接続</button>
+    </header>
 
-    <!-- ===================================================
-         DETAIL VIEW
-    ==================================================== -->
+    <div class="workspace">
 
-    <div id="detailView">
+      <section class="mapArea">
 
-      <div class="detailHeader">
-
-        <button
-          class="backButton"
-          id="detailBack">
-          ← 戻る
-        </button>
-
-        <div
-          class="detailHeaderTitle"
-          id="detailHeaderTitle">
-          詳細
+        <div class="connectBar" id="connectBar">
+          <span class="connectBarColor" id="connectBarColor"></span>
+          <span id="connectBarText">路線を選択して駅を順番にクリック</span>
+          <button id="finishConnect">終了</button>
+          <button id="cancelConnect">解除</button>
         </div>
 
-      </div>
+        <div class="mapViewport" id="mapViewport">
 
-      <div
-        class="detailBody"
-        id="detailBody">
-      </div>
+          <div class="mapWorld" id="mapWorld">
+
+            <!-- 固定方角の詳細な架空都市地図 -->
+            <svg class="cityMap"
+                 viewBox="0 0 1800 1300"
+                 preserveAspectRatio="none">
+
+              <rect x="0" y="0" width="1800" height="1300" fill="#e8ece9"/>
+
+              <!-- 公園 -->
+              <path d="M90 110 C180 50 330 70 400 140
+                       C455 195 430 300 345 320
+                       C250 345 150 300 100 245Z"
+                    fill="#cddfc7"/>
+              <path d="M1330 100 C1490 50 1690 120 1730 245
+                       C1750 320 1650 370 1530 345
+                       C1420 320 1320 270 1290 200Z"
+                    fill="#d2e3ca"/>
+              <path d="M1250 890 C1380 820 1570 850 1660 960
+                       C1710 1030 1640 1130 1510 1145
+                       C1370 1160 1250 1080 1210 1000Z"
+                    fill="#cfe1ca"/>
+
+              <!-- 河川 -->
+              <path d="M0 450
+                       C180 410 280 510 410 470
+                       C560 425 630 310 790 345
+                       C950 380 980 520 1110 560
+                       C1270 610 1390 510 1510 545
+                       C1640 580 1710 690 1800 675
+                       L1800 810
+                       C1690 830 1600 730 1490 710
+                       C1360 685 1250 780 1080 725
+                       C920 675 850 510 730 500
+                       C590 490 520 610 370 625
+                       C210 640 125 535 0 570Z"
+                    fill="#c5dce5"/>
+
+              <!-- 大きな道路 -->
+              <g fill="none" stroke="#fff" stroke-linecap="round">
+                <path d="M-50 200 L500 500 L950 170 L1850 420" stroke-width="32"/>
+                <path d="M100 1220 L470 850 L900 960 L1340 700 L1850 980" stroke-width="35"/>
+                <path d="M230 -40 L470 350 L520 760 L300 1340" stroke-width="30"/>
+                <path d="M850 -50 L820 300 L1030 600 L980 1350" stroke-width="34"/>
+                <path d="M1450 -50 L1330 350 L1400 750 L1510 1350" stroke-width="32"/>
+              </g>
+
+              <!-- 大きな道路中央線 -->
+              <g fill="none" stroke="#d7d9d5" stroke-width="2">
+                <path d="M-50 200 L500 500 L950 170 L1850 420"/>
+                <path d="M100 1220 L470 850 L900 960 L1340 700 L1850 980"/>
+                <path d="M230 -40 L470 350 L520 760 L300 1340"/>
+                <path d="M850 -50 L820 300 L1030 600 L980 1350"/>
+                <path d="M1450 -50 L1330 350 L1400 750 L1510 1350"/>
+              </g>
+
+              <!-- 細い道路 -->
+              <g fill="none" stroke="#fff" stroke-width="12" opacity=".9">
+                <path d="M40 80 L300 410 L680 420 L1120 250 L1720 300"/>
+                <path d="M20 900 L250 700 L650 730 L900 560 L1300 590 L1780 480"/>
+                <path d="M100 1050 L350 1000 L600 1120 L950 1110 L1260 950 L1700 1120"/>
+                <path d="M600 0 L650 280 L580 510 L650 800 L600 1300"/>
+                <path d="M1100 0 L1180 300 L1110 520 L1160 820 L1080 1300"/>
+                <path d="M1650 0 L1570 300 L1640 600 L1570 920 L1680 1300"/>
+              </g>
+
+              <!-- 建物ブロック -->
+              <g fill="#d8d9d6">
+                <rect x="470" y="80" width="90" height="65"/>
+                <rect x="580" y="100" width="120" height="55"/>
+                <rect x="730" y="70" width="80" height="90"/>
+                <rect x="920" y="90" width="110" height="60"/>
+                <rect x="1060" y="90" width="100" height="70"/>
+                <rect x="1180" y="90" width="85" height="80"/>
+
+                <rect x="430" y="260" width="90" height="70"/>
+                <rect x="550" y="250" width="110" height="75"/>
+                <rect x="700" y="270" width="75" height="65"/>
+                <rect x="870" y="250" width="95" height="75"/>
+                <rect x="1000" y="250" width="115" height="70"/>
+                <rect x="1200" y="280" width="80" height="60"/>
+
+                <rect x="390" y="700" width="100" height="65"/>
+                <rect x="540" y="690" width="110" height="75"/>
+                <rect x="690" y="710" width="85" height="65"/>
+                <rect x="840" y="700" width="110" height="70"/>
+                <rect x="1000" y="760" width="100" height="60"/>
+                <rect x="1160" y="720" width="100" height="70"/>
+
+                <rect x="400" y="930" width="100" height="70"/>
+                <rect x="540" y="920" width="80" height="85"/>
+                <rect x="700" y="930" width="110" height="65"/>
+                <rect x="850" y="1010" width="90" height="70"/>
+                <rect x="1010" y="990" width="120" height="70"/>
+                <rect x="1180" y="900" width="100" height="80"/>
+              </g>
+
+              <!-- 鉄道以外の線路風 -->
+              <g fill="none" stroke="#bfc4c1" stroke-width="3" opacity=".8">
+                <path d="M40 370 L380 390 L600 250 L850 230 L1120 360 L1500 400 L1760 350"/>
+                <path d="M60 760 L340 780 L560 650 L850 680 L1070 790 L1420 760 L1750 820"/>
+                <path d="M330 0 L350 250 L300 500 L350 760 L250 1000 L300 1300"/>
+              </g>
+
+              <!-- 地名 -->
+              <g font-family="sans-serif" fill="#727a82">
+                <text x="150" y="180" font-size="25">中央公園</text>
+                <text x="1420" y="210" font-size="25">東部公園</text>
+                <text x="1390" y="1030" font-size="25">南部公園</text>
+                <text x="760" y="620" font-size="28">中央市街地</text>
+                <text x="220" y="830" font-size="18">西地区</text>
+                <text x="1490" y="650" font-size="18">東地区</text>
+              </g>
+
+              <!-- 方角固定を示す -->
+              <text x="1720" y="45"
+                    font-size="20"
+                    font-family="sans-serif"
+                    font-weight="bold"
+                    fill="#555">N</text>
+
+            </svg>
+
+            <!-- 路線 -->
+            <svg class="routeLayer" id="routeLayer"
+                 viewBox="0 0 1800 1300"
+                 preserveAspectRatio="none"></svg>
+
+            <!-- 駅 -->
+            <div class="stationLayer" id="stationLayer"></div>
+
+          </div>
+        </div>
+
+        <div class="mapControls">
+          <button class="mapControl" id="zoomIn">＋</button>
+          <button class="mapControl" id="zoomOut">−</button>
+          <button class="mapControl" id="zoomReset">1</button>
+          <div class="scaleText" id="scaleText">100%</div>
+        </div>
+
+        <div class="north">
+          N
+          <div class="northArrow"></div>
+        </div>
+
+      </section>
+
+      <!-- =====================
+           右パネル
+      ====================== -->
+      <aside class="panel" id="panel">
+        <div class="panelInner" id="panelContent"></div>
+      </aside>
 
     </div>
-
-  </div>
-
+  </main>
 </div>
-
-
-<script
-src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-crossorigin="">
-</script>
-
 
 <script>
 "use strict";
 
 /* =========================================================
-   MAP
+   データ
 ========================================================= */
 
-const map =
-  L.map("map",{
-    zoomControl:true,
-    attributionControl:true
-  });
+const STORAGE_KEY = "rail_map_maker_v3";
 
-L.tileLayer(
-  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-  {
-    maxZoom:19,
-    attribution:"© OpenStreetMap contributors"
-  }
-).addTo(map);
+let data = {
+  settings:{
+    lineWidth:8,
+    stationSize:18,
+    background:"city"
+  },
 
-map.setView(
-  [35.681236,139.767125],
-  13
-);
-
-
-/* =========================================================
-   LAYERS
-========================================================= */
-
-const lineLayer =
-  L.layerGroup().addTo(map);
-
-const pointLayer =
-  L.layerGroup().addTo(map);
-
-
-/* =========================================================
-   DATA
-========================================================= */
-
-let stations = [];
-
-let branches = [];
-
-let connections = [];
-
-let routes = [];
-
-let nextId = 1;
-
-
-/* =========================================================
-   STATE
-========================================================= */
-
-let mode = "select";
-
-let selectedPointId = null;
-
-let selectedRouteId = null;
-
-/*
-  現在接続中の直前の点
-*/
-let connectingPointId = null;
-
-
-/*
-  詳細画面の履歴
-*/
-let detailHistory = [];
-
-
-/* =========================================================
-   SETTINGS
-========================================================= */
-
-let settings = {
-
-  globalWidth:6,
-
-  stationSize:14,
-
-  branchSize:8,
-
-  labelSize:13
-
+  stations:[],
+  routes:[]
 };
 
-
-/* =========================================================
-   MODE BUTTONS
-========================================================= */
-
-const modeButtons = {
-
-  select:
-    document.getElementById("modeSelect"),
-
-  move:
-    document.getElementById("modeMove"),
-
-  station:
-    document.getElementById("modeStation"),
-
-  branch:
-    document.getElementById("modeBranch"),
-
-  delete:
-    document.getElementById("modeDelete")
-
+let state = {
+  mode:"map",
+  selectedStation:null,
+  selectedRoute:null,
+  connectRoute:null,
+  connectLast:null,
+  draggingStation:null,
+  panX:0,
+  panY:0,
+  zoom:1,
+  panning:false,
+  panStartX:0,
+  panStartY:0,
+  panOriginX:0,
+  panOriginY:0
 };
 
-
 /* =========================================================
-   ID
+   基本関数
 ========================================================= */
 
-function createId(){
-
-  const id = nextId;
-
-  nextId++;
-
-  return id;
-
+function uid(prefix){
+  return prefix + "_" + Date.now().toString(36) + "_" +
+    Math.random().toString(36).slice(2,8);
 }
 
-
-/* =========================================================
-   ALL POINTS
-========================================================= */
-
-function allPoints(){
-
-  return stations.concat(
-    branches
-  );
-
+function getStation(id){
+  return data.stations.find(s=>s.id===id);
 }
 
-
-/* =========================================================
-   FIND POINT
-========================================================= */
-
-function findPoint(id){
-
-  const station =
-    stations.find(
-      s => s.id === id
-    );
-
-  if(station){
-    return station;
-  }
-
-  const branch =
-    branches.find(
-      b => b.id === id
-    );
-
-  if(branch){
-    return branch;
-  }
-
-  return null;
-
+function getRoute(id){
+  return data.routes.find(r=>r.id===id);
 }
-
-
-/* =========================================================
-   FIND STATION
-========================================================= */
-
-function findStation(id){
-
-  return stations.find(
-    s => s.id === id
-  ) || null;
-
-}
-
-
-/* =========================================================
-   FIND ROUTE
-========================================================= */
-
-function findRoute(id){
-
-  return routes.find(
-    r => r.id === id
-  ) || null;
-
-}
-
-
-/* =========================================================
-   SAFE HTML
-========================================================= */
 
 function escapeHTML(value){
-
   return String(value ?? "")
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#039;");
-
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
 }
 
-
-/* =========================================================
-   SAFE ATTRIBUTE
-========================================================= */
-
-function escapeAttribute(value){
-
-  return escapeHTML(value);
-
+function saveData(){
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
 }
 
-
-/* =========================================================
-   NORMALIZE ROUTE CODE
-========================================================= */
-
-function normalizeRouteCode(value){
-
-  return String(value || "")
-    .trim()
-    .toUpperCase()
-    .replace(/[^A-Z0-9]/g,"")
-    .slice(0,6);
-
-}
-
-
-/* =========================================================
-   ROUTE STATION ORDER
-=========================================================
-
-   route.stationOrder
-
-   [
-     stationId1,
-     stationId2,
-     stationId3
-   ]
-
-   の順番で保存する。
-========================================================= */
-
-function ensureRouteStationOrder(route){
-
-  if(!Array.isArray(route.stationOrder)){
-
-    route.stationOrder = [];
-
-  }
-
-  return route.stationOrder;
-
-}
-
-
-/* =========================================================
-   ADD STATION TO ROUTE
-========================================================= */
-
-function addStationToRoute(
-  route,
-  stationId
-){
-
-  if(!route){
-    return;
-  }
-
-  const station =
-    findStation(stationId);
-
-  if(!station){
-    return;
-  }
-
-  ensureRouteStationOrder(route);
-
-  if(
-    route.stationOrder.includes(
-      stationId
-    )
-  ){
-
-    return;
-
-  }
-
-  route.stationOrder.push(
-    stationId
-  );
-
-}
-
-
-/* =========================================================
-   GET STATION NUMBER
-========================================================= */
-
-function getStationNumber(
-  route,
-  stationId
-){
-
-  if(!route){
-    return null;
-  }
-
-  ensureRouteStationOrder(route);
-
-  const index =
-    route.stationOrder.indexOf(
-      stationId
-    );
-
-  if(index < 0){
-    return null;
-  }
-
-  return index + 1;
-
-}
-
-
-/* =========================================================
-   GET STATION CODE
-========================================================= */
-
-function getStationCode(
-  route,
-  stationId
-){
-
-  if(!route){
-    return "";
-
-  }
-
-  const number =
-    getStationNumber(
-      route,
-      stationId
-    );
-
-  if(number === null){
-    return "";
-  }
-
-  const code =
-    normalizeRouteCode(
-      route.code
-    ) || "XX";
-
-  return (
-    code +
-    String(number).padStart(
-      2,
-      "0"
-    )
-  );
-
-}
-
-
-/* =========================================================
-   STATION ROUTES
-========================================================= */
-
-function getRoutesForStation(
-  stationId
-){
-
-  return routes.filter(
-    route => {
-
-      ensureRouteStationOrder(
-        route
-      );
-
-      return route.stationOrder.includes(
-        stationId
-      );
-
-    }
-  );
-
-}
-
-
-/* =========================================================
-   ROUTE POINTS
-========================================================= */
-
-function getRouteConnections(
-  routeId
-){
-
-  return connections.filter(
-    connection =>
-      connection.routeId ===
-      routeId
-  );
-
-}
-
-
-/* =========================================================
-   MODE
-========================================================= */
-
-function setMode(newMode){
-
-  mode = newMode;
-
-  connectingPointId = null;
-
-  Object.values(
-    modeButtons
-  ).forEach(
-    button =>
-      button.classList.remove(
-        "active"
-      )
-  );
-
-  if(modeButtons[newMode]){
-
-    modeButtons[newMode]
-      .classList.add(
-        "active"
-      );
-
-  }
-
-  const labels = {
-
-    select:
-      "選択",
-
-    move:
-      "移動",
-
-    station:
-      "駅を追加",
-
-    branch:
-      "分岐・方向転換点",
-
-    delete:
-      "削除"
-
-  };
-
-  document.getElementById(
-    "modeDisplay"
-  ).textContent =
-    "モード：" +
-    (
-      labels[newMode] ||
-      newMode
-    );
-
-  updateConnectionDisplay();
-
-  render();
-
-}
-
-
-/* =========================================================
-   MODE BUTTON EVENTS
-========================================================= */
-
-modeButtons.select.onclick =
-  () => setMode("select");
-
-modeButtons.move.onclick =
-  () => setMode("move");
-
-modeButtons.station.onclick =
-  () => setMode("station");
-
-modeButtons.branch.onclick =
-  () => setMode("branch");
-
-modeButtons.delete.onclick =
-  () => setMode("delete");
-
-
-/* =========================================================
-   MAP CLICK
-========================================================= */
-
-map.on(
-  "click",
-  function(e){
-
-    if(mode === "station"){
-
-      addStation(
-        e.latlng
-      );
-
-      return;
-
-    }
-
-    if(mode === "branch"){
-
-      addBranch(
-        e.latlng
-      );
-
-      return;
-
-    }
-
-  }
-);
-
-
-/* =========================================================
-   ADD STATION
-========================================================= */
-
-function addStation(latlng){
-
-  const station = {
-
-    id:createId(),
-
-    name:"",
-
-    lat:latlng.lat,
-
-    lng:latlng.lng
-
-  };
-
-  stations.push(
-    station
-  );
-
-  selectedPointId =
-    station.id;
-
-  render();
-
-  openNameEditor(
-    station
-  );
-
-}
-
-
-/* =========================================================
-   ADD BRANCH
-========================================================= */
-
-function addBranch(latlng){
-
-  const branch = {
-
-    id:createId(),
-
-    lat:latlng.lat,
-
-    lng:latlng.lng
-
-  };
-
-  branches.push(
-    branch
-  );
-
-  selectedPointId =
-    branch.id;
-
-  render();
-
-}
-
-
-/* =========================================================
-   NAME EDITOR
-========================================================= */
-
-function openNameEditor(
-  station
-){
-
-  const editor =
-    L.marker(
-      [
-        station.lat,
-        station.lng
-      ],
-      {
-        interactive:true,
-        zIndexOffset:10000,
-
-        icon:L.divIcon({
-
-          className:"",
-
-          html:
-            '<div class="mapNameEditor">' +
-            '<input ' +
-            'id="stationNameEditor" ' +
-            'type="text" ' +
-            'placeholder="駅名を入力" ' +
-            'value="' +
-            escapeAttribute(
-              station.name
-            ) +
-            '">' +
-            '</div>',
-
-          iconSize:null,
-
-          iconAnchor:[
-            90,
-            10
-          ]
-
-        })
-
+function loadData(){
+  try{
+    const saved=localStorage.getItem(STORAGE_KEY);
+    if(saved){
+      const parsed=JSON.parse(saved);
+      if(parsed && parsed.stations && parsed.routes){
+        data=parsed;
       }
+    }
+  }catch(e){}
+}
+
+function stationRouteIds(stationId){
+  return data.routes
+    .filter(r=>r.stationIds.includes(stationId))
+    .map(r=>r.id);
+}
+
+/* =========================================================
+   画面
+========================================================= */
+
+const stationLayer=document.getElementById("stationLayer");
+const routeLayer=document.getElementById("routeLayer");
+const panelContent=document.getElementById("panelContent");
+const mapWorld=document.getElementById("mapWorld");
+const mapViewport=document.getElementById("mapViewport");
+
+function render(){
+  renderMap();
+  renderPanel();
+  updateModeButtons();
+  updateConnectBar();
+}
+
+function renderMap(){
+  mapWorld.style.transform=
+    `translate(${state.panX}px,${state.panY}px) scale(${state.zoom})`;
+
+  document.getElementById("scaleText").textContent=
+    Math.round(state.zoom*100)+"%";
+
+  /* 路線 */
+  routeLayer.innerHTML="";
+
+  data.routes.forEach(route=>{
+    if(!route.stationIds || route.stationIds.length<2) return;
+
+    const points=route.stationIds
+      .map(id=>getStation(id))
+      .filter(Boolean);
+
+    if(points.length<2) return;
+
+    const path=document.createElementNS(
+      "http://www.w3.org/2000/svg","polyline"
     );
 
-  editor.addTo(map);
-
-  const input =
-    document.getElementById(
-      "stationNameEditor"
+    path.setAttribute(
+      "points",
+      points.map(p=>`${p.x},${p.y}`).join(" ")
     );
 
-  if(!input){
-    return;
-  }
+    path.setAttribute("stroke",route.color);
+    path.setAttribute(
+      "stroke-width",
+      data.settings.lineWidth
+    );
+    path.classList.add("routePath");
 
-  input.focus();
+    path.addEventListener("click",e=>{
+      e.stopPropagation();
+      openRouteDetail(route.id);
+    });
 
-  input.select();
+    routeLayer.appendChild(path);
+  });
 
+  /* 駅 */
+  stationLayer.innerHTML="";
 
-  function finish(){
+  data.stations.forEach(station=>{
+    const point=document.createElement("button");
 
-    station.name =
-      input.value.trim();
+    point.className="stationPoint";
+    if(station.type==="junction"){
+      point.classList.add("junction");
+    }
+
+    if(state.selectedStation===station.id){
+      point.classList.add("selected");
+    }
 
     if(
-      map.hasLayer(editor)
+      state.connectLast===station.id &&
+      state.connectRoute
     ){
-
-      map.removeLayer(
-        editor
-      );
-
+      point.classList.add("connectStart");
     }
 
-    render();
+    point.style.left=station.x+"px";
+    point.style.top=station.y+"px";
 
-  }
+    point.title=station.name || "無名駅";
 
+    point.addEventListener("click",e=>{
+      e.stopPropagation();
+      stationClick(station.id);
+    });
 
-  input.addEventListener(
-    "keydown",
-    function(e){
+    point.addEventListener("pointerdown",e=>{
+      if(state.mode!=="move") return;
 
-      if(e.key === "Enter"){
+      e.stopPropagation();
 
-        e.preventDefault();
+      state.draggingStation={
+        id:station.id,
+        startX:e.clientX,
+        startY:e.clientY,
+        originX:station.x,
+        originY:station.y
+      };
 
-        finish();
+      point.setPointerCapture(e.pointerId);
+    });
 
+    point.addEventListener("pointermove",e=>{
+      if(!state.draggingStation) return;
+      if(state.draggingStation.id!==station.id) return;
+
+      const d=state.draggingStation;
+
+      station.x=d.originX+
+        (e.clientX-d.startX)/state.zoom;
+
+      station.y=d.originY+
+        (e.clientY-d.startY)/state.zoom;
+
+      renderMap();
+    });
+
+    point.addEventListener("pointerup",()=>{
+      if(state.draggingStation){
+        state.draggingStation=null;
+        saveData();
       }
+    });
 
-      if(e.key === "Escape"){
+    stationLayer.appendChild(point);
 
-        if(
-          map.hasLayer(editor)
-        ){
+    const name=document.createElement("div");
+    name.className="stationName";
+    name.style.left=station.x+"px";
+    name.style.top=station.y+"px";
 
-          map.removeLayer(
-            editor
-          );
+    let codeHTML="";
 
-        }
+    const routeIds=stationRouteIds(station.id);
 
+    if(routeIds.length){
+      const firstRoute=getRoute(routeIds[0]);
+      const number=firstRoute
+        ? stationCodeForRoute(firstRoute,station.id)
+        : "";
+
+      if(number){
+        codeHTML=
+          `<span class="stationCode">${escapeHTML(number)}</span>`;
       }
-
     }
-  );
 
-  input.addEventListener(
-    "blur",
-    finish
-  );
+    name.innerHTML=
+      `${escapeHTML(station.name || "無名駅")}${codeHTML}`;
 
+    stationLayer.appendChild(name);
+  });
 }
 
-
-/* =========================================================
-   STATION ICON
-========================================================= */
-
-function stationIcon(
-  selected,
-  connecting
-){
-
-  const size =
-    Math.max(
-      5,
-      Number(
-        settings.stationSize
-      ) || 14
-    );
-
-  let extra = "";
-
-  if(selected){
-
-    extra +=
-      " selected-marker";
-
-  }
-
-  if(connecting){
-
-    extra +=
-      " connection-start-marker";
-
-  }
-
-  return L.divIcon({
-
-    className:"",
-
-    html:
-      '<div class="station-marker' +
-      extra +
-      '" style="' +
-      'width:' +
-      size +
-      'px;' +
-      'height:' +
-      size +
-      'px;' +
-      '"></div>',
-
-    iconSize:[
-      size,
-      size
-    ],
-
-    iconAnchor:[
-      size / 2,
-      size / 2
-    ]
-
+function updateModeButtons(){
+  document.querySelectorAll(".menuButton").forEach(b=>{
+    b.classList.remove("active");
   });
 
+  if(state.mode==="map"){
+    document.getElementById("menuMap").classList.add("active");
+  }
+  if(state.mode==="add"){
+    document.getElementById("menuAddStation").classList.add("active");
+  }
+  if(state.mode==="connect"){
+    document.getElementById("menuConnect").classList.add("active");
+  }
+  if(state.mode==="move"){
+    document.getElementById("menuMove").classList.add("active");
+  }
 }
 
+function updateConnectBar(){
+  const bar=document.getElementById("connectBar");
 
-/* =========================================================
-   BRANCH ICON
-========================================================= */
-
-function branchIcon(
-  selected,
-  connecting
-){
-
-  const size =
-    Math.max(
-      4,
-      Number(
-        settings.branchSize
-      ) || 8
-    );
-
-  let extra = "";
-
-  if(selected){
-
-    extra +=
-      " selected-marker";
-
+  if(state.mode!=="connect" || !state.connectRoute){
+    bar.classList.remove("show");
+    return;
   }
 
-  if(connecting){
+  bar.classList.add("show");
 
-    extra +=
-      " connection-start-marker";
+  const route=getRoute(state.connectRoute);
+  if(!route) return;
 
+  document.getElementById("connectBarColor").style.background=
+    route.color;
+
+  let text=route.name || "路線";
+
+  if(state.connectLast){
+    const station=getStation(state.connectLast);
+    text+=
+      `：${station ? station.name : ""} → 次の駅をクリック`;
+  }else{
+    text+=
+      "：最初の駅をクリック";
   }
 
-  return L.divIcon({
-
-    className:"",
-
-    html:
-      '<div class="branch-marker' +
-      extra +
-      '" style="' +
-      'width:' +
-      size +
-      'px;' +
-      'height:' +
-      size +
-      'px;' +
-      '"></div>',
-
-    iconSize:[
-      size,
-      size
-    ],
-
-    iconAnchor:[
-      size / 2,
-      size / 2
-    ]
-
-  });
-
+  document.getElementById("connectBarText").textContent=text;
 }
 
-
 /* =========================================================
-   POINT CLICK
+   駅クリック
 ========================================================= */
 
-function pointClicked(
-  point,
-  e
-){
+function stationClick(id){
 
-  L.DomEvent.stopPropagation(
-    e
-  );
-
-
-  /* DELETE */
-
-  if(mode === "delete"){
-
-    deletePoint(
-      point
-    );
-
+  if(state.mode==="connect"){
+    connectStation(id);
     return;
-
   }
 
-
-  /* MOVE */
-
-  if(mode === "move"){
-
-    selectedPointId =
-      point.id;
-
-    updateSelectedInfo();
-
-    render();
-
-    return;
-
-  }
-
-
-  /* CONNECTION */
-
-  if(
-    selectedRouteId !== null
-  ){
-
-    connectPoint(
-      point
-    );
-
-    return;
-
-  }
-
-
-  /* SELECT */
-
-  selectedPointId =
-    point.id;
-
-  updateSelectedInfo();
-
-  render();
-
+  state.selectedStation=id;
+  openStationDetail(id);
 }
 
-
 /* =========================================================
-   CONNECT POINT
+   接続
 ========================================================= */
 
-function connectPoint(
-  point
-){
+function connectStation(stationId){
 
-  const route =
-    findRoute(
-      selectedRouteId
-    );
+  const route=getRoute(state.connectRoute);
 
-  if(!route){
-
-    selectedRouteId =
-      null;
-
-    connectingPointId =
-      null;
-
-    updateConnectionDisplay();
-
-    render();
-
-    return;
-
-  }
-
-
-  ensureRouteStationOrder(
-    route
-  );
-
+  if(!route) return;
 
   /*
-    1回目
+    最初の駅
+  */
+  if(!state.connectLast){
+
+    if(!route.stationIds.includes(stationId)){
+      route.stationIds.push(stationId);
+    }
+
+    state.connectLast=stationId;
+
+    saveData();
+    render();
+
+    return;
+  }
+
+  /*
+    同じ駅をもう一度クリックした場合は無視。
+    これによって
+      A → B → C
+    とクリックしたとき、
+    Bをもう一度クリックする必要がない。
+  */
+  if(stationId===state.connectLast){
+    return;
+  }
+
+  /*
+    すでに路線に入っている駅をクリックした場合
+    - 既存駅へ戻る場合はそこまでの線を確定
+    - 同じ区間の重複は作らない
   */
 
-  if(
-    connectingPointId === null
-  ){
+  const previousIndex=
+    route.stationIds.indexOf(state.connectLast);
 
-    connectingPointId =
-      point.id;
+  const targetIndex=
+    route.stationIds.indexOf(stationId);
 
-    selectedPointId =
-      point.id;
+  if(targetIndex!==-1){
 
+    if(targetIndex===previousIndex){
+      return;
+    }
+
+    const alreadyConnected=
+      targetIndex===previousIndex+1 ||
+      previousIndex===targetIndex+1;
+
+    if(alreadyConnected){
+      state.connectLast=stationId;
+      saveData();
+      render();
+      return;
+    }
 
     /*
-      最初にクリックした駅を
-      JY01 / JC01 にする
+      既存の駅への接続も可能。
+      路線の駅順として追加せず、
+      別の接続線として保存する。
     */
-
-    if(
-      stations.some(
-        s => s.id === point.id
-      )
-    ){
-
-      addStationToRoute(
-        route,
-        point.id
-      );
-
+    if(!route.connections){
+      route.connections=[];
     }
 
+    const exists=route.connections.some(c=>
+      (c[0]===state.connectLast && c[1]===stationId) ||
+      (c[0]===stationId && c[1]===state.connectLast)
+    );
 
-    updateConnectionDisplay();
+    if(!exists){
+      route.connections.push([
+        state.connectLast,
+        stationId
+      ]);
+    }
 
+    state.connectLast=stationId;
+
+    saveData();
     render();
-
     return;
-
   }
 
-
   /*
-    同じ点をもう一度クリック
-    → 自分自身には接続しない
+    通常の駅→駅
   */
+  route.stationIds.push(stationId);
+  state.connectLast=stationId;
 
-  if(
-    connectingPointId ===
-    point.id
-  ){
-
-    return;
-
-  }
-
-
-  const previousPoint =
-    findPoint(
-      connectingPointId
-    );
-
-
-  if(!previousPoint){
-
-    connectingPointId =
-      point.id;
-
-    updateConnectionDisplay();
-
-    render();
-
-    return;
-
-  }
-
-
-  /*
-    線を作成
-  */
-
-  createConnection(
-    previousPoint,
-    point,
-    route.id
-  );
-
-
-  /*
-    駅なら路線駅一覧へ登録
-  */
-
-  if(
-    stations.some(
-      s => s.id === point.id
-    )
-  ){
-
-    addStationToRoute(
-      route,
-      point.id
-    );
-
-  }
-
-
-  /*
-    今クリックした点を
-    次の始点にする
-  */
-
-  connectingPointId =
-    point.id;
-
-  selectedPointId =
-    point.id;
-
-  updateConnectionDisplay();
-
+  saveData();
   render();
-
 }
 
-
-/* =========================================================
-   CREATE CONNECTION
-========================================================= */
-
-function createConnection(
-  pointA,
-  pointB,
-  routeId
-){
-
-  if(!pointA || !pointB){
-    return;
-  }
-
-  if(
-    pointA.id ===
-    pointB.id
-  ){
-
-    return;
-
-  }
-
-  const route =
-    findRoute(
-      routeId
-    );
-
-  if(!route){
-    return;
-  }
-
-
-  /*
-    同じ路線の同じ線を
-    重複作成しない
-  */
-
-  const exists =
-    connections.some(
-      connection => {
-
-        if(
-          connection.routeId !==
-          routeId
-        ){
-
-          return false;
-
-        }
-
-        const normal =
-          connection.a ===
-            pointA.id &&
-          connection.b ===
-            pointB.id;
-
-        const reverse =
-          connection.a ===
-            pointB.id &&
-          connection.b ===
-            pointA.id;
-
-        return (
-          normal ||
-          reverse
-        );
-
-      }
-    );
-
-
-  if(exists){
-
-    return;
-
-  }
-
-
-  connections.push({
-
-    id:createId(),
-
-    a:pointA.id,
-
-    b:pointB.id,
-
-    routeId:routeId
-
-  });
-
-}
-
-
-/* =========================================================
-   CONNECTION DISPLAY
-========================================================= */
-
-function updateConnectionDisplay(){
-
-  const box =
-    document.getElementById(
-      "connectionDisplay"
-    );
-
-
-  if(
-    selectedRouteId === null
-  ){
-
-    box.style.display =
-      "none";
-
-    return;
-
-  }
-
-
-  const route =
-    findRoute(
-      selectedRouteId
-    );
-
-
-  if(!route){
-
-    box.style.display =
-      "none";
-
-    return;
-
-  }
-
-
-  box.style.display =
-    "block";
-
-
-  const code =
-    normalizeRouteCode(
-      route.code
-    ) || "XX";
-
-
-  if(
-    connectingPointId === null
-  ){
-
-    box.textContent =
-      code +
-      "「" +
-      route.name +
-      "」：最初の点をクリック";
-
-    return;
-
-  }
-
-
-  const point =
-    findPoint(
-      connectingPointId
-    );
-
-
-  if(!point){
-
-    return;
-
-  }
-
-
-  const station =
-    findStation(
-      point.id
-    );
-
-
-  if(station){
-
-    box.textContent =
-      code +
-      "「" +
-      route.name +
-      "」：" +
-      (
-        getStationCode(
-          route,
-          station.id
-        ) ||
-        "駅"
-      ) +
-      " → 次の点をクリック";
-
-  }else{
-
-    box.textContent =
-      code +
-      "「" +
-      route.name +
-      "」：分岐点 → 次の点をクリック";
-
-  }
-
-}
-
-
-/* =========================================================
-   DELETE POINT
-========================================================= */
-
-function deletePoint(
-  point
-){
-
-  stations =
-    stations.filter(
-      s =>
-        s.id !== point.id
-    );
-
-  branches =
-    branches.filter(
-      b =>
-        b.id !== point.id
-    );
-
-  connections =
-    connections.filter(
-      c =>
-        c.a !== point.id &&
-        c.b !== point.id
-    );
-
-
-  routes.forEach(
-    route => {
-
-      route.stationOrder =
-        ensureRouteStationOrder(
-          route
-        ).filter(
-          id =>
-            id !== point.id
-        );
-
-    }
-  );
-
-
-  if(
-    selectedPointId ===
-    point.id
-  ){
-
-    selectedPointId =
-      null;
-
-  }
-
-
-  if(
-    connectingPointId ===
-    point.id
-  ){
-
-    connectingPointId =
-      null;
-
-  }
-
-
+function finishConnection(){
+  state.connectLast=null;
   render();
-
 }
 
-
-/* =========================================================
-   DELETE CONNECTION
-========================================================= */
-
-function deleteConnection(
-  connection
-){
-
-  connections =
-    connections.filter(
-      c =>
-        c.id !==
-        connection.id
-    );
-
+function cancelConnection(){
+  state.connectLast=null;
+  state.connectRoute=null;
+  state.mode="map";
   render();
-
 }
 
-
 /* =========================================================
-   CONNECTION CLICK
+   路線コード
 ========================================================= */
 
-function connectionClicked(
-  connection,
-  e
-){
+function stationCodeForRoute(route,stationId){
 
-  L.DomEvent.stopPropagation(
-    e
-  );
+  if(!route.alphabet) return "";
 
+  const index=route.stationIds.indexOf(stationId);
 
-  if(mode === "delete"){
+  if(index<0) return "";
 
-    deleteConnection(
-      connection
-    );
-
-    return;
-
-  }
-
+  return route.alphabet+
+    String(index+1).padStart(2,"0");
 }
 
-
 /* =========================================================
-   DRAG POINT
+   パネル
 ========================================================= */
 
-function movePoint(
-  point,
-  marker
-){
+function renderPanel(){
 
-  marker.on(
-    "dragend",
-    function(){
-
-      if(
-        mode !== "move"
-      ){
-
-        return;
-
-      }
-
-      const pos =
-        marker.getLatLng();
-
-      point.lat =
-        pos.lat;
-
-      point.lng =
-        pos.lng;
-
-      render();
-
-    }
-  );
-
-}
-
-
-/* =========================================================
-   RENDER POINTS
-========================================================= */
-
-function renderPoints(){
-
-  pointLayer.clearLayers();
-
-
-  /* STATIONS */
-
-  stations.forEach(
-    station => {
-
-      const marker =
-        L.marker(
-          [
-            station.lat,
-            station.lng
-          ],
-          {
-            icon:
-              stationIcon(
-                selectedPointId ===
-                  station.id,
-                connectingPointId ===
-                  station.id
-              ),
-
-            draggable:
-              mode === "move"
-          }
-        );
-
-
-      if(station.name){
-
-        marker.bindTooltip(
-          escapeHTML(
-            station.name
-          ),
-          {
-            permanent:true,
-
-            direction:"top",
-
-            offset:[
-              0,
-              -(
-                settings.stationSize /
-                2 +
-                4
-              )
-            ],
-
-            className:
-              "station-label"
-          }
-        );
-
-      }
-
-
-      marker.on(
-        "click",
-        e =>
-          pointClicked(
-            station,
-            e
-          )
-      );
-
-
-      movePoint(
-        station,
-        marker
-      );
-
-
-      marker.addTo(
-        pointLayer
-      );
-
-    }
-  );
-
-
-  /* BRANCHES */
-
-  branches.forEach(
-    branch => {
-
-      const marker =
-        L.marker(
-          [
-            branch.lat,
-            branch.lng
-          ],
-          {
-            icon:
-              branchIcon(
-                selectedPointId ===
-                  branch.id,
-                connectingPointId ===
-                  branch.id
-              ),
-
-            draggable:
-              mode === "move"
-          }
-        );
-
-
-      marker.on(
-        "click",
-        e =>
-          pointClicked(
-            branch,
-            e
-          )
-      );
-
-
-      movePoint(
-        branch,
-        marker
-      );
-
-
-      marker.addTo(
-        pointLayer
-      );
-
-    }
-  );
-
-}
-
-
-/* =========================================================
-   RENDER LINES
-========================================================= */
-
-function renderLines(){
-
-  lineLayer.clearLayers();
-
-
-  connections.forEach(
-    connection => {
-
-      const pointA =
-        findPoint(
-          connection.a
-        );
-
-      const pointB =
-        findPoint(
-          connection.b
-        );
-
-      if(
-        !pointA ||
-        !pointB
-      ){
-
-        return;
-
-      }
-
-
-      const route =
-        findRoute(
-          connection.routeId
-        );
-
-      if(!route){
-
-        return;
-
-      }
-
-
-      const weight =
-        Math.max(
-          1,
-          Number(
-            settings.globalWidth
-          ) || 6
-        );
-
-
-      const line =
-        L.polyline(
-          [
-            [
-              pointA.lat,
-              pointA.lng
-            ],
-            [
-              pointB.lat,
-              pointB.lng
-            ]
-          ],
-          {
-            color:
-              route.color ||
-              "#ff0000",
-
-            weight:weight,
-
-            opacity:1,
-
-            lineCap:"round",
-
-            lineJoin:"round"
-          }
-        );
-
-
-      line.on(
-        "click",
-        e =>
-          connectionClicked(
-            connection,
-            e
-          )
-      );
-
-
-      line.addTo(
-        lineLayer
-      );
-
-    }
-  );
-
-
-  renderRouteLabels();
-
-}
-
-
-/* =========================================================
-   ROUTE LABELS
-========================================================= */
-
-function renderRouteLabels(){
-
-  routes.forEach(
-    route => {
-
-      const routeConnections =
-        getRouteConnections(
-          route.id
-        );
-
-
-      if(
-        routeConnections.length ===
-        0
-      ){
-
-        return;
-
-      }
-
-
-      const connection =
-        routeConnections[
-          Math.floor(
-            routeConnections.length / 2
-          )
-        ];
-
-
-      const pointA =
-        findPoint(
-          connection.a
-        );
-
-      const pointB =
-        findPoint(
-          connection.b
-        );
-
-
-      if(
-        !pointA ||
-        !pointB
-      ){
-
-        return;
-
-      }
-
-
-      const lat =
-        (
-          pointA.lat +
-          pointB.lat
-        ) / 2;
-
-
-      const lng =
-        (
-          pointA.lng +
-          pointB.lng
-        ) / 2;
-
-
-      const label =
-        L.marker(
-          [
-            lat,
-            lng
-          ],
-          {
-            interactive:false,
-
-            icon:
-              L.divIcon({
-
-                className:"",
-
-                html:
-                  '<div style="' +
-                  'font-size:' +
-                  settings.labelSize +
-                  'px;' +
-                  'font-weight:900;' +
-                  'background:rgba(255,255,255,.92);' +
-                  'border:1px solid #aaa;' +
-                  'border-radius:4px;' +
-                  'padding:2px 5px;' +
-                  'white-space:nowrap;' +
-                  '">' +
-                  escapeHTML(
-                    route.name
-                  ) +
-                  '</div>',
-
-                iconSize:null
-
-              })
-
-          }
-        );
-
-
-      label.addTo(
-        lineLayer
-      );
-
-    }
-  );
-
-}
-
-
-/* =========================================================
-   SELECTED INFO
-========================================================= */
-
-function updateSelectedInfo(){
-
-  const box =
-    document.getElementById(
-      "selectedInfo"
-    );
-
-
-  if(
-    selectedPointId === null
-  ){
-
-    box.textContent =
-      "何も選択されていません";
-
-    return;
-
-  }
-
-
-  const station =
-    findStation(
-      selectedPointId
-    );
-
-
-  if(station){
-
-    box.innerHTML =
-      '<div style="font-weight:900;margin-bottom:6px">' +
-      '駅' +
-      '</div>' +
-
-      '<input ' +
-      'id="selectedStationName" ' +
-      'type="text" ' +
-      'value="' +
-      escapeAttribute(
-        station.name
-      ) +
-      '" ' +
-      'placeholder="駅名を入力">';
-
-
-    const input =
-      document.getElementById(
-        "selectedStationName"
-      );
-
-
-    input.addEventListener(
-      "input",
-      function(){
-
-        station.name =
-          this.value;
-
-        renderPoints();
-
-        renderStationList();
-
-      }
-    );
-
-
-    return;
-
-  }
-
-
-  const branch =
-    branches.find(
-      b =>
-        b.id ===
-        selectedPointId
-    );
-
-
-  if(branch){
-
-    box.innerHTML =
-      '<b>分岐・方向転換点</b><br>' +
-      '<span class="smallText">' +
-      'この点は路線の接続に使用できます。' +
-      '</span>';
-
-    return;
-
-  }
-
-
-  box.textContent =
-    "何も選択されていません";
-
-}
-
-
-/* =========================================================
-   ADD ROUTE
-========================================================= */
-
-document.getElementById(
-  "addRoute"
-).onclick =
-function(){
-
-  const name =
-    document.getElementById(
-      "routeName"
-    ).value.trim();
-
-
-  let code =
-    normalizeRouteCode(
-      document.getElementById(
-        "routeCode"
-      ).value
-    );
-
-
-  if(!code){
-
-    code = "XX";
-
-  }
-
-
-  const route = {
-
-    id:createId(),
-
-    name:
-      name ||
-      "新しい路線",
-
-    code:code,
-
-    color:
-      document.getElementById(
-        "routeColor"
-      ).value ||
-      "#ff0000",
-
-    width:
-      Number(
-        document.getElementById(
-          "routeWidth"
-        ).value
-      ) || 6,
-
-    stationOrder:[]
-
-  };
-
-
-  routes.push(
-    route
-  );
-
-
-  selectedRouteId =
-    route.id;
-
-  connectingPointId =
-    null;
-
-  document.getElementById(
-    "routeName"
-  ).value = "";
-
-  document.getElementById(
-    "routeCode"
-  ).value = "";
-
-
-  updateConnectionDisplay();
-
-  render();
-
-};
-
-
-/* =========================================================
-   ROUTE NAME / CODE / COLOR / WIDTH
-========================================================= */
-
-document.getElementById(
-  "routeName"
-).addEventListener(
-  "input",
-  function(){
-
-    const route =
-      findRoute(
-        selectedRouteId
-      );
-
-    if(!route){
-      return;
-    }
-
-    route.name =
-      this.value;
-
-    renderLines();
-
+  if(state.mode==="routes"){
     renderRouteList();
-
-    updateConnectionDisplay();
-
-  }
-);
-
-
-document.getElementById(
-  "routeCode"
-).addEventListener(
-  "input",
-  function(){
-
-    const route =
-      findRoute(
-        selectedRouteId
-      );
-
-    if(!route){
-      return;
-    }
-
-    route.code =
-      normalizeRouteCode(
-        this.value
-      );
-
-    this.value =
-      route.code;
-
-    renderRouteList();
-
-    updateConnectionDisplay();
-
-  }
-);
-
-
-document.getElementById(
-  "routeColor"
-).addEventListener(
-  "input",
-  function(){
-
-    const route =
-      findRoute(
-        selectedRouteId
-      );
-
-    if(!route){
-      return;
-    }
-
-    route.color =
-      this.value;
-
-    renderLines();
-
-    renderRouteList();
-
-  }
-);
-
-
-document.getElementById(
-  "routeWidth"
-).addEventListener(
-  "input",
-  function(){
-
-    const route =
-      findRoute(
-        selectedRouteId
-      );
-
-    if(!route){
-      return;
-    }
-
-    route.width =
-      Number(
-        this.value
-      ) || 6;
-
-  }
-);
-
-
-/* =========================================================
-   SELECT ROUTE
-========================================================= */
-
-function selectRoute(
-  routeId
-){
-
-  selectedRouteId =
-    routeId;
-
-  connectingPointId =
-    null;
-
-  selectedPointId =
-    null;
-
-
-  const route =
-    findRoute(
-      routeId
-    );
-
-
-  if(route){
-
-    document.getElementById(
-      "routeName"
-    ).value =
-      route.name;
-
-    document.getElementById(
-      "routeCode"
-    ).value =
-      route.code;
-
-    document.getElementById(
-      "routeColor"
-    ).value =
-      route.color;
-
-    document.getElementById(
-      "routeWidth"
-    ).value =
-      route.width;
-
+    return;
   }
 
+  if(state.mode==="stations"){
+    renderStationList();
+    return;
+  }
 
-  updateConnectionDisplay();
+  if(state.mode==="settings"){
+    renderSettings();
+    return;
+  }
 
-  render();
+  if(state.selectedStation){
+    renderStationDetail(state.selectedStation);
+    return;
+  }
 
+  if(state.selectedRoute){
+    renderRouteDetail(state.selectedRoute);
+    return;
+  }
+
+  renderHome();
 }
 
+function renderHome(){
+
+  panelContent.innerHTML=`
+    <h2>路線マップ</h2>
+    <div class="panelDescription">
+      駅・分岐点を配置して、路線を自由に作成できます。
+    </div>
+
+    <div class="status">
+      <b>現在の操作</b><br>
+      ${state.mode==="connect"
+        ? "接続モード：駅を順番にクリックしてください。"
+        : state.mode==="add"
+          ? "駅・分岐点追加モード：地図上をクリックしてください。"
+          : state.mode==="move"
+            ? "移動モード：駅をドラッグできます。"
+            : "左のメニューから操作を選択してください。"}
+    </div>
+
+    <h3>路線</h3>
+    ${
+      data.routes.length
+      ? data.routes.slice(0,5).map(routeCardHTML).join("")
+      : `<div class="empty">路線がありません</div>`
+    }
+
+    <h3>駅</h3>
+    ${
+      data.stations.length
+      ? data.stations.slice(0,8).map(s=>`
+          <div class="routeCard"
+               onclick="openStationDetail('${s.id}')">
+            <div class="routeCardHead">
+              <div style="
+                width:18px;height:18px;border:3px solid #222;
+                border-radius:50%;background:#fff;flex:none;
+              "></div>
+              <div>
+                <div class="routeCardTitle">
+                  ${escapeHTML(s.name || "無名駅")}
+                </div>
+                <div class="routeCardSub">
+                  ${s.type==="junction" ? "分岐・方向転換点" : "駅"}
+                </div>
+              </div>
+            </div>
+          </div>
+        `).join("")
+      : `<div class="empty">駅がありません</div>`
+    }
+  `;
+}
+
+function routeCardHTML(route){
+
+  const stations=route.stationIds
+    .map(getStation)
+    .filter(Boolean);
+
+  return `
+    <div class="routeCard"
+         onclick="openRouteDetail('${route.id}')">
+
+      <div class="routeCardHead">
+
+        <div class="routeBadge"
+             style="background:${escapeHTML(route.color)}">
+          ${escapeHTML(route.alphabet || "線")}
+        </div>
+
+        <div>
+          <div class="routeCardTitle">
+            ${escapeHTML(route.name || "無名線")}
+          </div>
+
+          <div class="routeCardSub">
+            ${escapeHTML(route.alphabet || "コードなし")}
+            ・${stations.length}駅
+          </div>
+        </div>
+
+      </div>
+    </div>
+  `;
+}
 
 /* =========================================================
-   CLEAR ROUTE SELECTION
-========================================================= */
-
-document.getElementById(
-  "clearRouteSelection"
-).onclick =
-function(){
-
-  selectedRouteId =
-    null;
-
-  connectingPointId =
-    null;
-
-  updateConnectionDisplay();
-
-  render();
-
-};
-
-
-/* =========================================================
-   SETTINGS
-========================================================= */
-
-document.getElementById(
-  "applySettings"
-).onclick =
-function(){
-
-  settings.globalWidth =
-    Math.max(
-      1,
-      Number(
-        document.getElementById(
-          "globalWidth"
-        ).value
-      ) || 6
-    );
-
-
-  settings.stationSize =
-    Math.max(
-      5,
-      Number(
-        document.getElementById(
-          "stationSize"
-        ).value
-      ) || 14
-    );
-
-
-  settings.branchSize =
-    Math.max(
-      4,
-      Number(
-        document.getElementById(
-          "branchSize"
-        ).value
-      ) || 8
-    );
-
-
-  settings.labelSize =
-    Math.max(
-      8,
-      Number(
-        document.getElementById(
-          "labelSize"
-        ).value
-      ) || 13
-    );
-
-
-  render();
-
-};
-
-
-/* =========================================================
-   ROUTE LIST
+   路線一覧
 ========================================================= */
 
 function renderRouteList(){
 
-  const list =
-    document.getElementById(
-      "routeList"
-    );
+  state.selectedStation=null;
 
-  list.innerHTML = "";
+  panelContent.innerHTML=`
+    <h2>路線一覧</h2>
+    <div class="panelDescription">
+      路線を選択すると路線詳細を表示します。
+    </div>
 
+    <button class="smallButton"
+            onclick="createRoutePanel()">
+      ＋ 路線を追加
+    </button>
 
-  if(routes.length === 0){
+    <div style="height:12px"></div>
 
-    list.innerHTML =
-      '<div class="emptyBox">' +
-      '路線はまだありません' +
-      '</div>';
-
-    return;
-
-  }
-
-
-  routes.forEach(
-    route => {
-
-      const item =
-        document.createElement(
-          "div"
-        );
-
-
-      item.className =
-        "routeItem" +
-        (
-          selectedRouteId ===
-          route.id
-            ? " selected"
-            : ""
-        );
-
-
-      const color =
-        document.createElement(
-          "div"
-        );
-
-      color.className =
-        "routeColor";
-
-      color.style.background =
-        route.color;
-
-
-      const nameBox =
-        document.createElement(
-          "div"
-        );
-
-      nameBox.className =
-        "routeItemName";
-
-
-      const input =
-        document.createElement(
-          "input"
-        );
-
-      input.type =
-        "text";
-
-      input.value =
-        route.name;
-
-
-      const code =
-        document.createElement(
-          "div"
-        );
-
-      code.className =
-        "routeCodeSmall";
-
-      code.textContent =
-        route.code;
-
-
-      input.addEventListener(
-        "input",
-        function(){
-
-          route.name =
-            this.value;
-
-          renderLines();
-
-          updateConnectionDisplay();
-
-        }
-      );
-
-
-      nameBox.appendChild(
-        input
-      );
-
-      nameBox.appendChild(
-        code
-      );
-
-
-      const select =
-        document.createElement(
-          "button"
-        );
-
-      select.className =
-        "routeSelectButton";
-
-      select.textContent =
-        selectedRouteId ===
-        route.id
-          ? "接続中"
-          : "選択";
-
-
-      select.onclick =
-        function(){
-
-          selectRoute(
-            route.id
-          );
-
-        };
-
-
-      item.appendChild(
-        color
-      );
-
-      item.appendChild(
-        nameBox
-      );
-
-      item.appendChild(
-        select
-      );
-
-
-      /*
-        路線名部分をクリックすると
-        路線詳細
-      */
-
-      nameBox.addEventListener(
-        "dblclick",
-        function(){
-
-          openRouteDetail(
-            route.id
-          );
-
-        }
-      );
-
-
-      list.appendChild(
-        item
-      );
-
+    ${
+      data.routes.length
+      ? data.routes.map(routeCardHTML).join("")
+      : `<div class="empty">路線がありません</div>`
     }
-  );
-
+  `;
 }
 
+/* =========================================================
+   路線作成
+========================================================= */
+
+function createRoutePanel(){
+
+  state.selectedRoute=null;
+
+  panelContent.innerHTML=`
+    <h2>路線追加</h2>
+
+    <div class="panelDescription">
+      路線アルファベットを設定すると、
+      最初にクリックした駅を01として駅番号を自動生成します。
+    </div>
+
+    <div class="formGroup">
+      <label>路線名</label>
+      <input class="input" id="newRouteName"
+             value="新しい路線">
+    </div>
+
+    <div class="formGroup">
+      <label>路線アルファベット</label>
+      <input class="input" id="newRouteAlphabet"
+             value="JL"
+             maxlength="4"
+             placeholder="例：JY、JC、JL">
+    </div>
+
+    <div class="formGroup">
+      <label>路線色</label>
+      <div class="colorRow">
+        <input class="colorInput"
+               id="newRouteColor"
+               type="color"
+               value="#7b4bc4">
+        <input class="input colorText"
+               id="newRouteColorText"
+               value="#7b4bc4">
+      </div>
+    </div>
+
+    <div class="buttonRow">
+      <button class="toolButton primary"
+              onclick="createRoute()">
+        路線を作成
+      </button>
+      <button class="smallButton"
+              onclick="renderRouteList()">
+        戻る
+      </button>
+    </div>
+  `;
+
+  const color=document.getElementById("newRouteColor");
+  const colorText=document.getElementById("newRouteColorText");
+
+  color.addEventListener("input",()=>{
+    colorText.value=color.value;
+  });
+
+  colorText.addEventListener("input",()=>{
+    if(/^#[0-9a-fA-F]{6}$/.test(colorText.value)){
+      color.value=colorText.value;
+    }
+  });
+}
+
+function createRoute(){
+
+  const name=
+    document.getElementById("newRouteName").value.trim()
+    || "新しい路線";
+
+  const alphabet=
+    document.getElementById("newRouteAlphabet").value.trim()
+    .toUpperCase()
+    || "JL";
+
+  const color=
+    document.getElementById("newRouteColorText").value.trim()
+    || "#7b4bc4";
+
+  const route={
+    id:uid("route"),
+    name,
+    alphabet,
+    color,
+    stationIds:[],
+    connections:[]
+  };
+
+  data.routes.push(route);
+
+  saveData();
+
+  state.selectedRoute=route.id;
+  state.selectedStation=null;
+  state.mode="connect";
+  state.connectRoute=route.id;
+  state.connectLast=null;
+
+  render();
+}
 
 /* =========================================================
-   STATION LIST
+   路線詳細
+========================================================= */
+
+function openRouteDetail(id){
+
+  state.selectedRoute=id;
+  state.selectedStation=null;
+  state.mode="map";
+  state.connectRoute=null;
+  state.connectLast=null;
+
+  render();
+}
+
+window.openRouteDetail=openRouteDetail;
+
+function renderRouteDetail(id){
+
+  const route=getRoute(id);
+
+  if(!route){
+    renderRouteList();
+    return;
+  }
+
+  const stations=route.stationIds
+    .map(getStation)
+    .filter(Boolean);
+
+  const allConnections=[];
+
+  for(let i=0;i<route.stationIds.length-1;i++){
+    allConnections.push([
+      route.stationIds[i],
+      route.stationIds[i+1]
+    ]);
+  }
+
+  if(route.connections){
+    route.connections.forEach(c=>{
+      if(!allConnections.some(x=>
+        (x[0]===c[0]&&x[1]===c[1]) ||
+        (x[0]===c[1]&&x[1]===c[0])
+      )){
+        allConnections.push(c);
+      }
+    });
+  }
+
+  panelContent.innerHTML=`
+
+    <div style="
+      display:flex;
+      align-items:center;
+      gap:13px;
+      margin-bottom:16px;
+    ">
+
+      <div class="routeBadge"
+           style="
+             width:72px;
+             height:72px;
+             border-radius:18px;
+             background:${escapeHTML(route.color)};
+             font-size:22px;
+           ">
+        ${escapeHTML(route.alphabet || "線")}
+      </div>
+
+      <div>
+        <div style="
+          font-size:23px;
+          font-weight:900;
+        ">
+          ${escapeHTML(route.name || "無名線")}
+        </div>
+
+        <div style="
+          color:#747b83;
+          font-size:11px;
+          margin-top:4px;
+        ">
+          路線コード ${escapeHTML(route.alphabet || "未設定")}
+        </div>
+      </div>
+
+    </div>
+
+    <div class="two">
+
+      <div class="formGroup">
+        <label>路線名</label>
+        <input class="input"
+               id="routeNameEdit"
+               value="${escapeHTML(route.name)}">
+      </div>
+
+      <div class="formGroup">
+        <label>路線アルファベット</label>
+        <input class="input"
+               id="routeAlphabetEdit"
+               value="${escapeHTML(route.alphabet)}"
+               maxlength="4">
+      </div>
+
+    </div>
+
+    <div class="formGroup">
+      <label>路線色</label>
+      <div class="colorRow">
+        <input class="colorInput"
+               id="routeColorEdit"
+               type="color"
+               value="${escapeHTML(route.color)}">
+        <input class="input colorText"
+               id="routeColorText"
+               value="${escapeHTML(route.color)}">
+      </div>
+    </div>
+
+    <div class="buttonRow">
+      <button class="smallButton"
+              onclick="updateRoute('${route.id}')">
+        保存
+      </button>
+
+      <button class="smallButton"
+              onclick="startConnect('${route.id}')">
+        この路線を接続
+      </button>
+
+      <button class="smallButton danger"
+              onclick="deleteRoute('${route.id}')">
+        路線削除
+      </button>
+    </div>
+
+    <h3>駅一覧</h3>
+
+    <div class="stationList">
+
+      ${
+        stations.length
+        ? stations.map((station,i)=>`
+
+          <div class="stationListItem"
+               onclick="openStationDetail('${station.id}')">
+
+            <div class="stationListNumber">
+              ${escapeHTML(
+                stationCodeForRoute(route,station.id)
+                || String(i+1).padStart(2,"0")
+              )}
+            </div>
+
+            <div class="stationListName">
+              ${escapeHTML(station.name || "無名駅")}
+            </div>
+
+          </div>
+
+        `).join("")
+        : `
+          <div class="empty">
+            まだ駅がありません。<br>
+            「この路線を接続」を押して駅をクリックしてください。
+          </div>
+        `
+      }
+
+    </div>
+
+    <h3>接続</h3>
+
+    <div class="status">
+      ${allConnections.length
+        ? allConnections.map(c=>{
+            const a=getStation(c[0]);
+            const b=getStation(c[1]);
+            return `${escapeHTML(a?.name || "不明")} → ${escapeHTML(b?.name || "不明")}`;
+          }).join("<br>")
+        : "接続されていません。"}
+    </div>
+  `;
+
+  const color=document.getElementById("routeColorEdit");
+  const colorText=document.getElementById("routeColorText");
+
+  color.addEventListener("input",()=>{
+    colorText.value=color.value;
+  });
+
+  colorText.addEventListener("input",()=>{
+    if(/^#[0-9a-fA-F]{6}$/.test(colorText.value)){
+      color.value=colorText.value;
+    }
+  });
+}
+
+function updateRoute(id){
+
+  const route=getRoute(id);
+  if(!route) return;
+
+  route.name=
+    document.getElementById("routeNameEdit").value.trim()
+    || "無名線";
+
+  route.alphabet=
+    document.getElementById("routeAlphabetEdit").value
+    .trim()
+    .toUpperCase()
+    || "JL";
+
+  route.color=
+    document.getElementById("routeColorText").value.trim()
+    || "#7b4bc4";
+
+  saveData();
+  render();
+}
+
+function deleteRoute(id){
+
+  const index=data.routes.findIndex(r=>r.id===id);
+
+  if(index<0) return;
+
+  data.routes.splice(index,1);
+
+  state.selectedRoute=null;
+  state.connectRoute=null;
+  state.connectLast=null;
+
+  saveData();
+  renderRouteList();
+  renderMap();
+}
+
+window.updateRoute=updateRoute;
+
+function startConnect(id){
+
+  state.mode="connect";
+  state.connectRoute=id;
+  state.connectLast=null;
+  state.selectedRoute=id;
+  state.selectedStation=null;
+
+  render();
+}
+
+/* =========================================================
+   駅詳細
+========================================================= */
+
+function openStationDetail(id){
+
+  if(!getStation(id)) return;
+
+  state.selectedStation=id;
+  state.selectedRoute=null;
+  state.mode="map";
+  state.connectLast=null;
+
+  render();
+}
+
+window.openStationDetail=openStationDetail;
+
+function renderStationDetail(id){
+
+  const station=getStation(id);
+
+  if(!station){
+    renderStationList();
+    return;
+  }
+
+  const routes=data.routes.filter(r=>
+    r.stationIds.includes(id)
+  );
+
+  panelContent.innerHTML=`
+
+    <div class="stationHero">
+      <div class="stationHeroName">
+        ${escapeHTML(station.name || "無名駅")}
+      </div>
+
+      <div class="stationHeroSub">
+        ${station.type==="junction"
+          ? "分岐・方向転換点"
+          : "駅"}
+      </div>
+    </div>
+
+    <div class="formGroup">
+      <label>駅名</label>
+      <input class="input"
+             id="stationNameEdit"
+             value="${escapeHTML(station.name)}"
+             placeholder="駅名を入力">
+    </div>
+
+    <div class="formGroup">
+      <label>種類</label>
+      <select class="input" id="stationTypeEdit">
+        <option value="station"
+          ${station.type==="station"?"selected":""}>
+          駅
+        </option>
+        <option value="junction"
+          ${station.type==="junction"?"selected":""}>
+          分岐・方向転換点
+        </option>
+      </select>
+    </div>
+
+    <div class="buttonRow">
+
+      <button class="smallButton"
+              onclick="updateStation('${station.id}')">
+        名前・種類を保存
+      </button>
+
+      <button class="smallButton danger"
+              onclick="deleteStation('${station.id}')">
+        駅・分岐点削除
+      </button>
+
+    </div>
+
+    <h3>通っている路線</h3>
+
+    ${
+      routes.length
+      ? routes.map(route=>`
+
+        <div class="routeMini"
+             onclick="openRouteDetail('${route.id}')">
+
+          <div class="routeMiniBadge"
+               style="background:${escapeHTML(route.color)}">
+            ${escapeHTML(route.alphabet)}
+          </div>
+
+          <div class="routeMiniText">
+            <b>${escapeHTML(route.name)}</b>
+            <span>
+              ${escapeHTML(
+                stationCodeForRoute(route,station.id)
+              )}
+            </span>
+          </div>
+
+          <div class="detailLink">
+            詳細へ →
+          </div>
+
+        </div>
+
+      `).join("")
+      : `
+        <div class="empty">
+          この駅を通る路線はありません。
+        </div>
+      `
+    }
+  `;
+}
+
+function updateStation(id){
+
+  const station=getStation(id);
+  if(!station) return;
+
+  station.name=
+    document.getElementById("stationNameEdit")
+    .value.trim()
+    || "無名駅";
+
+  station.type=
+    document.getElementById("stationTypeEdit").value;
+
+  saveData();
+  render();
+}
+
+function deleteStation(id){
+
+  data.stations=
+    data.stations.filter(s=>s.id!==id);
+
+  data.routes.forEach(route=>{
+    route.stationIds=
+      route.stationIds.filter(x=>x!==id);
+
+    if(route.connections){
+      route.connections=
+        route.connections.filter(c=>
+          c[0]!==id && c[1]!==id
+        );
+    }
+  });
+
+  state.selectedStation=null;
+
+  saveData();
+  render();
+}
+
+window.updateStation=updateStation;
+window.deleteStation=deleteStation;
+
+/* =========================================================
+   駅一覧
 ========================================================= */
 
 function renderStationList(){
 
-  const list =
-    document.getElementById(
-      "stationList"
-    );
+  state.selectedRoute=null;
 
-  list.innerHTML = "";
+  panelContent.innerHTML=`
+    <h2>駅一覧</h2>
 
+    <div class="panelDescription">
+      駅名を選択すると駅詳細を表示します。
+    </div>
 
-  if(stations.length === 0){
+    <button class="smallButton"
+            onclick="setMode('add')">
+      ＋ 駅・分岐点を追加
+    </button>
 
-    list.innerHTML =
-      '<div class="emptyBox">' +
-      '駅はまだありません' +
-      '</div>';
+    <div style="height:12px"></div>
 
-    return;
+    ${
+      data.stations.length
+      ? data.stations.map(s=>`
 
-  }
+        <div class="routeCard"
+             onclick="openStationDetail('${s.id}')">
 
+          <div class="routeCardHead">
 
-  stations.forEach(
-    station => {
+            <div style="
+              width:20px;
+              height:20px;
+              border-radius:50%;
+              border:3px solid #222;
+              background:${s.type==="junction"?"#222":"#fff"};
+              flex:none;
+            "></div>
 
-      const button =
-        document.createElement(
-          "button"
-        );
+            <div>
+              <div class="routeCardTitle">
+                ${escapeHTML(s.name || "無名駅")}
+              </div>
 
-      button.className =
-        "listButton";
+              <div class="routeCardSub">
+                ${
+                  data.routes
+                    .filter(r=>r.stationIds.includes(s.id))
+                    .map(r=>escapeHTML(r.alphabet))
+                    .join(" / ")
+                  || "未接続"
+                }
+              </div>
+            </div>
 
+          </div>
+        </div>
 
-      const number =
-        document.createElement(
-          "div"
-        );
-
-      number.className =
-        "listNumber";
-
-
-      const stationRoutes =
-        getRoutesForStation(
-          station.id
-        );
-
-
-      if(
-        stationRoutes.length > 0
-      ){
-
-        const route =
-          stationRoutes[0];
-
-        number.textContent =
-          getStationCode(
-            route,
-            station.id
-          );
-
-      }else{
-
-        number.textContent =
-          "駅";
-
-      }
-
-
-      const text =
-        document.createElement(
-          "div"
-        );
-
-      text.className =
-        "listText";
-
-      text.textContent =
-        station.name ||
-        "名称未設定";
-
-
-      button.appendChild(
-        number
-      );
-
-      button.appendChild(
-        text
-      );
-
-
-      button.onclick =
-        function(){
-
-          openStationDetail(
-            station.id
-          );
-
-        };
-
-
-      list.appendChild(
-        button
-      );
-
+      `).join("")
+      : `<div class="empty">駅がありません</div>`
     }
-  );
-
+  `;
 }
 
-
 /* =========================================================
-   CSS RAIL LOGO HTML
+   設定
 ========================================================= */
 
-function railLogoHTML(
-  code,
-  number,
-  sizeClass
-){
+function renderSettings(){
 
-  const safeCode =
-    escapeHTML(
-      normalizeRouteCode(
-        code
-      ) || "XX"
-    );
+  panelContent.innerHTML=`
+    <h2>マップ設定</h2>
 
+    <div class="panelDescription">
+      線や駅の大きさを全体に一括適用できます。
+    </div>
 
-  let safeNumber =
-    "";
+    <div class="formGroup">
+      <label>
+        路線の線の太さ
+        <span id="lineWidthValue">
+          ${data.settings.lineWidth}px
+        </span>
+      </label>
 
+      <input type="range"
+             id="lineWidthRange"
+             min="2"
+             max="30"
+             step="1"
+             value="${data.settings.lineWidth}"
+             style="width:100%">
+    </div>
 
-  if(
-    number !== null &&
-    number !== undefined &&
-    number !== ""
-  ){
+    <div class="formGroup">
+      <label>
+        駅・点の大きさ
+        <span id="stationSizeValue">
+          ${data.settings.stationSize}px
+        </span>
+      </label>
 
-    safeNumber =
-      escapeHTML(
-        String(
-          number
-        ).padStart(
-          2,
-          "0"
-        )
-      );
+      <input type="range"
+             id="stationSizeRange"
+             min="8"
+             max="36"
+             step="1"
+             value="${data.settings.stationSize}"
+             style="width:100%">
+    </div>
 
-  }
+    <h3>データ</h3>
 
+    <div class="buttonRow">
 
-  return (
-    '<div class="railLogo ' +
-    (
-      sizeClass ||
-      ""
-    ) +
-    '">' +
+      <button class="smallButton"
+              onclick="saveData()">
+        保存
+      </button>
 
-      '<div class="railLogoInner">' +
+      <button class="smallButton"
+              onclick="loadExample()">
+        山手線の例
+      </button>
 
-        '<div class="railLogoCode">' +
-          safeCode +
-        '</div>' +
+      <button class="smallButton danger"
+              onclick="clearAll()">
+        すべて削除
+      </button>
 
-        (
-          safeNumber
-            ?
-              '<div class="railLogoNumber">' +
-              safeNumber +
-              '</div>'
-            :
-              ""
-        ) +
+    </div>
+  `;
 
-      '</div>' +
-
-    '</div>'
-  );
-
-}
-
-
-/* =========================================================
-   ROUTE DETAIL
-========================================================= */
-
-function openRouteDetail(
-  routeId,
-  fromHistory
-){
-
-  const route =
-    findRoute(
-      routeId
-    );
-
-
-  if(!route){
-    return;
-  }
-
-
-  ensureRouteStationOrder(
-    route
-  );
-
-
-  if(
-    !fromHistory
-  ){
-
-    detailHistory.push({
-      type:"route",
-      id:routeId
+  document.getElementById("lineWidthRange")
+    .addEventListener("input",e=>{
+      data.settings.lineWidth=Number(e.target.value);
+      document.getElementById("lineWidthValue").textContent=
+        data.settings.lineWidth+"px";
+      renderMap();
+      saveData();
     });
 
-  }
-
-
-  const view =
-    document.getElementById(
-      "detailView"
-    );
-
-  const body =
-    document.getElementById(
-      "detailBody"
-    );
-
-  const header =
-    document.getElementById(
-      "detailHeaderTitle"
-    );
-
-
-  header.textContent =
-    "路線詳細";
-
-
-  let stationRows = "";
-
-
-  route.stationOrder.forEach(
-    (stationId,index) => {
-
-      const station =
-        findStation(
-          stationId
-        );
-
-
-      if(!station){
-        return;
-      }
-
-
-      const stationCode =
-        getStationCode(
-          route,
-          station.id
-        );
-
-
-      stationRows +=
-
-        '<div ' +
-        'class="routeStationRow" ' +
-        'data-station-id="' +
-        station.id +
-        '">' +
-
-          '<div class="routeStationLogo">' +
-
-            railLogoHTML(
-              route.code,
-              index + 1,
-              "small"
-            ) +
-
-          '</div>' +
-
-          '<div class="routeStationInfo">' +
-
-            '<div class="routeStationCode">' +
-              escapeHTML(
-                stationCode
-              ) +
-            '</div>' +
-
-            '<div class="routeStationName">' +
-              escapeHTML(
-                station.name ||
-                "名称未設定"
-              ) +
-            '</div>' +
-
-          '</div>' +
-
-          '<div class="routeStationArrow">' +
-            '›' +
-          '</div>' +
-
-        '</div>';
-
-    }
-  );
-
-
-  if(
-    route.stationOrder.length ===
-    0
-  ){
-
-    stationRows =
-      '<div class="emptyBox">' +
-      'この路線にはまだ駅が登録されていません。<br>' +
-      '地図上で路線を選択し、駅を順番にクリックしてください。' +
-      '</div>';
-
-  }
-
-
-  body.innerHTML =
-
-    '<div class="routeHero">' +
-
-      railLogoHTML(
-        route.code,
-        null,
-        "large"
-      ) +
-
-      '<div class="routeHeroInfo">' +
-
-        '<div class="routeHeroName">' +
-          escapeHTML(
-            route.name
-          ) +
-        '</div>' +
-
-        '<div class="routeHeroCode">' +
-          escapeHTML(
-            route.code
-          ) +
-        '</div>' +
-
-        '<div class="routeHeroDescription">' +
-          '駅番号は路線の接続を開始した駅から順番に付番されます。' +
-        '</div>' +
-
-      '</div>' +
-
-    '</div>' +
-
-
-    '<div class="routeDetailSection">' +
-
-      '<div class="routeDetailSectionTitle">' +
-        '駅一覧' +
-      '</div>' +
-
-      '<div class="stationRouteList">' +
-        stationRows +
-      '</div>' +
-
-    '</div>' +
-
-
-    '<div class="routeDetailSection">' +
-
-      '<div class="routeDetailSectionTitle">' +
-        '路線設定' +
-      '</div>' +
-
-      '<div class="row">' +
-        '<label>路線名</label>' +
-        '<input ' +
-          'id="detailRouteName" ' +
-          'type="text" ' +
-          'value="' +
-          escapeAttribute(
-            route.name
-          ) +
-        '">' +
-      '</div>' +
-
-      '<div class="row">' +
-        '<label>路線コード</label>' +
-        '<input ' +
-          'id="detailRouteCode" ' +
-          'type="text" ' +
-          'maxlength="6" ' +
-          'value="' +
-          escapeAttribute(
-            route.code
-          ) +
-        '">' +
-      '</div>' +
-
-      '<div class="row">' +
-        '<label>路線色</label>' +
-        '<input ' +
-          'id="detailRouteColor" ' +
-          'type="color" ' +
-          'value="' +
-          escapeAttribute(
-            route.color
-          ) +
-        '">' +
-      '</div>' +
-
-    '</div>';
-
-
-  view.classList.add(
-    "show"
-  );
-
-
-  /*
-    駅をクリックして駅詳細へ
-  */
-
-  body
-    .querySelectorAll(
-      ".routeStationRow"
-    )
-    .forEach(
-      row => {
-
-        row.addEventListener(
-          "click",
-          function(){
-
-            openStationDetail(
-              Number(
-                this.dataset.stationId
-              )
-            );
-
-          }
-        );
-
-      }
-    );
-
-
-  /*
-    詳細画面からの編集
-  */
-
-  const nameInput =
-    document.getElementById(
-      "detailRouteName"
-    );
-
-
-  const codeInput =
-    document.getElementById(
-      "detailRouteCode"
-    );
-
-
-  const colorInput =
-    document.getElementById(
-      "detailRouteColor"
-    );
-
-
-  nameInput.addEventListener(
-    "input",
-    function(){
-
-      route.name =
-        this.value;
-
-      render();
-
-    }
-  );
-
-
-  codeInput.addEventListener(
-    "input",
-    function(){
-
-      route.code =
-        normalizeRouteCode(
-          this.value
-        );
-
-      this.value =
-        route.code;
-
-      render();
-
-    }
-  );
-
-
-  colorInput.addEventListener(
-    "input",
-    function(){
-
-      route.color =
-        this.value;
-
-      render();
-
-    }
-  );
-
+  document.getElementById("stationSizeRange")
+    .addEventListener("input",e=>{
+      data.settings.stationSize=Number(e.target.value);
+      document.getElementById("stationSizeValue").textContent=
+        data.settings.stationSize+"px";
+      applyStationSize();
+      saveData();
+    });
 }
 
+function applyStationSize(){
+
+  document.querySelectorAll(".stationPoint").forEach(el=>{
+    const size=data.settings.stationSize;
+    el.style.width=size+"px";
+    el.style.height=size+"px";
+    el.style.marginLeft=(-size/2)+"px";
+    el.style.marginTop=(-size/2)+"px";
+  });
+}
 
 /* =========================================================
-   STATION DETAIL
+   モード
 ========================================================= */
 
-function openStationDetail(
-  stationId,
-  fromHistory
-){
+function setMode(mode){
 
-  const station =
-    findStation(
-      stationId
-    );
+  state.mode=mode;
 
+  if(mode!=="connect"){
+    state.connectRoute=null;
+    state.connectLast=null;
+  }
 
-  if(!station){
+  state.selectedStation=null;
+  state.selectedRoute=null;
+
+  if(mode==="map"){
+    renderHome();
+  }else{
+    render();
+  }
+}
+
+window.setMode=setMode;
+
+/* =========================================================
+   地図クリック → 駅追加
+========================================================= */
+
+mapViewport.addEventListener("click",e=>{
+
+  if(state.mode!=="add") return;
+
+  /*
+    クリックされた画面座標を
+    1800×1300のワールド座標へ変換
+  */
+
+  const rect=mapViewport.getBoundingClientRect();
+
+  const x=
+    (e.clientX-rect.left-state.panX)/state.zoom;
+
+  const y=
+    (e.clientY-rect.top-state.panY)/state.zoom;
+
+  if(x<0 || y<0 || x>1800 || y>1300){
     return;
   }
 
-
-  if(
-    !fromHistory
-  ){
-
-    detailHistory.push({
-      type:"station",
-      id:stationId
-    });
-
-  }
-
-
-  const view =
-    document.getElementById(
-      "detailView"
-    );
-
-  const body =
-    document.getElementById(
-      "detailBody"
-    );
-
-  const header =
-    document.getElementById(
-      "detailHeaderTitle"
-    );
-
-
-  header.textContent =
-    "駅詳細";
-
-
-  const stationRoutes =
-    getRoutesForStation(
-      station.id
-    );
-
-
-  let routeCards = "";
-
-
-  stationRoutes.forEach(
-    route => {
-
-      const number =
-        getStationNumber(
-          route,
-          station.id
-        );
-
-
-      routeCards +=
-
-        '<div class="stationRouteCard">' +
-
-          railLogoHTML(
-            route.code,
-            number,
-            "small"
-          ) +
-
-          '<div class="stationRouteCardInfo">' +
-
-            '<div class="stationRouteCardName">' +
-              escapeHTML(
-                route.name
-              ) +
-            '</div>' +
-
-            '<div class="stationRouteCardCode">' +
-              escapeHTML(
-                getStationCode(
-                  route,
-                  station.id
-                )
-              ) +
-            '</div>' +
-
-          '</div>' +
-
-          '<button ' +
-          'class="stationRouteDetailButton" ' +
-          'data-route-id="' +
-          route.id +
-          '">' +
-          '詳細へ' +
-          '</button>' +
-
-        '</div>';
-
-    }
-  );
-
-
-  if(
-    stationRoutes.length ===
-    0
-  ){
-
-    routeCards =
-      '<div class="emptyBox">' +
-      'この駅を通る路線はまだありません。' +
-      '</div>';
-
-  }
-
-
-  body.innerHTML =
-
-    '<div class="stationHero">' +
-
-      '<div class="stationHeroName">' +
-        escapeHTML(
-          station.name ||
-          "名称未設定"
-        ) +
-      '</div>' +
-
-      '<div class="stationHeroSub">' +
-        '駅詳細' +
-      '</div>' +
-
-    '</div>' +
-
-
-    '<div class="routeDetailSection">' +
-
-      '<div class="routeDetailSectionTitle">' +
-        '通っている路線' +
-      '</div>' +
-
-      '<div class="stationRoutes">' +
-        routeCards +
-      '</div>' +
-
-    '</div>' +
-
-
-    '<div class="routeDetailSection">' +
-
-      '<div class="routeDetailSectionTitle">' +
-        '駅名を変更' +
-      '</div>' +
-
-      '<input ' +
-        'id="detailStationName" ' +
-        'type="text" ' +
-        'value="' +
-        escapeAttribute(
-          station.name
-        ) +
-        '" ' +
-        'placeholder="駅名を入力">' +
-
-    '</div>';
-
-
-  view.classList.add(
-    "show"
-  );
-
-
-  /*
-    路線詳細へ
-  */
-
-  body
-    .querySelectorAll(
-      ".stationRouteDetailButton"
-    )
-    .forEach(
-      button => {
-
-        button.addEventListener(
-          "click",
-          function(){
-
-            openRouteDetail(
-              Number(
-                this.dataset.routeId
-              );
-
-          }
-        );
-
-      }
-    );
-
-
-  /*
-    駅名変更
-  */
-
-  const nameInput =
-    document.getElementById(
-      "detailStationName"
-    );
-
-
-  nameInput.addEventListener(
-    "input",
-    function(){
-
-      station.name =
-        this.value;
-
-      render();
-
-    }
-  );
-
-}
-
-
-/* =========================================================
-   DETAIL BACK
-========================================================= */
-
-document.getElementById(
-  "detailBack"
-).onclick =
-function(){
-
-  const view =
-    document.getElementById(
-      "detailView"
-    );
-
-
-  /*
-    現在のページを削除
-  */
-
-  if(
-    detailHistory.length >
-    0
-  ){
-
-    detailHistory.pop();
-
-  }
-
-
-  const previous =
-    detailHistory[
-      detailHistory.length - 1
-    ];
-
-
-  if(previous){
-
-    if(
-      previous.type ===
-      "route"
-    ){
-
-      openRouteDetail(
-        previous.id,
-        true
-      );
-
-      return;
-
-    }
-
-
-    if(
-      previous.type ===
-      "station"
-    ){
-
-      openStationDetail(
-        previous.id,
-        true
-      );
-
-      return;
-
-    }
-
-  }
-
-
-  view.classList.remove(
-    "show"
-  );
-
-  document.getElementById(
-    "detailBody"
-  ).innerHTML = "";
-
-};
-
-
-/* =========================================================
-   SAVE DATA
-========================================================= */
-
-function makeData(){
-
-  const center =
-    map.getCenter();
-
-
-  return {
-
-    version:6,
-
-    nextId:nextId,
-
-    stations:
-      stations.map(
-        s => ({
-          id:s.id,
-          name:s.name || "",
-          lat:s.lat,
-          lng:s.lng
-        })
-      ),
-
-    branches:
-      branches.map(
-        b => ({
-          id:b.id,
-          lat:b.lat,
-          lng:b.lng
-        })
-      ),
-
-    connections:
-      connections.map(
-        c => ({
-          id:c.id,
-          a:c.a,
-          b:c.b,
-          routeId:c.routeId
-        })
-      ),
-
-    routes:
-      routes.map(
-        r => ({
-          id:r.id,
-          name:r.name || "",
-          code:
-            normalizeRouteCode(
-              r.code
-            ),
-          color:
-            r.color ||
-            "#ff0000",
-          width:
-            Number(r.width) ||
-            6,
-          stationOrder:
-            Array.isArray(
-              r.stationOrder
-            )
-              ?
-                r.stationOrder.slice()
-              :
-                []
-        })
-      ),
-
-    settings:
-      Object.assign(
-        {},
-        settings
-      ),
-
-    selectedRouteId:
-      selectedRouteId,
-
-    center:{
-      lat:center.lat,
-      lng:center.lng
-    },
-
-    zoom:
-      map.getZoom()
-
+  const station={
+    id:uid("station"),
+    name:"新しい駅",
+    type:"station",
+    x,
+    y
   };
 
-}
+  data.stations.push(station);
 
+  state.selectedStation=station.id;
+  state.mode="map";
 
-/* =========================================================
-   LOAD DATA
-========================================================= */
-
-function loadData(
-  data
-){
-
-  if(
-    !data ||
-    typeof data !==
-    "object"
-  ){
-
-    return;
-
-  }
-
-
-  stations =
-    Array.isArray(
-      data.stations
-    )
-      ?
-        data.stations
-          .map(
-            s => ({
-              id:Number(s.id),
-              name:
-                String(
-                  s.name ||
-                  ""
-                ),
-              lat:
-                Number(s.lat),
-              lng:
-                Number(s.lng)
-            })
-          )
-          .filter(
-            s =>
-              Number.isFinite(
-                s.id
-              ) &&
-              Number.isFinite(
-                s.lat
-              ) &&
-              Number.isFinite(
-                s.lng
-              )
-          )
-      :
-        [];
-
-
-  branches =
-    Array.isArray(
-      data.branches
-    )
-      ?
-        data.branches
-          .map(
-            b => ({
-              id:Number(b.id),
-              lat:
-                Number(b.lat),
-              lng:
-                Number(b.lng)
-            })
-          )
-          .filter(
-            b =>
-              Number.isFinite(
-                b.id
-              ) &&
-              Number.isFinite(
-                b.lat
-              ) &&
-              Number.isFinite(
-                b.lng
-              )
-          )
-      :
-        [];
-
-
-  routes =
-    Array.isArray(
-      data.routes
-    )
-      ?
-        data.routes.map(
-          r => ({
-            id:Number(r.id),
-
-            name:
-              String(
-                r.name ||
-                "新しい路線"
-              ),
-
-            code:
-              normalizeRouteCode(
-                r.code
-              ) ||
-              "XX",
-
-            color:
-              r.color ||
-              "#ff0000",
-
-            width:
-              Number(
-                r.width
-              ) || 6,
-
-            stationOrder:
-              Array.isArray(
-                r.stationOrder
-              )
-                ?
-                  r.stationOrder
-                    .map(
-                      Number
-                    )
-                :
-                  []
-          })
-        )
-      :
-        [];
-
-
-  connections =
-    Array.isArray(
-      data.connections
-    )
-      ?
-        data.connections
-          .map(
-            c => ({
-              id:Number(c.id),
-              a:Number(c.a),
-              b:Number(c.b),
-              routeId:
-                Number(
-                  c.routeId
-                )
-            })
-          )
-          .filter(
-            c =>
-              Number.isFinite(
-                c.id
-              ) &&
-              Number.isFinite(
-                c.a
-              ) &&
-              Number.isFinite(
-                c.b
-              ) &&
-              Number.isFinite(
-                c.routeId
-              )
-          )
-      :
-        [];
-
-
-  if(
-    data.settings &&
-    typeof data.settings ===
-    "object"
-  ){
-
-    settings =
-      Object.assign(
-        {},
-        settings,
-        data.settings
-      );
-
-  }
-
-
-  /*
-    駅番号の整合性を修正
-  */
-
-  routes.forEach(
-    route => {
-
-      route.stationOrder =
-        route.stationOrder.filter(
-          id =>
-            stations.some(
-              s =>
-                s.id === id
-            )
-        );
-
-    }
-  );
-
-
-  /*
-    nextIdを安全に再計算
-  */
-
-  const allIds =
-    stations
-      .map(
-        x => x.id
-      )
-      .concat(
-        branches.map(
-          x => x.id
-        )
-      )
-      .concat(
-        routes.map(
-          x => x.id
-        )
-      )
-      .concat(
-        connections.map(
-          x => x.id
-        )
-      )
-      .filter(
-        Number.isFinite
-      );
-
-
-  nextId =
-    Math.max(
-      0,
-      ...allIds
-    ) + 1;
-
-
-  if(
-    Number.isFinite(
-      Number(
-        data.nextId
-      )
-    )
-  ){
-
-    nextId =
-      Math.max(
-        nextId,
-        Number(
-          data.nextId
-        )
-      );
-
-  }
-
-
-  selectedRouteId =
-    routes.some(
-      r =>
-        r.id ===
-        Number(
-          data.selectedRouteId
-        )
-    )
-      ?
-        Number(
-          data.selectedRouteId
-        )
-      :
-        null;
-
-
-  selectedPointId =
-    null;
-
-  connectingPointId =
-    null;
-
-
-  if(data.center){
-
-    const lat =
-      Number(
-        data.center.lat
-      );
-
-    const lng =
-      Number(
-        data.center.lng
-      );
-
-    const zoom =
-      Number(
-        data.zoom
-      );
-
-
-    if(
-      Number.isFinite(lat) &&
-      Number.isFinite(lng)
-    ){
-
-      map.setView(
-        [
-          lat,
-          lng
-        ],
-        Number.isFinite(zoom)
-          ? zoom
-          : 13
-      );
-
-    }
-
-  }
-
-
-  /*
-    設定UIへ反映
-  */
-
-  document.getElementById(
-    "globalWidth"
-  ).value =
-    settings.globalWidth;
-
-  document.getElementById(
-    "stationSize"
-  ).value =
-    settings.stationSize;
-
-  document.getElementById(
-    "branchSize"
-  ).value =
-    settings.branchSize;
-
-  document.getElementById(
-    "labelSize"
-  ).value =
-    settings.labelSize;
-
-
-  updateConnectionDisplay();
-
+  saveData();
   render();
+});
 
+/* =========================================================
+   地図パン
+========================================================= */
+
+mapViewport.addEventListener("pointerdown",e=>{
+
+  if(
+    state.mode==="add" ||
+    state.mode==="connect" ||
+    state.mode==="move"
+  ){
+    return;
+  }
+
+  state.panning=true;
+
+  state.panStartX=e.clientX;
+  state.panStartY=e.clientY;
+  state.panOriginX=state.panX;
+  state.panOriginY=state.panY;
+
+  mapViewport.classList.add("dragging");
+});
+
+window.addEventListener("pointermove",e=>{
+
+  if(!state.panning) return;
+
+  state.panX=
+    state.panOriginX+
+    e.clientX-state.panStartX;
+
+  state.panY=
+    state.panOriginY+
+    e.clientY-state.panStartY;
+
+  renderMap();
+});
+
+window.addEventListener("pointerup",()=>{
+  state.panning=false;
+  mapViewport.classList.remove("dragging");
+});
+
+/* =========================================================
+   ズーム
+========================================================= */
+
+function zoomAt(factor){
+
+  const oldZoom=state.zoom;
+
+  const rect=mapViewport.getBoundingClientRect();
+
+  const cx=rect.width/2;
+  const cy=rect.height/2;
+
+  const worldX=(cx-state.panX)/oldZoom;
+  const worldY=(cy-state.panY)/oldZoom;
+
+  state.zoom=
+    Math.max(.35,Math.min(2.5,oldZoom*factor));
+
+  state.panX=
+    cx-worldX*state.zoom;
+
+  state.panY=
+    cy-worldY*state.zoom;
+
+  renderMap();
 }
 
+document.getElementById("zoomIn")
+  .addEventListener("click",()=>zoomAt(1.2));
+
+document.getElementById("zoomOut")
+  .addEventListener("click",()=>zoomAt(.833333));
+
+document.getElementById("zoomReset")
+  .addEventListener("click",()=>{
+    state.zoom=1;
+    state.panX=0;
+    state.panY=0;
+    renderMap();
+  });
+
+document.getElementById("resetViewButton")
+  .addEventListener("click",()=>{
+    state.zoom=1;
+    state.panX=0;
+    state.panY=0;
+    renderMap();
+  });
 
 /* =========================================================
-   LOCAL SAVE
+   メニュー
 ========================================================= */
 
-document.getElementById(
-  "saveData"
-).onclick =
-function(){
+document.getElementById("menuMap")
+  .addEventListener("click",()=>{
+    state.mode="map";
+    state.selectedStation=null;
+    state.selectedRoute=null;
+    state.connectRoute=null;
+    state.connectLast=null;
+    render();
+  });
 
-  localStorage.setItem(
-    "fictionalRouteMapV6",
-    JSON.stringify(
-      makeData()
-    )
-  );
+document.getElementById("menuAddStation")
+  .addEventListener("click",()=>{
+    state.mode="add";
+    state.selectedStation=null;
+    state.selectedRoute=null;
+    render();
+  });
 
-};
+document.getElementById("menuConnect")
+  .addEventListener("click",()=>{
 
-
-/* =========================================================
-   LOCAL LOAD
-========================================================= */
-
-document.getElementById(
-  "loadData"
-).onclick =
-function(){
-
-  const raw =
-    localStorage.getItem(
-      "fictionalRouteMapV6"
-    );
-
-
-  if(!raw){
-
-    return;
-
-  }
-
-
-  try{
-
-    loadData(
-      JSON.parse(
-        raw
-      )
-    );
-
-  }catch(error){
-
-    /*
-      alertは使用しない
-    */
-
-  }
-
-};
-
-
-/* =========================================================
-   EXPORT
-========================================================= */
-
-document.getElementById(
-  "exportData"
-).onclick =
-function(){
-
-  const data =
-    JSON.stringify(
-      makeData(),
-      null,
-      2
-    );
-
-
-  const blob =
-    new Blob(
-      [data],
-      {
-        type:
-          "application/json"
-      }
-    );
-
-
-  const url =
-    URL.createObjectURL(
-      blob
-    );
-
-
-  const link =
-    document.createElement(
-      "a"
-    );
-
-
-  link.href =
-    url;
-
-  link.download =
-    "fictional-route-map.json";
-
-
-  document.body.appendChild(
-    link
-  );
-
-  link.click();
-
-  link.remove();
-
-  URL.revokeObjectURL(
-    url
-  );
-
-};
-
-
-/* =========================================================
-   IMPORT
-========================================================= */
-
-document.getElementById(
-  "importData"
-).onclick =
-function(){
-
-  document.getElementById(
-    "fileInput"
-  ).click();
-
-};
-
-
-document.getElementById(
-  "fileInput"
-).addEventListener(
-  "change",
-  function(){
-
-    const file =
-      this.files[0];
-
-
-    if(!file){
+    if(!data.routes.length){
+      createRoutePanel();
       return;
     }
 
+    state.mode="connect";
+    state.connectRoute=
+      state.selectedRoute || data.routes[0].id;
+    state.connectLast=null;
 
-    const reader =
-      new FileReader();
+    render();
+  });
 
+document.getElementById("menuMove")
+  .addEventListener("click",()=>{
+    state.mode="move";
+    state.connectRoute=null;
+    state.connectLast=null;
+    render();
+  });
 
-    reader.onload =
-      function(){
+document.getElementById("menuRoutes")
+  .addEventListener("click",()=>{
+    state.mode="routes";
+    state.selectedStation=null;
+    state.selectedRoute=null;
+    state.connectRoute=null;
+    state.connectLast=null;
+    render();
+  });
 
-        try{
+document.getElementById("menuStations")
+  .addEventListener("click",()=>{
+    state.mode="stations";
+    state.selectedStation=null;
+    state.selectedRoute=null;
+    state.connectRoute=null;
+    state.connectLast=null;
+    render();
+  });
 
-          loadData(
-            JSON.parse(
-              reader.result
-            )
-          );
+document.getElementById("menuSettings")
+  .addEventListener("click",()=>{
+    state.mode="settings";
+    state.selectedStation=null;
+    state.selectedRoute=null;
+    state.connectRoute=null;
+    state.connectLast=null;
+    render();
+  });
 
-        }catch(error){
+document.getElementById("menuExample")
+  .addEventListener("click",loadExample);
 
-        }
+document.getElementById("connectTopButton")
+  .addEventListener("click",()=>{
 
-      };
+    if(!data.routes.length){
+      createRoutePanel();
+      return;
+    }
 
+    state.mode="connect";
+    state.connectRoute=
+      state.selectedRoute || data.routes[0].id;
+    state.connectLast=null;
 
-    reader.readAsText(
-      file
-    );
+    render();
+  });
 
+document.getElementById("finishConnect")
+  .addEventListener("click",finishConnection);
 
-    this.value = "";
+document.getElementById("cancelConnect")
+  .addEventListener("click",cancelConnection);
 
-  }
-);
+document.getElementById("saveButton")
+  .addEventListener("click",()=>{
+    saveData();
 
+    const old=document.getElementById("saveButton").textContent;
+    document.getElementById("saveButton").textContent="保存済み";
+
+    setTimeout(()=>{
+      document.getElementById("saveButton").textContent=old;
+    },900);
+  });
+
+document.getElementById("newMapButton")
+  .addEventListener("click",()=>{
+    data={
+      settings:{
+        lineWidth:8,
+        stationSize:18,
+        background:"city"
+      },
+      stations:[],
+      routes:[]
+    };
+
+    state.selectedStation=null;
+    state.selectedRoute=null;
+    state.connectRoute=null;
+    state.connectLast=null;
+    state.mode="map";
+
+    saveData();
+    render();
+  });
 
 /* =========================================================
-   MOBILE MENU
+   山手線の例
 ========================================================= */
 
-document.getElementById(
-  "mobileMenuButton"
-).onclick =
-function(){
+function loadExample(){
 
-  document.getElementById(
-    "sidebar"
-  ).classList.toggle(
-    "open"
-  );
+  /*
+    実在の山手線を参考にした著名駅のサンプル。
+    マップ上では編集用の模式的な都市地図として配置。
+  */
 
-};
+  const route={
+    id:uid("route"),
+    name:"山手線",
+    alphabet:"JY",
+    color:"#80c342",
+    stationIds:[],
+    connections:[]
+  };
 
+  const stationsData=[
+    ["東京",860,420],
+    ["有楽町",830,500],
+    ["新橋",820,590],
+    ["浜松町",850,680],
+    ["田町",900,760],
+    ["高輪ゲートウェイ",970,820],
+    ["品川",1060,860],
+    ["大崎",1160,850],
+    ["五反田",1240,790],
+    ["目黒",1300,710],
+    ["恵比寿",1320,620],
+    ["渋谷",1290,520],
+    ["原宿",1220,440],
+    ["代々木",1140,390],
+    ["新宿",1050,350],
+    ["新大久保",970,310],
+    ["高田馬場",870,300],
+    ["目白",780,310],
+    ["池袋",690,350],
+    ["大塚",620,420],
+    ["巣鴨",590,500],
+    ["駒込",600,590],
+    ["田端",640,670],
+    ["西日暮里",700,730],
+    ["日暮里",770,760],
+    ["鶯谷",820,700],
+    ["上野",850,610],
+    ["御徒町",860,520]
+  ];
 
-/* =========================================================
-   RENDER
-========================================================= */
+  const ids=[];
 
-function render(){
+  stationsData.forEach((item,i)=>{
 
-  renderLines();
+    const station={
+      id:uid("station"),
+      name:item[0],
+      type:"station",
+      x:item[1],
+      y:item[2]
+    };
 
-  renderPoints();
+    data.stations.push(station);
+    ids.push(station.id);
+  });
 
-  renderRouteList();
+  route.stationIds=ids;
 
-  renderStationList();
+  /*
+    サンプルは路線順に一直線のポリライン。
+    最後の御徒町から東京へ戻して環状線にする。
+  */
+  route.stationIds.push(ids[0]);
 
-  updateSelectedInfo();
+  /*
+    駅番号は最初の東京をJY01として扱う。
+    表示上は重複を避けるため最後の東京は番号生成時に無視。
+  */
 
-  updateConnectionDisplay();
+  data.routes.push(route);
 
+  saveData();
+
+  state.mode="map";
+  state.selectedRoute=route.id;
+  state.selectedStation=null;
+
+  render();
 }
 
-
 /* =========================================================
-   INITIAL
+   「路線詳細」駅一覧の表示で
+   最後に東京へ戻す場合の番号重複を防ぐため
 ========================================================= */
 
+const originalStationCodeForRoute=stationCodeForRoute;
+
+/* =========================================================
+   起動時
+========================================================= */
+
+loadData();
+
+if(!data.routes.length && !data.stations.length){
+  /*
+    初回は空のマップ。
+    例は左メニューから読み込める。
+  */
+}
+
 render();
+
+/* 駅サイズ反映 */
+applyStationSize();
 
 </script>
 
