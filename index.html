@@ -2,689 +2,574 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>架空路線マップメーカー</title>
 
-<title>架空鉄道路線マップメーカー</title>
-
-<link
-  rel="stylesheet"
-  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-/>
+<link rel="stylesheet"
+ href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
 <style>
-*{
-  box-sizing:border-box;
+*{box-sizing:border-box}
+
+html,body{
+ margin:0;
+ width:100%;
+ height:100%;
+ overflow:hidden;
+ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif;
+ color:#222;
+ background:#f3f4f6;
 }
 
-html,
-body{
-  margin:0;
-  padding:0;
-  width:100%;
-  height:100%;
-  overflow:hidden;
-  font-family:
-    -apple-system,
-    BlinkMacSystemFont,
-    "Noto Sans JP",
-    "Yu Gothic",
-    "Meiryo",
-    sans-serif;
-  background:#f4f5f7;
-  color:#222;
-}
-
-button,
-input,
-select{
-  font:inherit;
+button,input{
+ font:inherit;
 }
 
 button{
-  cursor:pointer;
-  border:0;
+ cursor:pointer;
 }
 
 #app{
-  width:100%;
-  height:100%;
-  display:flex;
-  flex-direction:column;
+ width:100%;
+ height:100%;
+ display:flex;
 }
 
 /* =========================
-   HEADER
+   サイドバー
 ========================= */
 
-header{
-  height:58px;
-  flex:none;
-  background:#fff;
-  border-bottom:1px solid #d7dbe0;
-  display:flex;
-  align-items:center;
-  padding:0 14px;
-  gap:12px;
-  z-index:2000;
+#sidebar{
+ width:330px;
+ min-width:330px;
+ height:100%;
+ background:#fff;
+ border-right:1px solid #d9dde3;
+ display:flex;
+ flex-direction:column;
+ z-index:2000;
 }
 
-.logo{
-  font-size:20px;
-  font-weight:900;
-  white-space:nowrap;
+#header{
+ height:64px;
+ min-height:64px;
+ padding:0 16px;
+ display:flex;
+ align-items:center;
+ border-bottom:1px solid #e4e6e9;
+ font-size:19px;
+ font-weight:800;
 }
 
-.header-actions{
-  display:flex;
-  gap:7px;
-  align-items:center;
-  flex-wrap:nowrap;
+#menu{
+ display:flex;
+ gap:6px;
+ padding:8px;
+ border-bottom:1px solid #e4e6e9;
 }
 
-.header-btn{
-  background:#f1f3f5;
-  border:1px solid #d6d9dd;
-  border-radius:8px;
-  padding:8px 12px;
-  font-weight:700;
-  white-space:nowrap;
+.menuButton{
+ flex:1;
+ height:42px;
+ border:1px solid #d4d8de;
+ background:#fff;
+ border-radius:8px;
+ font-size:13px;
+ font-weight:700;
+ white-space:nowrap;
 }
 
-.header-btn:hover{
-  background:#e8ebee;
+.menuButton.active{
+ background:#222;
+ color:#fff;
+ border-color:#222;
 }
 
-.header-btn.active{
-  background:#222;
-  color:#fff;
-  border-color:#222;
+.panel{
+ display:none;
+ flex:1;
+ overflow:auto;
 }
 
-.header-spacer{
-  flex:1;
+.panel.active{
+ display:block;
 }
 
-/* =========================
-   MAIN
-========================= */
-
-.main{
-  flex:1;
-  min-height:0;
-  display:flex;
-  position:relative;
+.panelInner{
+ padding:14px;
 }
 
-#map{
-  flex:1;
-  min-width:0;
-  height:100%;
-  z-index:1;
+.title{
+ font-size:16px;
+ font-weight:800;
+ margin-bottom:12px;
 }
 
-/* =========================
-   SIDE MENU
-========================= */
-
-.sidebar{
-  width:320px;
-  flex:none;
-  background:#fff;
-  border-right:1px solid #d8dce0;
-  display:flex;
-  flex-direction:column;
-  z-index:1500;
-  overflow:hidden;
+.description{
+ background:#f4f5f7;
+ border-radius:8px;
+ padding:10px;
+ margin-bottom:13px;
+ font-size:12px;
+ line-height:1.65;
+ color:#555;
 }
 
-.sidebar-head{
-  padding:13px 15px;
-  border-bottom:1px solid #e0e3e6;
-  display:flex;
-  align-items:center;
-  gap:8px;
+label{
+ display:block;
+ font-size:12px;
+ font-weight:800;
+ color:#555;
+ margin-bottom:5px;
 }
 
-.sidebar-title{
-  font-weight:900;
-  font-size:18px;
-}
-
-.sidebar-content{
-  flex:1;
-  overflow:auto;
-  padding:12px;
-}
-
-.section{
-  margin-bottom:16px;
-}
-
-.section-title{
-  font-size:13px;
-  font-weight:900;
-  color:#66707a;
-  margin-bottom:7px;
-  padding-left:2px;
-}
-
-.menu-button{
-  width:100%;
-  text-align:left;
-  padding:11px 12px;
-  background:#f5f6f7;
-  border:1px solid #dfe2e5;
-  border-radius:9px;
-  margin-bottom:7px;
-  font-weight:700;
-}
-
-.menu-button:hover{
-  background:#eceff2;
-}
-
-.menu-button.active{
-  background:#222;
-  color:#fff;
-  border-color:#222;
-}
-
-.form-row{
-  display:flex;
-  gap:7px;
-  margin-bottom:8px;
-}
-
-.form-row > *{
-  min-width:0;
+.formGroup{
+ margin-bottom:12px;
 }
 
 input[type="text"],
-input[type="number"],
-input[type="color"],
-select{
-  width:100%;
-  padding:9px 10px;
-  border:1px solid #cfd4d9;
-  border-radius:7px;
-  background:#fff;
+input[type="number"]{
+ width:100%;
+ height:40px;
+ border:1px solid #cfd4db;
+ border-radius:8px;
+ padding:0 10px;
+ outline:none;
+ background:#fff;
+}
+
+input:focus{
+ border-color:#555;
 }
 
 input[type="color"]{
-  height:42px;
-  padding:3px;
+ width:100%;
+ height:40px;
+ padding:3px;
+ border:1px solid #cfd4db;
+ border-radius:8px;
+ background:#fff;
 }
 
-.small-button{
-  padding:9px 11px;
-  border-radius:7px;
-  background:#222;
-  color:#fff;
-  font-weight:700;
-  white-space:nowrap;
+button.full{
+ width:100%;
+ height:41px;
+ border-radius:8px;
+ border:1px solid #cfd4db;
+ background:#fff;
+ font-weight:700;
 }
 
-.secondary-button{
-  padding:9px 11px;
-  border-radius:7px;
-  background:#eef0f2;
-  border:1px solid #d6d9dd;
-  font-weight:700;
-  white-space:nowrap;
+button.full.primary{
+ background:#222;
+ color:#fff;
+ border-color:#222;
 }
 
-.danger-button{
-  padding:9px 11px;
-  border-radius:7px;
-  background:#fff0f0;
-  color:#b00000;
-  border:1px solid #efbaba;
-  font-weight:700;
+button.full.danger{
+ color:#a0001b;
+ border-color:#ddb2ba;
 }
 
-/* =========================
-   LIST
-========================= */
-
-.list-item{
-  width:100%;
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding:10px;
-  background:#fff;
-  border:1px solid #dfe2e5;
-  border-radius:9px;
-  margin-bottom:7px;
-  text-align:left;
+.spacer{
+ height:8px;
 }
 
-.list-item:hover{
-  background:#f7f8f9;
+hr{
+ border:0;
+ border-top:1px solid #e4e6e9;
+ margin:18px 0;
 }
 
-.list-item-main{
-  flex:1;
-  min-width:0;
+.rangeRow{
+ display:flex;
+ align-items:center;
+ gap:10px;
 }
 
-.list-item-name{
-  font-weight:800;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
+.rangeRow input{
+ flex:1;
 }
 
-.list-item-sub{
-  font-size:12px;
-  color:#737b84;
-  margin-top:2px;
-}
-
-.route-mini{
-  width:35px;
-  height:35px;
-  flex:none;
-  border-radius:9px;
-  border:4px solid #7fce39;
-  background:#fff;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:9px;
-  font-weight:900;
+.rangeValue{
+ width:45px;
+ text-align:right;
+ font-size:12px;
+ font-weight:800;
 }
 
 /* =========================
-   MODE BAR
+   リスト
 ========================= */
 
-.modebar{
+.list{
+ display:flex;
+ flex-direction:column;
+ gap:7px;
+}
+
+.empty{
+ text-align:center;
+ color:#777;
+ font-size:13px;
+ padding:22px 10px;
+}
+
+.listItem{
+ width:100%;
+ min-height:58px;
+ display:flex;
+ align-items:center;
+ gap:10px;
+ padding:8px;
+ border:1px solid #dfe2e6;
+ background:#fff;
+ border-radius:9px;
+ text-align:left;
+}
+
+.listItem:hover{
+ background:#f6f7f8;
+}
+
+.listIcon{
+ width:40px;
+ min-width:40px;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+}
+
+.listMain{
+ min-width:0;
+ flex:1;
+}
+
+.listName{
+ font-size:14px;
+ font-weight:800;
+ overflow:hidden;
+ text-overflow:ellipsis;
+ white-space:nowrap;
+}
+
+.listSub{
+ margin-top:3px;
+ font-size:11px;
+ color:#777;
+}
+
+/* 路線アイコン */
+
+.routeIcon{
+ width:38px;
+ height:38px;
+ border-radius:9px;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ position:relative;
+ color:#fff;
+ font-size:12px;
+ font-weight:900;
+ border:2px solid #fff;
+ box-shadow:0 0 0 1px rgba(0,0,0,.25);
+}
+
+.routeIcon:before{
+ content:"";
+ position:absolute;
+ inset:5px;
+ border:2px solid rgba(255,255,255,.95);
+ border-radius:4px;
+}
+
+.routeIcon span{
+ position:relative;
+ z-index:2;
+}
+
+/* 駅アイコン */
+
+.stationIcon{
+ width:18px;
+ height:18px;
+ border:3px solid #222;
+ border-radius:50%;
+ background:#fff;
+}
+
+/* =========================
+   地図
+========================= */
+
+#mapArea{
+ position:relative;
+ flex:1;
+ min-width:0;
+ height:100%;
+}
+
+#map{
+ width:100%;
+ height:100%;
+}
+
+/* ツールバー */
+
+#toolbar{
+ position:absolute;
+ top:12px;
+ left:12px;
+ z-index:1200;
+ display:flex;
+ flex-wrap:wrap;
+ gap:6px;
+ max-width:calc(100% - 24px);
+}
+
+.tool{
+ min-height:42px;
+ padding:0 13px;
+ border:1px solid #cfd3d9;
+ border-radius:9px;
+ background:#fff;
+ box-shadow:0 2px 8px rgba(0,0,0,.14);
+ font-size:13px;
+ font-weight:800;
+}
+
+.tool.active{
+ background:#222;
+ color:#fff;
+ border-color:#222;
+}
+
+.tool.delete{
+ color:#a0001b;
+}
+
+.tool.delete.active{
+ background:#a0001b;
+ color:#fff;
+}
+
+/* ステータス */
+
+#status{
+ position:absolute;
+ left:12px;
+ bottom:16px;
+ z-index:1200;
+ max-width:calc(100% - 24px);
+ padding:9px 12px;
+ background:rgba(255,255,255,.96);
+ border:1px solid #d8dce1;
+ border-radius:8px;
+ box-shadow:0 2px 8px rgba(0,0,0,.12);
+ font-size:12px;
+}
+
+/* =========================
+   ノード
+========================= */
+
+.nodeContainer{
+ display:flex;
+ align-items:center;
+ gap:5px;
+ white-space:nowrap;
+}
+
+.nodeDot{
+ width:var(--nodeSize);
+ height:var(--nodeSize);
+ border-radius:50%;
+ background:#fff;
+ border:3px solid #222;
+ box-shadow:0 1px 4px rgba(0,0,0,.3);
+}
+
+.nodeDot.branch{
+ background:#eee;
+ border-color:#555;
+}
+
+.nodeLabel{
+ background:rgba(255,255,255,.96);
+ border:1px solid rgba(0,0,0,.2);
+ border-radius:5px;
+ padding:2px 5px;
+ font-size:12px;
+ font-weight:800;
+ box-shadow:0 1px 4px rgba(0,0,0,.15);
+ pointer-events:none;
+}
+
+/* =========================
+   詳細
+========================= */
+
+.back{
+ width:100%;
+ height:38px;
+ border:1px solid #d1d5da;
+ border-radius:8px;
+ background:#fff;
+ font-weight:700;
+ margin-bottom:14px;
+}
+
+.detailHeader{
+ display:flex;
+ align-items:center;
+ gap:12px;
+ margin-bottom:18px;
+}
+
+.detailRouteIcon{
+ width:68px;
+ height:68px;
+ min-width:68px;
+ border-radius:13px;
+ position:relative;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ color:#fff;
+ font-size:20px;
+ font-weight:900;
+ border:3px solid #fff;
+ box-shadow:0 0 0 1px rgba(0,0,0,.25);
+}
+
+.detailRouteIcon:before{
+ content:"";
+ position:absolute;
+ inset:7px;
+ border:3px solid rgba(255,255,255,.95);
+ border-radius:5px;
+}
+
+.detailRouteIcon span{
+ position:relative;
+ z-index:2;
+}
+
+.detailTitle{
+ min-width:0;
+}
+
+.detailTitle h2{
+ margin:0;
+ font-size:20px;
+}
+
+.detailTitle p{
+ margin:5px 0 0;
+ color:#777;
+ font-size:12px;
+}
+
+.stationRow{
+ min-height:52px;
+ display:flex;
+ align-items:center;
+ gap:10px;
+ border-bottom:1px solid #e6e8eb;
+ cursor:pointer;
+ padding:7px 4px;
+}
+
+.stationRow:hover{
+ background:#f6f7f8;
+}
+
+.stationNumber{
+ width:30px;
+ height:30px;
+ border-radius:50%;
+ background:#222;
+ color:#fff;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ flex:none;
+ font-size:12px;
+ font-weight:800;
+}
+
+.stationRowName{
+ font-size:14px;
+ font-weight:700;
+}
+
+.stationRowType{
+ margin-left:auto;
+ color:#888;
+ font-size:10px;
+}
+
+.inline{
+ display:flex;
+ gap:7px;
+}
+
+.inline>*{
+ flex:1;
+}
+
+/* =========================
+   モバイル
+========================= */
+
+#mobileMenu{
+ display:none;
+ position:absolute;
+ top:10px;
+ right:10px;
+ z-index:1500;
+ width:44px;
+ height:44px;
+ border:1px solid #ccc;
+ border-radius:9px;
+ background:#fff;
+ box-shadow:0 2px 8px rgba(0,0,0,.15);
+ font-size:20px;
+ font-weight:900;
+}
+
+@media(max-width:800px){
+
+ #sidebar{
   position:absolute;
-  left:15px;
-  top:15px;
-  z-index:1000;
-  display:flex;
-  gap:6px;
-  background:#fff;
-  padding:6px;
-  border-radius:10px;
-  box-shadow:0 3px 15px rgba(0,0,0,.16);
-}
+  left:0;
+  top:0;
+  bottom:0;
+  transform:translateX(-100%);
+  transition:transform .2s ease;
+  box-shadow:3px 0 15px rgba(0,0,0,.2);
+ }
 
-.mode-btn{
-  padding:9px 12px;
-  border-radius:7px;
-  background:#f0f2f4;
-  font-weight:800;
-}
+ #sidebar.open{
+  transform:translateX(0);
+ }
 
-.mode-btn.active{
-  background:#222;
-  color:#fff;
-}
-
-/* =========================
-   MAP INFO
-========================= */
-
-.map-status{
-  position:absolute;
-  left:15px;
-  bottom:15px;
-  z-index:1000;
-  background:rgba(255,255,255,.95);
-  border:1px solid #d8dce0;
-  box-shadow:0 2px 10px rgba(0,0,0,.12);
-  border-radius:9px;
-  padding:8px 11px;
-  font-size:13px;
-  font-weight:700;
-}
-
-/* =========================
-   MODAL
-========================= */
-
-.modal-backdrop{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.38);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:5000;
-  padding:18px;
-}
-
-.modal-backdrop.show{
-  display:flex;
-}
-
-.modal{
-  width:min(760px,100%);
-  max-height:min(90vh,900px);
-  background:#fff;
-  border-radius:16px;
-  overflow:hidden;
-  box-shadow:0 15px 60px rgba(0,0,0,.3);
-  display:flex;
-  flex-direction:column;
-}
-
-.modal-header{
-  padding:15px 18px;
-  border-bottom:1px solid #e0e3e6;
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
-
-.modal-title{
-  font-weight:900;
-  font-size:20px;
-  flex:1;
-}
-
-.close-btn{
-  width:36px;
-  height:36px;
-  border-radius:8px;
-  background:#f0f2f4;
-  font-size:22px;
-  line-height:1;
-}
-
-.modal-body{
-  padding:18px;
-  overflow:auto;
-}
-
-.modal-footer{
-  padding:13px 18px;
-  border-top:1px solid #e0e3e6;
-  display:flex;
-  justify-content:flex-end;
-  gap:8px;
-}
-
-/* =========================
-   ROUTE HEADER / NUMBERING
-========================= */
-
-.route-header-card{
-  display:flex;
-  align-items:center;
-  gap:18px;
-  padding:18px;
-  background:#f7f8f9;
-  border:1px solid #e0e3e6;
-  border-radius:13px;
-  margin-bottom:18px;
-}
-
-.route-logo-large{
-  width:115px;
-  height:115px;
-  border-radius:22px;
+ #mobileMenu{
   display:flex;
   align-items:center;
   justify-content:center;
-  flex:none;
-  position:relative;
-  background:#7fce39;
-  box-shadow:
-    inset 0 0 0 4px rgba(0,0,0,.08);
-}
+ }
 
-.route-logo-inner{
-  width:78px;
-  height:78px;
-  background:#fff;
-  border:4px solid #fff;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  color:#222;
-  line-height:1;
-  font-weight:1000;
-  border-radius:0;
-}
+ #toolbar{
+  right:10px;
+ }
 
-.route-logo-code{
-  font-size:27px;
-  letter-spacing:-1px;
-}
-
-.route-logo-number{
-  font-size:31px;
-  margin-top:6px;
-}
-
-.route-title-large{
-  min-width:0;
-}
-
-.route-title-large h2{
-  margin:0;
-  font-size:29px;
-}
-
-.route-title-large p{
-  margin:5px 0 0;
-  color:#6d747b;
-  font-weight:700;
-}
-
-.station-list{
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-}
-
-.station-row{
-  display:flex;
-  align-items:center;
-  gap:11px;
-  border:1px solid #e0e3e6;
-  border-radius:10px;
-  padding:9px;
-  background:#fff;
-}
-
-.station-row:hover{
-  background:#f8f9fa;
-}
-
-.station-row-number{
-  width:48px;
-  flex:none;
-  display:flex;
-  justify-content:center;
-}
-
-.station-row-name{
-  flex:1;
-  font-size:16px;
-  font-weight:800;
-}
-
-.station-row-actions{
-  display:flex;
-  gap:5px;
-}
-
-.tiny-button{
-  padding:6px 8px;
-  border-radius:6px;
-  background:#eef0f2;
+ .tool{
+  min-height:39px;
+  padding:0 9px;
   font-size:12px;
-  font-weight:800;
-}
-
-/* =========================
-   STATION DETAIL
-========================= */
-
-.station-detail-head{
-  padding:18px;
-  border-radius:13px;
-  background:#f7f8f9;
-  border:1px solid #e0e3e6;
-  margin-bottom:18px;
-}
-
-.station-detail-head h2{
-  margin:0;
-  font-size:28px;
-}
-
-.station-detail-head p{
-  margin:5px 0 0;
-  color:#70777f;
-}
-
-.line-card{
-  display:flex;
-  align-items:center;
-  gap:13px;
-  padding:12px;
-  border:1px solid #dfe2e5;
-  border-radius:11px;
-  margin-bottom:8px;
-}
-
-.line-card-info{
-  flex:1;
-  min-width:0;
-}
-
-.line-card-name{
-  font-weight:900;
-}
-
-.line-card-code{
-  color:#747b82;
-  font-size:13px;
-}
-
-.numbering-logo{
-  width:54px;
-  height:54px;
-  flex:none;
-  border-radius:11px;
-  background:#7fce39;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:5px;
-}
-
-.numbering-logo .inner{
-  background:#fff;
-  width:100%;
-  height:100%;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  color:#222;
-  font-weight:1000;
-  line-height:1;
-}
-
-.numbering-logo .code{
-  font-size:13px;
-}
-
-.numbering-logo .num{
-  font-size:16px;
-  margin-top:3px;
-}
-
-/* =========================
-   LEAFLET OVERRIDES
-========================= */
-
-.leaflet-control-zoom a{
-  font-weight:900;
-}
-
-.leaflet-popup-content{
-  margin:12px 14px;
-}
-
-.popup-name{
-  font-weight:900;
-  font-size:16px;
-}
-
-.popup-actions{
-  display:flex;
-  gap:5px;
-  margin-top:8px;
-}
-
-.popup-actions button{
-  padding:6px 8px;
-  background:#f0f2f4;
-  border-radius:6px;
-  font-weight:800;
-}
-
-/* =========================
-   RESPONSIVE
-========================= */
-
-@media(max-width:850px){
-
-  header{
-    height:54px;
-    padding:0 8px;
-    gap:6px;
-  }
-
-  .logo{
-    font-size:16px;
-  }
-
-  .header-btn{
-    padding:7px 8px;
-    font-size:12px;
-  }
-
-  .sidebar{
-    position:absolute;
-    left:0;
-    top:0;
-    bottom:0;
-    width:min(330px,88vw);
-    transform:translateX(-100%);
-    transition:transform .2s ease;
-    box-shadow:4px 0 18px rgba(0,0,0,.16);
-  }
-
-  .sidebar.open{
-    transform:translateX(0);
-  }
-
-  .modebar{
-    left:8px;
-    top:8px;
-  }
-
-  .map-status{
-    left:8px;
-    bottom:8px;
-  }
-
-}
-
-@media(min-width:851px){
-  .mobile-menu-button{
-    display:none;
-  }
+ }
 }
 </style>
 </head>
@@ -693,371 +578,308 @@ input[type="color"]{
 
 <div id="app">
 
-<header>
+<aside id="sidebar">
 
-  <button
-    class="header-btn mobile-menu-button"
-    id="menuToggle"
-  >☰</button>
+ <div id="header">
+  架空路線マップメーカー
+ </div>
 
-  <div class="logo">
-    路線マップメーカー
-  </div>
+ <div id="menu">
 
-  <div class="header-actions">
+  <button class="menuButton active" data-panel="mapPanel">
+   マップ
+  </button>
 
-    <button
-      class="header-btn"
-      id="addStationBtn"
-    >＋駅</button>
+  <button class="menuButton" data-panel="routesPanel">
+   路線一覧
+  </button>
 
-    <button
-      class="header-btn"
-      id="addJunctionBtn"
-    >＋分岐点</button>
+  <button class="menuButton" data-panel="stationsPanel">
+   駅一覧
+  </button>
 
-    <button
-      class="header-btn"
-      id="addRouteBtn"
-    >＋路線</button>
+ </div>
 
-    <button
-      class="header-btn"
-      id="routeDetailBtn"
-    >路線詳細</button>
+ <!-- マップパネル -->
 
-  </div>
+ <section id="mapPanel" class="panel active">
 
-  <div class="header-spacer"></div>
+  <div class="panelInner">
 
-  <button
-    class="header-btn"
-    id="saveBtn"
-  >保存</button>
+   <div class="title">
+    マップ操作
+   </div>
 
-</header>
+   <div class="description">
+    駅や分岐点を配置してから、接続モードで点を順番にクリックして路線を作成します。
+    点を配置しただけでは線は作成されません。
+   </div>
 
-<div class="main">
+   <div class="formGroup">
+    <label>駅名</label>
+    <input
+     id="newStationName"
+     type="text"
+     placeholder="例：東京駅"
+    >
+   </div>
 
-  <aside class="sidebar" id="sidebar">
+   <button
+    id="stationModeButton"
+    class="full"
+   >
+    駅を追加
+   </button>
 
-    <div class="sidebar-head">
-      <div class="sidebar-title">メニュー</div>
-    </div>
+   <div class="spacer"></div>
 
-    <div class="sidebar-content">
+   <button
+    id="branchModeButton"
+    class="full"
+   >
+    分岐点を追加
+   </button>
 
-      <div class="section">
+   <div class="spacer"></div>
 
-        <div class="section-title">
-          路線
-        </div>
+   <button
+    id="moveModeButton"
+    class="full"
+   >
+    移動
+   </button>
 
-        <div id="routeList"></div>
+   <div class="spacer"></div>
 
-      </div>
+   <button
+    id="connectModeButton"
+    class="full primary"
+   >
+    接続
+   </button>
 
-      <div class="section">
+   <div class="spacer"></div>
 
-        <div class="section-title">
-          駅・分岐点
-        </div>
+   <button
+    id="deleteModeButton"
+    class="full danger"
+   >
+    駅・分岐点を削除
+   </button>
 
-        <div id="stationList"></div>
+   <hr>
 
-      </div>
+   <div class="title">
+    表示設定
+   </div>
 
-      <div class="section">
+   <div class="formGroup">
 
-        <div class="section-title">
-          表示設定
-        </div>
+    <label>線の太さ</label>
 
-        <div class="form-row">
-          <label style="flex:1">
-            <div style="font-size:12px;font-weight:800;margin-bottom:4px">
-              線の太さ
-            </div>
-            <input
-              type="number"
-              id="lineWidth"
-              min="1"
-              max="30"
-              step="1"
-            >
-          </label>
+    <div class="rangeRow">
 
-          <label style="flex:1">
-            <div style="font-size:12px;font-weight:800;margin-bottom:4px">
-              点の大きさ
-            </div>
-            <input
-              type="number"
-              id="pointSize"
-              min="3"
-              max="30"
-              step="1"
-            >
-          </label>
-        </div>
+     <input
+      id="lineWidth"
+      type="range"
+      min="2"
+      max="20"
+      value="7"
+     >
 
-        <button
-          class="small-button"
-          style="width:100%"
-          id="applyStyleBtn"
-        >
-          一括設定を適用
-        </button>
-
-      </div>
-
-      <div class="section">
-
-        <div class="section-title">
-          選択中の路線
-        </div>
-
-        <div id="selectedRoutePanel"></div>
-
-      </div>
+     <span
+      id="lineWidthValue"
+      class="rangeValue"
+     >
+      7px
+     </span>
 
     </div>
 
-  </aside>
+   </div>
 
-  <div id="map"></div>
+   <div class="formGroup">
 
-  <div class="modebar">
+    <label>点の大きさ</label>
 
-    <button
-      class="mode-btn active"
-      data-mode="move"
+    <div class="rangeRow">
+
+     <input
+      id="nodeSize"
+      type="range"
+      min="8"
+      max="28"
+      value="14"
+     >
+
+     <span
+      id="nodeSizeValue"
+      class="rangeValue"
+     >
+      14px
+     </span>
+
+    </div>
+
+   </div>
+
+   <hr>
+
+   <div class="title">
+    路線追加
+   </div>
+
+   <div class="formGroup">
+
+    <label>路線名</label>
+
+    <input
+     id="routeName"
+     type="text"
+     placeholder="例：山手線"
     >
-      移動
-    </button>
 
-    <button
-      class="mode-btn"
-      data-mode="connect"
-    >
-      接続
-    </button>
+   </div>
 
-    <button
-      class="mode-btn"
-      data-mode="station"
-    >
-      駅
-    </button>
+   <div class="formGroup">
 
-    <button
-      class="mode-btn"
-      data-mode="junction"
+    <label>路線アルファベット</label>
+
+    <input
+     id="routeCode"
+     type="text"
+     maxlength="6"
+     placeholder="例：JY"
     >
-      分岐点
-    </button>
+
+   </div>
+
+   <div class="formGroup">
+
+    <label>路線色</label>
+
+    <input
+     id="routeColor"
+     type="color"
+     value="#80C342"
+    >
+
+   </div>
+
+   <button
+    id="addRoute"
+    class="full primary"
+   >
+    路線を追加
+   </button>
 
   </div>
+
+ </section>
+
+ <!-- 路線一覧 -->
+
+ <section id="routesPanel" class="panel">
+
+  <div class="panelInner">
+
+   <div class="title">
+    路線一覧
+   </div>
+
+   <div
+    id="routeList"
+    class="list"
+   ></div>
+
+  </div>
+
+ </section>
+
+ <!-- 駅一覧 -->
+
+ <section id="stationsPanel" class="panel">
+
+  <div class="panelInner">
+
+   <div class="title">
+    駅一覧
+   </div>
+
+   <div
+    id="stationList"
+    class="list"
+   ></div>
+
+  </div>
+
+ </section>
+
+ <!-- 詳細 -->
+
+ <section id="detailPanel" class="panel">
 
   <div
-    class="map-status"
-    id="mapStatus"
+   id="detailContent"
+   class="panelInner"
+  ></div>
+
+ </section>
+
+</aside>
+
+<main id="mapArea">
+
+ <div id="map"></div>
+
+ <button id="mobileMenu">
+  ☰
+ </button>
+
+ <div id="toolbar">
+
+  <button
+   id="toolbarMove"
+   class="tool active"
   >
-    移動モード
-  </div>
+   移動
+  </button>
 
-</div>
+  <button
+   id="toolbarStation"
+   class="tool"
+  >
+   駅追加
+  </button>
 
-</div>
+  <button
+   id="toolbarBranch"
+   class="tool"
+  >
+   分岐点追加
+  </button>
 
-<!-- =========================
-     ROUTE DETAIL MODAL
-========================= -->
+  <button
+   id="toolbarConnect"
+   class="tool"
+  >
+   接続
+  </button>
 
-<div
-  class="modal-backdrop"
-  id="routeDetailModal"
->
+  <button
+   id="toolbarDelete"
+   class="tool delete"
+  >
+   削除
+  </button>
 
-  <div class="modal">
+ </div>
 
-    <div class="modal-header">
+ <div id="status">
+  移動モード
+ </div>
 
-      <div
-        class="modal-title"
-        id="routeDetailTitle"
-      >
-        路線詳細
-      </div>
-
-      <button
-        class="close-btn"
-        data-close="routeDetailModal"
-      >
-        ×
-      </button>
-
-    </div>
-
-    <div
-      class="modal-body"
-      id="routeDetailBody"
-    ></div>
-
-  </div>
-
-</div>
-
-<!-- =========================
-     STATION DETAIL MODAL
-========================= -->
-
-<div
-  class="modal-backdrop"
-  id="stationDetailModal"
->
-
-  <div class="modal">
-
-    <div class="modal-header">
-
-      <div
-        class="modal-title"
-        id="stationDetailTitle"
-      >
-        駅詳細
-      </div>
-
-      <button
-        class="close-btn"
-        data-close="stationDetailModal"
-      >
-        ×
-      </button>
-
-    </div>
-
-    <div
-      class="modal-body"
-      id="stationDetailBody"
-    ></div>
-
-  </div>
-
-</div>
-
-<!-- =========================
-     ROUTE CREATE MODAL
-========================= -->
-
-<div
-  class="modal-backdrop"
-  id="routeCreateModal"
->
-
-  <div class="modal">
-
-    <div class="modal-header">
-
-      <div class="modal-title">
-        路線を追加
-      </div>
-
-      <button
-        class="close-btn"
-        data-close="routeCreateModal"
-      >
-        ×
-      </button>
-
-    </div>
-
-    <div class="modal-body">
-
-      <div class="section">
-
-        <div class="section-title">
-          路線名
-        </div>
-
-        <input
-          type="text"
-          id="newRouteName"
-          placeholder="例：山手線"
-        >
-
-      </div>
-
-      <div class="section">
-
-        <div class="section-title">
-          路線アルファベット
-        </div>
-
-        <input
-          type="text"
-          id="newRouteCode"
-          placeholder="例：JY"
-          maxlength="4"
-        >
-
-      </div>
-
-      <div class="section">
-
-        <div class="section-title">
-          路線色
-        </div>
-
-        <input
-          type="color"
-          id="newRouteColor"
-          value="#7fcf3d"
-        >
-
-      </div>
-
-      <div class="section">
-
-        <div class="section-title">
-          ナンバリング
-        </div>
-
-        <select id="newRouteNumbering">
-
-          <option value="sequential">
-            クリック順に自動採番
-          </option>
-
-          <option value="none">
-            ナンバリングなし
-          </option>
-
-        </select>
-
-      </div>
-
-    </div>
-
-    <div class="modal-footer">
-
-      <button
-        class="secondary-button"
-        data-close="routeCreateModal"
-      >
-        キャンセル
-      </button>
-
-      <button
-        class="small-button"
-        id="createRouteConfirm"
-      >
-        路線を作成
-      </button>
-
-    </div>
-
-  </div>
+</main>
 
 </div>
 
@@ -1067,2419 +889,1935 @@ input[type="color"]{
 "use strict";
 
 /* =========================================================
-   DATA
+   データ
 ========================================================= */
 
-const defaultData = {
+const state = {
 
-  settings:{
-    lineWidth:6,
-    pointSize:9
-  },
+ nodes:[],
+ edges:[],
+ routes:[],
 
-  routes:[
-    {
-      id:"route-yamanote",
-      name:"山手線",
-      code:"JY",
-      color:"#7fcf3d",
-      numbering:true,
-      stations:[]
-    }
-  ],
+ nextNodeId:1,
+ nextEdgeId:1,
+ nextRouteId:1,
 
-  nodes:[
-    {
-      id:"JY01",
-      name:"東京",
-      type:"station",
-      lat:35.681236,
-      lng:139.767125
-    },
-    {
-      id:"JY02",
-      name:"神田",
-      type:"station",
-      lat:35.69169,
-      lng:139.77088
-    },
-    {
-      id:"JY03",
-      name:"秋葉原",
-      type:"station",
-      lat:35.698683,
-      lng:139.774219
-    },
-    {
-      id:"JY04",
-      name:"御徒町",
-      type:"station",
-      lat:35.707438,
-      lng:139.774632
-    },
-    {
-      id:"JY05",
-      name:"上野",
-      type:"station",
-      lat:35.713768,
-      lng:139.777254
-    },
-    {
-      id:"JY06",
-      name:"鶯谷",
-      type:"station",
-      lat:35.720495,
-      lng:139.778837
-    },
-    {
-      id:"JY07",
-      name:"日暮里",
-      type:"station",
-      lat:35.727772,
-      lng:139.770987
-    },
-    {
-      id:"JY08",
-      name:"西日暮里",
-      type:"station",
-      lat:35.732135,
-      lng:139.766787
-    },
-    {
-      id:"JY09",
-      name:"田端",
-      type:"station",
-      lat:35.738062,
-      lng:139.76086
-    },
-    {
-      id:"JY10",
-      name:"駒込",
-      type:"station",
-      lat:35.736489,
-      lng:139.746875
-    },
-    {
-      id:"JY11",
-      name:"巣鴨",
-      type:"station",
-      lat:35.733492,
-      lng:139.739345
-    },
-    {
-      id:"JY12",
-      name:"大塚",
-      type:"station",
-      lat:35.731401,
-      lng:139.728573
-    },
-    {
-      id:"JY13",
-      name:"池袋",
-      type:"station",
-      lat:35.729503,
-      lng:139.7109
-    },
-    {
-      id:"JY14",
-      name:"目白",
-      type:"station",
-      lat:35.721204,
-      lng:139.706587
-    },
-    {
-      id:"JY15",
-      name:"高田馬場",
-      type:"station",
-      lat:35.712285,
-      lng:139.703782
-    },
-    {
-      id:"JY16",
-      name:"新大久保",
-      type:"station",
-      lat:35.7009,
-      lng:139.7003
-    },
-    {
-      id:"JY17",
-      name:"新宿",
-      type:"station",
-      lat:35.689606,
-      lng:139.700571
-    },
-    {
-      id:"JY18",
-      name:"代々木",
-      type:"station",
-      lat:35.683061,
-      lng:139.702042
-    },
-    {
-      id:"JY19",
-      name:"原宿",
-      type:"station",
-      lat:35.670168,
-      lng:139.702687
-    },
-    {
-      id:"JY20",
-      name:"渋谷",
-      type:"station",
-      lat:35.658034,
-      lng:139.701636
-    },
-    {
-      id:"JY21",
-      name:"恵比寿",
-      type:"station",
-      lat:35.64669,
-      lng:139.710106
-    },
-    {
-      id:"JY22",
-      name:"目黒",
-      type:"station",
-      lat:35.633998,
-      lng:139.715828
-    },
-    {
-      id:"JY23",
-      name:"五反田",
-      type:"station",
-      lat:35.626446,
-      lng:139.723444
-    },
-    {
-      id:"JY24",
-      name:"大崎",
-      type:"station",
-      lat:35.6197,
-      lng:139.7286
-    },
-    {
-      id:"JY25",
-      name:"品川",
-      type:"station",
-      lat:35.628471,
-      lng:139.73876
-    },
-    {
-      id:"JY26",
-      name:"高輪ゲートウェイ",
-      type:"station",
-      lat:35.635511,
-      lng:139.7402
-    },
-    {
-      id:"JY27",
-      name:"田町",
-      type:"station",
-      lat:35.645736,
-      lng:139.747574
-    },
-    {
-      id:"JY28",
-      name:"浜松町",
-      type:"station",
-      lat:35.655391,
-      lng:139.757127
-    },
-    {
-      id:"JY29",
-      name:"新橋",
-      type:"station",
-      lat:35.666195,
-      lng:139.758587
-    },
-    {
-      id:"JY30",
-      name:"有楽町",
-      type:"station",
-      lat:35.674997,
-      lng:139.763
-    }
-  ],
+ mode:"move",
 
-  connections:[]
+ connectingRouteId:null,
+ connectLastNodeId:null,
+
+ lineWidth:7,
+ nodeSize:14
 };
 
-/* =========================================================
-   STATE
-========================================================= */
-
-let data = loadData();
-
-let map;
-
-let mode = "move";
-
-let selectedRouteId = "route-yamanote";
-
-let selectedNodeId = null;
-
-let connectLastNodeId = null;
-
-let markerLayer = L.layerGroup();
-
-let lineLayer = L.layerGroup();
-
-let nodeMarkers = new Map();
-
-let connectionLayers = [];
-
-let routePolylineLayers = new Map();
+const STORAGE_KEY =
+ "rosenzumeekaa_data_v3";
 
 /* =========================================================
-   INITIALIZE
+   保存
 ========================================================= */
 
-document.addEventListener("DOMContentLoaded",()=>{
+function save(){
 
-  initMap();
-
-  bindUI();
-
-  createDefaultYamanoteConnections();
-
-  normalizeRouteStations();
-
-  renderEverything();
-
-});
-
-/* =========================================================
-   MAP
-========================================================= */
-
-function initMap(){
-
-  map = L.map("map",{
-    zoomControl:true,
-    attributionControl:true
-  }).setView(
-    [35.681236,139.767125],
-    12
-  );
-
-  L.tileLayer(
-    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    {
-      maxZoom:19,
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }
-  ).addTo(map);
-
-  lineLayer.addTo(map);
-
-  markerLayer.addTo(map);
+ localStorage.setItem(
+  STORAGE_KEY,
+  JSON.stringify(state)
+ );
 
 }
 
 /* =========================================================
-   DEFAULT YAMANOTE
+   読み込み
 ========================================================= */
 
-function createDefaultYamanoteConnections(){
+function load(){
 
-  const route = data.routes.find(
-    r=>r.id==="route-yamanote"
-  );
+ const raw =
+  localStorage.getItem(STORAGE_KEY);
 
-  if(!route){
-    return;
+ if(!raw){
+  return;
+ }
+
+ try{
+
+  const data =
+   JSON.parse(raw);
+
+  if(Array.isArray(data.nodes)){
+   state.nodes=data.nodes;
   }
 
-  if(route.stations.length>0){
-    return;
+  if(Array.isArray(data.edges)){
+   state.edges=data.edges;
   }
 
-  route.stations =
-    data.nodes
-      .filter(n=>n.type==="station")
-      .sort((a,b)=>{
-
-        const an=parseInt(
-          a.id.replace("JY",""),
-          10
-        );
-
-        const bn=parseInt(
-          b.id.replace("JY",""),
-          10
-        );
-
-        return an-bn;
-
-      })
-      .map(n=>n.id);
-
-  for(let i=0;i<route.stations.length-1;i++){
-
-    addConnection(
-      route.id,
-      route.stations[i],
-      route.stations[i+1]
-    );
-
+  if(Array.isArray(data.routes)){
+   state.routes=data.routes;
   }
 
-  addConnection(
-    route.id,
-    route.stations[route.stations.length-1],
-    route.stations[0]
-  );
+  state.nextNodeId =
+   Number(data.nextNodeId)||1;
 
-}
+  state.nextEdgeId =
+   Number(data.nextEdgeId)||1;
 
-/* =========================================================
-   CONNECTION
-========================================================= */
+  state.nextRouteId =
+   Number(data.nextRouteId)||1;
 
-function addConnection(routeId,a,b){
+  state.lineWidth =
+   Number(data.lineWidth)||7;
 
-  if(!a || !b || a===b){
-    return false;
-  }
+  state.nodeSize =
+   Number(data.nodeSize)||14;
 
-  const route =
-    data.routes.find(r=>r.id===routeId);
-
-  if(!route){
-    return false;
-  }
-
-  const exists =
-    data.connections.some(
-      c=>
-        c.routeId===routeId &&
-        (
-          (c.a===a && c.b===b) ||
-          (c.a===b && c.b===a)
-        )
-    );
-
-  if(exists){
-    return false;
-  }
-
-  data.connections.push({
-    id:"connection-"+Date.now()+"-"+Math.random(),
-    routeId,
-    a,
-    b
-  });
-
-  return true;
-}
-
-/* =========================================================
-   NORMALIZE ROUTE STATIONS
-========================================================= */
-
-function normalizeRouteStations(){
-
-  data.routes.forEach(route=>{
-
-    if(!Array.isArray(route.stations)){
-      route.stations=[];
-    }
-
-    route.stations =
-      route.stations.filter(
-        id=>data.nodes.some(n=>n.id===id)
-      );
-
-  });
-
-}
-
-/* =========================================================
-   RENDER
-========================================================= */
-
-function renderEverything(){
-
-  renderMap();
-
-  renderRouteList();
-
-  renderStationList();
-
-  renderSelectedRoutePanel();
-
-  updateInputs();
-
-}
-
-/* =========================================================
-   MAP RENDER
-========================================================= */
-
-function renderMap(){
-
-  markerLayer.clearLayers();
-
-  lineLayer.clearLayers();
-
-  nodeMarkers.clear();
-
-  connectionLayers=[];
-
-  routePolylineLayers.clear();
-
-  data.connections.forEach(connection=>{
-
-    const route =
-      data.routes.find(
-        r=>r.id===connection.routeId
-      );
-
-    const a =
-      data.nodes.find(
-        n=>n.id===connection.a
-      );
-
-    const b =
-      data.nodes.find(
-        n=>n.id===connection.b
-      );
-
-    if(!route || !a || !b){
-      return;
-    }
-
-    const polyline =
-      L.polyline(
-        [
-          [a.lat,a.lng],
-          [b.lat,b.lng]
-        ],
-        {
-          color:route.color,
-          weight:data.settings.lineWidth,
-          opacity:.95,
-          lineCap:"round",
-          lineJoin:"round"
-        }
-      );
-
-    polyline.addTo(lineLayer);
-
-    connectionLayers.push(polyline);
-
-  });
-
-  data.nodes.forEach(node=>{
-
-    const marker =
-      createNodeMarker(node);
-
-    marker.addTo(markerLayer);
-
-    nodeMarkers.set(
-      node.id,
-      marker
-    );
-
-  });
-
-}
-
-/* =========================================================
-   NODE MARKER
-========================================================= */
-
-function createNodeMarker(node){
-
-  const size =
-    data.settings.pointSize*2;
-
-  let className =
-    node.type==="station"
-      ? "station-map-marker"
-      : "junction-map-marker";
-
-  const div =
-    L.divIcon({
-
-      className:"custom-node-icon",
-
-      html:
-        `
-        <div
-          class="${className}"
-          style="
-            width:${size}px;
-            height:${size}px;
-          "
-        ></div>
-        `,
-
-      iconSize:[
-        size,
-        size
-      ],
-
-      iconAnchor:[
-        size/2,
-        size/2
-      ]
-
-    });
-
-  const marker =
-    L.marker(
-      [node.lat,node.lng],
-      {
-        icon:div,
-        draggable:mode==="move"
-      }
-    );
-
-  marker.on(
-    "click",
-    e=>{
-
-      L.DomEvent.stopPropagation(e);
-
-      handleNodeClick(node.id);
-
-    }
-  );
-
-  marker.on(
-    "dragend",
-    ()=>{
-
-      if(mode!=="move"){
-        return;
-      }
-
-      const pos =
-        marker.getLatLng();
-
-      node.lat=pos.lat;
-      node.lng=pos.lng;
-
-      saveData();
-
-      renderEverything();
-
-    }
-  );
-
-  marker.bindTooltip(
-    node.name,
-    {
-      direction:"top",
-      offset:[0,-8],
-      permanent:true,
-      className:"station-name-tooltip"
-    }
-  );
-
-  return marker;
-
-}
-
-/* =========================================================
-   NODE CLICK
-========================================================= */
-
-function handleNodeClick(nodeId){
-
-  if(mode==="connect"){
-
-    handleConnectClick(nodeId);
-
-    return;
-
-  }
-
-  selectedNodeId=nodeId;
-
-  const node =
-    data.nodes.find(
-      n=>n.id===nodeId
-    );
-
-  if(node){
-
-    openStationDetail(nodeId);
-
-  }
-
-}
-
-/* =========================================================
-   CONNECT MODE
-========================================================= */
-
-function handleConnectClick(nodeId){
-
-  if(!selectedRouteId){
-
-    return;
-
-  }
-
-  const route =
-    data.routes.find(
-      r=>r.id===selectedRouteId
-    );
-
-  if(!route){
-    return;
-  }
+ }catch(e){
 
   /*
-    最初の駅をクリック
+   壊れた保存データがあっても
+   alertは使用せず初期状態に戻す
   */
 
-  if(!connectLastNodeId){
+  state.nodes=[];
+  state.edges=[];
+  state.routes=[];
 
-    connectLastNodeId=nodeId;
-
-    setStatus(
-      "「"+
-      getNode(nodeId).name+
-      "」を始点にしました。次の駅をクリックしてください。"
-    );
-
-    highlightConnectNode(nodeId);
-
-    return;
-
-  }
-
-  /*
-    同じ駅を再クリック
-    → 何もしない
-  */
-
-  if(connectLastNodeId===nodeId){
-
-    setStatus(
-      "同じ駅には接続しません。"
-    );
-
-    return;
-
-  }
-
-  /*
-    ここが重要。
-
-    A → B とクリックしたら
-
-    A-Bを作成
-    そのままBを現在位置にする。
-
-    したがって、
-
-    A → B → C → D
-
-    とクリックするだけで
-
-    A-B
-    B-C
-    C-D
-
-    が生成される。
-  */
-
-  const previous =
-    connectLastNodeId;
-
-  const added =
-    addConnection(
-      selectedRouteId,
-      previous,
-      nodeId
-    );
-
-  if(added){
-
-    if(!route.stations.includes(previous)){
-      route.stations.push(previous);
-    }
-
-    if(!route.stations.includes(nodeId)){
-      route.stations.push(nodeId);
-    }
-
-    connectLastNodeId=nodeId;
-
-    autoRenumberRoute(route);
-
-    saveData();
-
-    renderEverything();
-
-    highlightConnectNode(nodeId);
-
-    setStatus(
-      getNode(previous).name+
-      " → "+
-      getNode(nodeId).name+
-      " を接続しました。次をクリックしてください。"
-    );
-
-  }else{
-
-    /*
-      既存線の場合も、
-      クリックした駅を現在位置として扱う。
-
-      これにより途中駅をもう一度クリックして
-      線をつなぎ直す必要がない。
-    */
-
-    connectLastNodeId=nodeId;
-
-    setStatus(
-      "既存の接続です。「"+
-      getNode(nodeId).name+
-      "」を現在位置にしました。"
-    );
-
-  }
+ }
 
 }
 
 /* =========================================================
-   HIGHLIGHT
+   地図
 ========================================================= */
 
-function highlightConnectNode(nodeId){
+const map =
+ L.map("map",{
+  zoomControl:true,
+  attributionControl:true
+ }).setView(
+  [35.681236,139.767125],
+  13
+ );
 
-  nodeMarkers.forEach(
-    (marker,id)=>{
+L.tileLayer(
+ "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+ {
+  maxZoom:19,
+  attribution:
+   '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors'
+ }
+).addTo(map);
 
-      const el =
-        marker.getElement();
+const edgeLayer =
+ L.layerGroup().addTo(map);
 
-      if(!el){
-        return;
-      }
-
-      const point =
-        el.querySelector(
-          ".station-map-marker,.junction-map-marker"
-        );
-
-      if(!point){
-        return;
-      }
-
-      if(id===nodeId){
-
-        point.style.boxShadow=
-          "0 0 0 4px rgba(255,120,0,.8)";
-
-      }else{
-
-        point.style.boxShadow="";
-
-      }
-
-    }
-  );
-
-}
+const nodeLayer =
+ L.layerGroup().addTo(map);
 
 /* =========================================================
-   ROUTE AUTO NUMBERING
+   DOM
 ========================================================= */
 
-function autoRenumberRoute(route){
+const status =
+ document.getElementById("status");
 
-  if(!route.numbering){
-    return;
-  }
+const newStationName =
+ document.getElementById("newStationName");
 
-  route.stations.forEach(
-    (nodeId,index)=>{
+const routeName =
+ document.getElementById("routeName");
 
-      const node =
-        getNode(nodeId);
+const routeCode =
+ document.getElementById("routeCode");
 
-      if(!node){
-        return;
-      }
+const routeColor =
+ document.getElementById("routeColor");
 
-      /*
-        ルート順で番号を作る。
+const lineWidth =
+ document.getElementById("lineWidth");
 
-        例：
-        JY + 01
-        JY + 02
-        JY + 03
-      */
+const nodeSize =
+ document.getElementById("nodeSize");
 
-      node.routeNumbers =
-        node.routeNumbers || {};
+const lineWidthValue =
+ document.getElementById("lineWidthValue");
 
-      node.routeNumbers[
-        route.id
-      ] =
-        route.code+
-        String(index+1).padStart(2,"0");
-
-    }
-  );
-
-}
+const nodeSizeValue =
+ document.getElementById("nodeSizeValue");
 
 /* =========================================================
-   ROUTE LIST
-========================================================= */
-
-function renderRouteList(){
-
-  const container =
-    document.getElementById(
-      "routeList"
-    );
-
-  container.innerHTML="";
-
-  data.routes.forEach(route=>{
-
-    const button =
-      document.createElement("button");
-
-    button.className=
-      "list-item";
-
-    button.innerHTML=
-      `
-      <div
-        class="route-mini"
-        style="border-color:${escapeHtml(route.color)}"
-      >
-        ${escapeHtml(route.code || "")}
-      </div>
-
-      <div class="list-item-main">
-
-        <div class="list-item-name">
-          ${escapeHtml(route.name)}
-        </div>
-
-        <div class="list-item-sub">
-          ${escapeHtml(route.code || "番号なし")}
-        </div>
-
-      </div>
-      `;
-
-    button.addEventListener(
-      "click",
-      ()=>{
-
-        selectedRouteId=route.id;
-
-        connectLastNodeId=null;
-
-        renderRouteList();
-
-        renderSelectedRoutePanel();
-
-        setStatus(
-          "路線「"+
-          route.name+
-          "」を選択しました。"
-        );
-
-      }
-    );
-
-    container.appendChild(button);
-
-  });
-
-}
-
-/* =========================================================
-   STATION LIST
-========================================================= */
-
-function renderStationList(){
-
-  const container =
-    document.getElementById(
-      "stationList"
-    );
-
-  container.innerHTML="";
-
-  data.nodes.forEach(node=>{
-
-    const button =
-      document.createElement("button");
-
-    button.className="list-item";
-
-    const numbers =
-      getNodeRouteNumbers(node);
-
-    button.innerHTML=
-      `
-      <div
-        class="route-mini"
-        style="
-          border-color:
-          ${
-            node.type==="junction"
-              ? "#555"
-              : getFirstRouteColor(node)
-          };
-        "
-      >
-        ${
-          node.type==="junction"
-            ? "分岐"
-            : numbers.length
-              ? escapeHtml(
-                  numbers[0].replace(/\d+$/,"")
-                )
-              : "駅"
-        }
-      </div>
-
-      <div class="list-item-main">
-
-        <div class="list-item-name">
-          ${escapeHtml(node.name)}
-        </div>
-
-        <div class="list-item-sub">
-          ${
-            node.type==="junction"
-              ? "分岐・方向転換点"
-              : numbers.join(" / ")
-          }
-        </div>
-
-      </div>
-      `;
-
-    button.addEventListener(
-      "click",
-      ()=>{
-
-        map.setView(
-          [node.lat,node.lng],
-          Math.max(map.getZoom(),15)
-        );
-
-        openStationDetail(node.id);
-
-      }
-    );
-
-    container.appendChild(button);
-
-  });
-
-}
-
-/* =========================================================
-   SELECTED ROUTE PANEL
-========================================================= */
-
-function renderSelectedRoutePanel(){
-
-  const container =
-    document.getElementById(
-      "selectedRoutePanel"
-    );
-
-  container.innerHTML="";
-
-  const route =
-    data.routes.find(
-      r=>r.id===selectedRouteId
-    );
-
-  if(!route){
-
-    container.innerHTML=
-      "<div style='color:#777'>路線を選択してください。</div>";
-
-    return;
-
-  }
-
-  const inputName =
-    document.createElement("input");
-
-  inputName.value=route.name;
-
-  inputName.placeholder="路線名";
-
-  inputName.addEventListener(
-    "change",
-    ()=>{
-
-      route.name=inputName.value.trim() || "名称未設定";
-
-      saveData();
-
-      renderEverything();
-
-    }
-  );
-
-  container.appendChild(inputName);
-
-  const inputCode =
-    document.createElement("input");
-
-  inputCode.style.marginTop="7px";
-
-  inputCode.value=route.code;
-
-  inputCode.placeholder="路線アルファベット";
-
-  inputCode.maxLength=4;
-
-  inputCode.addEventListener(
-    "change",
-    ()=>{
-
-      route.code=
-        inputCode.value
-          .trim()
-          .toUpperCase();
-
-      autoRenumberRoute(route);
-
-      saveData();
-
-      renderEverything();
-
-    }
-  );
-
-  container.appendChild(inputCode);
-
-  const color =
-    document.createElement("input");
-
-  color.type="color";
-
-  color.style.marginTop="7px";
-
-  color.value=route.color;
-
-  color.addEventListener(
-    "input",
-    ()=>{
-
-      route.color=color.value;
-
-      renderMap();
-
-      renderRouteList();
-
-    }
-  );
-
-  color.addEventListener(
-    "change",
-    ()=>{
-
-      saveData();
-
-    }
-  );
-
-  container.appendChild(color);
-
-  const connectButton =
-    document.createElement("button");
-
-  connectButton.className=
-    "small-button";
-
-  connectButton.style.width="100%";
-
-  connectButton.style.marginTop="7px";
-
-  connectButton.textContent=
-    "この路線で接続する";
-
-  connectButton.addEventListener(
-    "click",
-    ()=>{
-
-      selectedRouteId=route.id;
-
-      setMode("connect");
-
-      connectLastNodeId=null;
-
-    }
-  );
-
-  container.appendChild(
-    connectButton
-  );
-
-  const detailButton =
-    document.createElement("button");
-
-  detailButton.className=
-    "secondary-button";
-
-  detailButton.style.width="100%";
-
-  detailButton.style.marginTop="7px";
-
-  detailButton.textContent=
-    "路線詳細を開く";
-
-  detailButton.addEventListener(
-    "click",
-    ()=>{
-
-      openRouteDetail(route.id);
-
-    }
-  );
-
-  container.appendChild(
-    detailButton
-  );
-
-  const deleteButton =
-    document.createElement("button");
-
-  deleteButton.className=
-    "danger-button";
-
-  deleteButton.style.width="100%";
-
-  deleteButton.style.marginTop="7px";
-
-  deleteButton.textContent=
-    "この路線を削除";
-
-  deleteButton.addEventListener(
-    "click",
-    ()=>{
-
-      deleteRoute(route.id);
-
-    }
-  );
-
-  container.appendChild(
-    deleteButton
-  );
-
-}
-
-/* =========================================================
-   ROUTE DETAIL
-========================================================= */
-
-function openRouteDetail(routeId){
-
-  const route =
-    data.routes.find(
-      r=>r.id===routeId
-    );
-
-  if(!route){
-    return;
-  }
-
-  autoRenumberRoute(route);
-
-  document.getElementById(
-    "routeDetailTitle"
-  ).textContent=
-    route.name+" 詳細";
-
-  const body =
-    document.getElementById(
-      "routeDetailBody"
-    );
-
-  body.innerHTML="";
-
-  const header =
-    document.createElement("div");
-
-  header.className=
-    "route-header-card";
-
-  const firstNode =
-    route.stations.length
-      ? getNode(route.stations[0])
-      : null;
-
-  let firstNumber="";
-
-  if(firstNode && route.numbering){
-
-    firstNumber =
-      getNodeRouteNumber(
-        firstNode,
-        route.id
-      ) ||
-      route.code+"01";
-
-  }
-
-  header.innerHTML=
-    `
-    <div
-      class="route-logo-large"
-      style="background:${escapeHtml(route.color)}"
-    >
-
-      <div class="route-logo-inner">
-
-        <div class="route-logo-code">
-          ${escapeHtml(route.code || "")}
-        </div>
-
-        <div class="route-logo-number">
-          ${escapeHtml(
-            firstNumber
-              ? firstNumber.replace(
-                  route.code,
-                  ""
-                )
-              : ""
-          )}
-        </div>
-
-      </div>
-
-    </div>
-
-    <div class="route-title-large">
-
-      <h2>
-        ${escapeHtml(route.name)}
-      </h2>
-
-      <p>
-        路線コード：
-        ${escapeHtml(route.code || "なし")}
-      </p>
-
-      <p>
-        駅数：
-        ${route.stations.length}
-      </p>
-
-    </div>
-    `;
-
-  body.appendChild(header);
-
-  const heading =
-    document.createElement("div");
-
-  heading.className=
-    "section-title";
-
-  heading.textContent=
-    "駅一覧";
-
-  body.appendChild(heading);
-
-  const stationList =
-    document.createElement("div");
-
-  stationList.className=
-    "station-list";
-
-  route.stations.forEach(
-    (nodeId,index)=>{
-
-      const node =
-        getNode(nodeId);
-
-      if(!node){
-        return;
-      }
-
-      const number =
-        route.numbering
-          ? route.code+
-            String(index+1).padStart(2,"0")
-          : "";
-
-      const row =
-        document.createElement("div");
-
-      row.className=
-        "station-row";
-
-      row.innerHTML=
-        `
-        <div class="station-row-number">
-
-          ${
-            route.numbering
-              ? createNumberingLogoHTML(
-                  route,
-                  number
-                )
-              : ""
-          }
-
-        </div>
-
-        <div class="station-row-name">
-          ${escapeHtml(node.name)}
-        </div>
-
-        <div class="station-row-actions">
-
-          <button
-            class="tiny-button"
-            data-node="${escapeHtml(node.id)}"
-          >
-            駅詳細
-          </button>
-
-        </div>
-        `;
-
-      row.querySelector(
-        "button"
-      ).addEventListener(
-        "click",
-        ()=>{
-          openStationDetail(node.id);
-        }
-      );
-
-      stationList.appendChild(row);
-
-    }
-  );
-
-  body.appendChild(stationList);
-
-  document
-    .getElementById("routeDetailModal")
-    .classList.add("show");
-
-}
-
-/* =========================================================
-   STATION DETAIL
-========================================================= */
-
-function openStationDetail(nodeId){
-
-  const node =
-    getNode(nodeId);
-
-  if(!node){
-    return;
-  }
-
-  document.getElementById(
-    "stationDetailTitle"
-  ).textContent=
-    node.name+" 詳細";
-
-  const body =
-    document.getElementById(
-      "stationDetailBody"
-    );
-
-  body.innerHTML="";
-
-  const head =
-    document.createElement("div");
-
-  head.className=
-    "station-detail-head";
-
-  head.innerHTML=
-    `
-    <h2>
-      ${escapeHtml(node.name)}
-    </h2>
-
-    <p>
-      ${
-        node.type==="station"
-          ? "駅"
-          : "分岐・方向転換点"
-      }
-    </p>
-    `;
-
-  body.appendChild(head);
-
-  if(node.type==="station"){
-
-    const title =
-      document.createElement("div");
-
-    title.className=
-      "section-title";
-
-    title.textContent=
-      "通っている路線";
-
-    body.appendChild(title);
-
-    const routes =
-      data.routes.filter(
-        route=>
-          route.stations.includes(node.id)
-      );
-
-    if(routes.length===0){
-
-      const empty =
-        document.createElement("div");
-
-      empty.style.color="#777";
-
-      empty.textContent=
-        "現在、路線に登録されていません。";
-
-      body.appendChild(empty);
-
-    }
-
-    routes.forEach(route=>{
-
-      const card =
-        document.createElement("div");
-
-      card.className=
-        "line-card";
-
-      const index =
-        route.stations.indexOf(
-          node.id
-        );
-
-      const number =
-        route.numbering
-          ? route.code+
-            String(index+1).padStart(2,"0")
-          : "";
-
-      card.innerHTML=
-        `
-        ${
-          number
-            ? createNumberingLogoHTML(
-                route,
-                number
-              )
-            : `
-              <div
-                class="numbering-logo"
-                style="background:${escapeHtml(route.color)}"
-              >
-                <div class="inner">
-                  <div class="code">
-                    ${escapeHtml(route.code)}
-                  </div>
-                </div>
-              </div>
-              `
-        }
-
-        <div class="line-card-info">
-
-          <div class="line-card-name">
-            ${escapeHtml(route.name)}
-          </div>
-
-          <div class="line-card-code">
-            ${escapeHtml(route.code || "")}
-            ${
-              number
-                ? " ・ "+escapeHtml(number)
-                : ""
-            }
-          </div>
-
-        </div>
-
-        <button
-          class="small-button"
-        >
-          詳細へ
-        </button>
-        `;
-
-      card.querySelector(
-        "button"
-      ).addEventListener(
-        "click",
-        ()=>{
-          closeModal(
-            "stationDetailModal"
-          );
-
-          openRouteDetail(
-            route.id
-          );
-        }
-      );
-
-      body.appendChild(card);
-
-    });
-
-  }
-
-  const editTitle =
-    document.createElement("div");
-
-  editTitle.className=
-    "section-title";
-
-  editTitle.textContent=
-    "駅名";
-
-  body.appendChild(editTitle);
-
-  const editRow =
-    document.createElement("div");
-
-  editRow.className=
-    "form-row";
-
-  const input =
-    document.createElement("input");
-
-  input.value=node.name;
-
-  const saveName =
-    document.createElement("button");
-
-  saveName.className=
-    "small-button";
-
-  saveName.textContent=
-    "変更";
-
-  saveName.addEventListener(
-    "click",
-    ()=>{
-
-      node.name=
-        input.value.trim() ||
-        "名称未設定";
-
-      saveData();
-
-      renderEverything();
-
-      openStationDetail(node.id);
-
-    }
-  );
-
-  editRow.appendChild(input);
-
-  editRow.appendChild(saveName);
-
-  body.appendChild(editRow);
-
-  const danger =
-    document.createElement("button");
-
-  danger.className=
-    "danger-button";
-
-  danger.style.width="100%";
-
-  danger.style.marginTop="12px";
-
-  danger.textContent=
-    node.type==="station"
-      ? "この駅を削除"
-      : "この分岐点を削除";
-
-  danger.addEventListener(
-    "click",
-    ()=>{
-
-      deleteNode(node.id);
-
-      closeModal(
-        "stationDetailModal"
-      );
-
-    }
-  );
-
-  body.appendChild(danger);
-
-  document
-    .getElementById(
-      "stationDetailModal"
-    )
-    .classList.add("show");
-
-}
-
-/* =========================================================
-   NUMBERING LOGO
-========================================================= */
-
-function createNumberingLogoHTML(
-  route,
-  number
-){
-
-  const digits =
-    number.replace(
-      route.code,
-      ""
-    );
-
-  return `
-    <div
-      class="numbering-logo"
-      style="background:${escapeHtml(route.color)}"
-    >
-
-      <div class="inner">
-
-        <div class="code">
-          ${escapeHtml(route.code)}
-        </div>
-
-        <div class="num">
-          ${escapeHtml(digits)}
-        </div>
-
-      </div>
-
-    </div>
-  `;
-
-}
-
-/* =========================================================
-   ROUTE CREATION
-========================================================= */
-
-function createRoute(){
-
-  const name =
-    document
-      .getElementById(
-        "newRouteName"
-      )
-      .value
-      .trim();
-
-  const code =
-    document
-      .getElementById(
-        "newRouteCode"
-      )
-      .value
-      .trim()
-      .toUpperCase();
-
-  const color =
-    document
-      .getElementById(
-        "newRouteColor"
-      )
-      .value;
-
-  const numbering =
-    document
-      .getElementById(
-        "newRouteNumbering"
-      )
-      .value==="sequential";
-
-  if(!name){
-    return;
-  }
-
-  const route={
-    id:
-      "route-"+Date.now()+"-"+Math.random(),
-
-    name,
-
-    code,
-
-    color,
-
-    numbering,
-
-    stations:[]
-  };
-
-  data.routes.push(route);
-
-  selectedRouteId=route.id;
-
-  saveData();
-
-  renderEverything();
-
-  closeModal(
-    "routeCreateModal"
-  );
-
-  setStatus(
-    "路線「"+route.name+
-    "」を作成しました。"
-  );
-
-}
-
-/* =========================================================
-   ADD NODE
-========================================================= */
-
-function startAddNode(type){
-
-  setMode(
-    type==="station"
-      ? "station"
-      : "junction"
-  );
-
-  setStatus(
-    type==="station"
-      ? "地図上をクリックすると駅を追加します。"
-      : "地図上をクリックすると分岐点を追加します。"
-  );
-
-}
-
-/* =========================================================
-   MAP CLICK FOR NODE
-========================================================= */
-
-function handleMapClick(e){
-
-  if(mode!=="station" && mode!=="junction"){
-    return;
-  }
-
-  const type =
-    mode==="station"
-      ? "station"
-      : "junction";
-
-  const name =
-    type==="station"
-      ? "新しい駅"
-      : "分岐点";
-
-  const node={
-
-    id:
-      "node-"+Date.now()+"-"+Math.random(),
-
-    name,
-
-    type,
-
-    lat:e.latlng.lat,
-
-    lng:e.latlng.lng,
-
-    routeNumbers:{}
-
-  };
-
-  data.nodes.push(node);
-
-  saveData();
-
-  renderEverything();
-
-  setMode("move");
-
-  openStationDetail(node.id);
-
-}
-
-/* =========================================================
-   DELETE NODE
-========================================================= */
-
-function deleteNode(nodeId){
-
-  data.nodes=
-    data.nodes.filter(
-      n=>n.id!==nodeId
-    );
-
-  data.connections=
-    data.connections.filter(
-      c=>
-        c.a!==nodeId &&
-        c.b!==nodeId
-    );
-
-  data.routes.forEach(
-    route=>{
-      route.stations=
-        route.stations.filter(
-          id=>id!==nodeId
-        );
-
-      autoRenumberRoute(route);
-    }
-  );
-
-  if(
-    selectedNodeId===nodeId
-  ){
-    selectedNodeId=null;
-  }
-
-  saveData();
-
-  renderEverything();
-
-}
-
-/* =========================================================
-   DELETE ROUTE
-========================================================= */
-
-function deleteRoute(routeId){
-
-  data.routes=
-    data.routes.filter(
-      r=>r.id!==routeId
-    );
-
-  data.connections=
-    data.connections.filter(
-      c=>c.routeId!==routeId
-    );
-
-  if(
-    selectedRouteId===routeId
-  ){
-
-    selectedRouteId=
-      data.routes.length
-        ? data.routes[0].id
-        : null;
-
-  }
-
-  connectLastNodeId=null;
-
-  saveData();
-
-  renderEverything();
-
-}
-
-/* =========================================================
-   INPUTS
-========================================================= */
-
-function updateInputs(){
-
-  document.getElementById(
-    "lineWidth"
-  ).value=
-    data.settings.lineWidth;
-
-  document.getElementById(
-    "pointSize"
-  ).value=
-    data.settings.pointSize;
-
-}
-
-/* =========================================================
-   STYLE
-========================================================= */
-
-function applyGlobalStyle(){
-
-  const width =
-    Number(
-      document.getElementById(
-        "lineWidth"
-      ).value
-    );
-
-  const point =
-    Number(
-      document.getElementById(
-        "pointSize"
-      ).value
-    );
-
-  data.settings.lineWidth =
-    Math.max(
-      1,
-      Math.min(30,width || 6)
-    );
-
-  data.settings.pointSize =
-    Math.max(
-      3,
-      Math.min(30,point || 9)
-    );
-
-  saveData();
-
-  renderMap();
-
-}
-
-/* =========================================================
-   MODE
-========================================================= */
-
-function setMode(newMode){
-
-  mode=newMode;
-
-  if(newMode!=="connect"){
-    connectLastNodeId=null;
-  }
-
-  document
-    .querySelectorAll(".mode-btn")
-    .forEach(btn=>{
-
-      btn.classList.toggle(
-        "active",
-        btn.dataset.mode===newMode
-      );
-
-    });
-
-  const text={
-
-    move:"移動モード",
-
-    connect:
-      selectedRouteId
-        ? "接続モード："+
-          getRoute(selectedRouteId).name+
-          "を選択中"
-        : "接続モード",
-
-    station:
-      "駅追加モード：地図をクリック",
-
-    junction:
-      "分岐点追加モード：地図をクリック"
-
-  };
-
-  setStatus(
-    text[newMode]
-  );
-
-  renderMap();
-
-}
-
-/* =========================================================
-   STATUS
+   状態表示
 ========================================================= */
 
 function setStatus(text){
 
-  document.getElementById(
-    "mapStatus"
-  ).textContent=text;
+ status.textContent=text;
 
 }
 
 /* =========================================================
-   HELPERS
+   モード
+========================================================= */
+
+function setMode(mode){
+
+ state.mode=mode;
+
+ state.connectLastNodeId=null;
+
+ const buttons =
+  document.querySelectorAll(".tool");
+
+ buttons.forEach(
+  b => b.classList.remove("active")
+ );
+
+ document
+  .querySelectorAll(
+   "#stationModeButton,#branchModeButton,#moveModeButton,#connectModeButton,#deleteModeButton"
+  )
+  .forEach(
+   b => b.classList.remove("active")
+  );
+
+ if(mode==="move"){
+
+  document
+   .getElementById("toolbarMove")
+   .classList.add("active");
+
+  document
+   .getElementById("moveModeButton")
+   .classList.add("active");
+
+  setStatus("移動モード");
+
+ }
+
+ if(mode==="station"){
+
+  document
+   .getElementById("toolbarStation")
+   .classList.add("active");
+
+  document
+   .getElementById("stationModeButton")
+   .classList.add("active");
+
+  setStatus(
+   "駅追加モード：地図をクリック"
+  );
+
+ }
+
+ if(mode==="branch"){
+
+  document
+   .getElementById("toolbarBranch")
+   .classList.add("active");
+
+  document
+   .getElementById("branchModeButton")
+   .classList.add("active");
+
+  setStatus(
+   "分岐点追加モード：地図をクリック"
+  );
+
+ }
+
+ if(mode==="connect"){
+
+  document
+   .getElementById("toolbarConnect")
+   .classList.add("active");
+
+  document
+   .getElementById("connectModeButton")
+   .classList.add("active");
+
+  setStatus(
+   "接続モード：路線を選択してください"
+  );
+
+ }
+
+ if(mode==="delete"){
+
+  document
+   .getElementById("toolbarDelete")
+   .classList.add("active");
+
+  document
+   .getElementById("deleteModeButton")
+   .classList.add("active");
+
+  setStatus(
+   "削除モード：駅・分岐点をクリック"
+  );
+
+ }
+
+ renderNodes();
+
+}
+
+/* =========================================================
+   モードボタン
+========================================================= */
+
+document
+ .getElementById("toolbarMove")
+ .onclick=()=>{
+  setMode("move");
+ };
+
+document
+ .getElementById("toolbarStation")
+ .onclick=()=>{
+  setMode("station");
+ };
+
+document
+ .getElementById("toolbarBranch")
+ .onclick=()=>{
+  setMode("branch");
+ };
+
+document
+ .getElementById("toolbarConnect")
+ .onclick=()=>{
+  startConnect();
+ };
+
+document
+ .getElementById("toolbarDelete")
+ .onclick=()=>{
+  setMode("delete");
+ };
+
+document
+ .getElementById("moveModeButton")
+ .onclick=()=>{
+  setMode("move");
+ };
+
+document
+ .getElementById("stationModeButton")
+ .onclick=()=>{
+  setMode("station");
+ };
+
+document
+ .getElementById("branchModeButton")
+ .onclick=()=>{
+  setMode("branch");
+ };
+
+document
+ .getElementById("connectModeButton")
+ .onclick=()=>{
+  startConnect();
+ };
+
+document
+ .getElementById("deleteModeButton")
+ .onclick=()=>{
+  setMode("delete");
+ };
+
+/* =========================================================
+   地図クリック
+========================================================= */
+
+map.on(
+ "click",
+ function(e){
+
+  if(state.mode==="station"){
+
+   createNode(
+    e.latlng.lat,
+    e.latlng.lng,
+    "station"
+   );
+
+   return;
+  }
+
+  if(state.mode==="branch"){
+
+   createNode(
+    e.latlng.lat,
+    e.latlng.lng,
+    "branch"
+   );
+
+   return;
+  }
+
+ }
+);
+
+/* =========================================================
+   ノード作成
+========================================================= */
+
+function createNode(lat,lng,type){
+
+ let name;
+
+ if(type==="station"){
+
+  name =
+   newStationName.value.trim();
+
+  if(!name){
+   name="新しい駅";
+  }
+
+ }else{
+
+  name="分岐点";
+
+ }
+
+ const node={
+  id:state.nextNodeId++,
+  type:type,
+  name:name,
+  lat:lat,
+  lng:lng
+ };
+
+ state.nodes.push(node);
+
+ save();
+ renderAll();
+
+ newStationName.value="";
+
+ setStatus(
+  type==="station"
+   ? "駅を追加しました"
+   : "分岐点を追加しました"
+ );
+
+}
+
+/* =========================================================
+   ノードアイコン
+========================================================= */
+
+function nodeIcon(node){
+
+ return L.divIcon({
+
+  className:"",
+
+  iconSize:[
+   state.nodeSize+110,
+   state.nodeSize+4
+  ],
+
+  iconAnchor:[
+   state.nodeSize/2,
+   state.nodeSize/2
+  ],
+
+  html:
+   '<div class="nodeContainer" style="--nodeSize:'+
+   state.nodeSize+
+   'px">'+
+
+   '<div class="nodeDot '+
+   (node.type==="branch"?"branch":"")+
+   '"></div>'+
+
+   '<div class="nodeLabel">'+
+   escapeHTML(node.name)+
+   '</div>'+
+
+   '</div>'
+
+ });
+
+}
+
+/* =========================================================
+   ノード描画
+========================================================= */
+
+function renderNodes(){
+
+ nodeLayer.clearLayers();
+
+ state.nodes.forEach(
+  node=>{
+
+   const marker =
+    L.marker(
+     [node.lat,node.lng],
+     {
+      icon:nodeIcon(node),
+      draggable:
+       state.mode==="move",
+      zIndexOffset:
+       state.mode==="connect"
+        ? 1000
+        : 100
+     }
+    );
+
+   marker.addTo(nodeLayer);
+
+   marker.on(
+    "click",
+    function(e){
+
+     L.DomEvent.stopPropagation(e);
+
+     nodeClicked(node.id);
+
+    }
+   );
+
+   marker.on(
+    "dragend",
+    function(e){
+
+     if(state.mode!=="move"){
+      return;
+     }
+
+     const p =
+      e.target.getLatLng();
+
+     node.lat=p.lat;
+     node.lng=p.lng;
+
+     save();
+
+     renderEdges();
+
+    }
+   );
+
+  }
+ );
+
+}
+
+/* =========================================================
+   ノードクリック
+========================================================= */
+
+function nodeClicked(nodeId){
+
+ if(state.mode==="delete"){
+
+  removeNode(nodeId);
+  return;
+
+ }
+
+ if(state.mode==="connect"){
+
+  connectNode(nodeId);
+  return;
+
+ }
+
+ if(state.mode==="move"){
+
+  openStationDetail(nodeId);
+  return;
+
+ }
+
+}
+
+/* =========================================================
+   ノード削除
+========================================================= */
+
+function removeNode(nodeId){
+
+ state.nodes =
+  state.nodes.filter(
+   n=>n.id!==nodeId
+  );
+
+ state.edges =
+  state.edges.filter(
+   e=>
+    e.from!==nodeId &&
+    e.to!==nodeId
+  );
+
+ if(
+  state.connectLastNodeId===nodeId
+ ){
+  state.connectLastNodeId=null;
+ }
+
+ save();
+ renderAll();
+
+ setStatus(
+  "駅・分岐点を削除しました"
+ );
+
+}
+
+/* =========================================================
+   路線追加
+========================================================= */
+
+document
+ .getElementById("addRoute")
+ .onclick=function(){
+
+  const name =
+   routeName.value.trim();
+
+  const code =
+   routeCode.value.trim();
+
+  const color =
+   routeColor.value;
+
+  if(!name){
+
+   setStatus(
+    "路線名を入力してください"
+   );
+
+   routeName.focus();
+
+   return;
+  }
+
+  const route={
+   id:state.nextRouteId++,
+   name:name,
+   code:code,
+   color:color
+  };
+
+  state.routes.push(route);
+
+  save();
+  renderAll();
+
+  routeName.value="";
+  routeCode.value="";
+
+  setStatus(
+   name+"を追加しました"
+  );
+
+ };
+
+/* =========================================================
+   接続開始
+========================================================= */
+
+function startConnect(){
+
+ if(state.routes.length===0){
+
+  setStatus(
+   "先に路線を追加してください"
+  );
+
+  switchPanel("mapPanel");
+
+  return;
+ }
+
+ state.mode="connect";
+ state.connectLastNodeId=null;
+
+ showRouteSelection();
+
+}
+
+/* =========================================================
+   路線選択
+========================================================= */
+
+function showRouteSelection(){
+
+ const content =
+  document.getElementById("detailContent");
+
+ content.innerHTML="";
+
+ const back =
+  document.createElement("button");
+
+ back.className="back";
+ back.textContent="← マップへ戻る";
+
+ back.onclick=function(){
+
+  switchPanel("mapPanel");
+
+ };
+
+ content.appendChild(back);
+
+ const title =
+  document.createElement("div");
+
+ title.className="title";
+ title.textContent="接続する路線を選択";
+
+ content.appendChild(title);
+
+ const description =
+  document.createElement("div");
+
+ description.className="description";
+
+ description.textContent=
+  "路線を選択した後、地図上の駅・分岐点を順番にクリックしてください。";
+
+ content.appendChild(description);
+
+ const list =
+  document.createElement("div");
+
+ list.className="list";
+
+ state.routes.forEach(
+  route=>{
+
+   const item =
+    document.createElement("button");
+
+   item.className="listItem";
+   item.type="button";
+
+   item.innerHTML=
+    '<div class="listIcon">'+
+    routeIconHTML(route)+
+    '</div>'+
+
+    '<div class="listMain">'+
+
+    '<div class="listName">'+
+    escapeHTML(route.name)+
+    '</div>'+
+
+    '<div class="listSub">'+
+    escapeHTML(route.code||"路線コードなし")+
+    '</div>'+
+
+    '</div>';
+
+   item.onclick=function(){
+
+    state.connectingRouteId=route.id;
+    state.connectLastNodeId=null;
+
+    setMode("connect");
+
+    switchPanel("mapPanel");
+
+    setStatus(
+     route.name+
+     "を接続中：駅・分岐点を順番にクリック"
+    );
+
+   };
+
+   list.appendChild(item);
+
+  }
+ );
+
+ content.appendChild(list);
+
+ switchPanel("detailPanel");
+
+}
+
+/* =========================================================
+   接続
+========================================================= */
+
+function connectNode(nodeId){
+
+ if(!state.connectingRouteId){
+
+  showRouteSelection();
+  return;
+
+ }
+
+ const route =
+  getRoute(state.connectingRouteId);
+
+ if(!route){
+  return;
+ }
+
+ /*
+  最初のクリック
+ */
+
+ if(state.connectLastNodeId===null){
+
+  state.connectLastNodeId=nodeId;
+
+  const node =
+   getNode(nodeId);
+
+  setStatus(
+   route.name+
+   "："+
+   node.name+
+   "を選択。次の駅・分岐点をクリック"
+  );
+
+  return;
+ }
+
+ /*
+  同じ点をもう一度クリック
+ */
+
+ if(
+  state.connectLastNodeId===nodeId
+ ){
+
+  setStatus(
+   "同じ駅・分岐点なので接続しません"
+  );
+
+  return;
+ }
+
+ const from =
+  state.connectLastNodeId;
+
+ const to =
+  nodeId;
+
+ /*
+  同じ路線の既存区間チェック
+ */
+
+ const duplicate =
+  state.edges.some(
+   edge=>{
+
+    if(edge.routeId!==route.id){
+     return false;
+    }
+
+    return (
+     (edge.from===from &&
+      edge.to===to) ||
+
+     (edge.from===to &&
+      edge.to===from)
+    );
+
+   }
+  );
+
+ if(duplicate){
+
+  state.connectLastNodeId=to;
+
+  setStatus(
+   "この区間はすでに接続されています。次の点をクリックしてください"
+  );
+
+  return;
+ }
+
+ state.edges.push({
+
+  id:state.nextEdgeId++,
+
+  from:from,
+
+  to:to,
+
+  routeId:route.id
+
+ });
+
+ /*
+  ここが重要。
+  今クリックした点を次の始点にする。
+  したがって
+
+  Aクリック
+  Bクリック
+  Cクリック
+
+  だけで
+
+  A-B
+  B-C
+
+  になる。
+ */
+
+ state.connectLastNodeId=to;
+
+ save();
+ renderEdges();
+
+ const node =
+  getNode(to);
+
+ setStatus(
+  route.name+
+  "："+
+  node.name+
+  "まで接続。次の駅・分岐点をクリック"
+ );
+
+}
+
+/* =========================================================
+   線描画
+========================================================= */
+
+function renderEdges(){
+
+ edgeLayer.clearLayers();
+
+ state.edges.forEach(
+  edge=>{
+
+   const from =
+    getNode(edge.from);
+
+   const to =
+    getNode(edge.to);
+
+   const route =
+    getRoute(edge.routeId);
+
+   if(!from || !to || !route){
+    return;
+   }
+
+   L.polyline(
+    [
+     [from.lat,from.lng],
+     [to.lat,to.lng]
+    ],
+    {
+     color:route.color,
+     weight:state.lineWidth,
+     opacity:.95,
+     lineCap:"round",
+     lineJoin:"round",
+     interactive:false
+    }
+   ).addTo(edgeLayer);
+
+  }
+ );
+
+}
+
+/* =========================================================
+   路線アイコン
+========================================================= */
+
+function routeIconHTML(route){
+
+ return `
+  <div
+   class="routeIcon"
+   style="background:${escapeAttribute(route.color)}"
+  >
+   <span>${escapeHTML(route.code||"●")}</span>
+  </div>
+ `;
+
+}
+
+/* =========================================================
+   路線一覧
+========================================================= */
+
+function renderRouteList(){
+
+ const list =
+  document.getElementById("routeList");
+
+ list.innerHTML="";
+
+ if(state.routes.length===0){
+
+  list.innerHTML=
+   '<div class="empty">路線はまだありません</div>';
+
+  return;
+ }
+
+ state.routes.forEach(
+  route=>{
+
+   const item =
+    document.createElement("button");
+
+   item.type="button";
+   item.className="listItem";
+
+   const count =
+    getRouteNodes(route.id)
+     .filter(
+      n=>n.type==="station"
+     ).length;
+
+   item.innerHTML=
+    '<div class="listIcon">'+
+    routeIconHTML(route)+
+    '</div>'+
+
+    '<div class="listMain">'+
+
+    '<div class="listName">'+
+    escapeHTML(route.name)+
+    '</div>'+
+
+    '<div class="listSub">'+
+    (route.code
+     ? escapeHTML(route.code)+" / "
+     : "")+
+    count+
+    "駅"+
+    '</div>';
+
+   item.onclick=function(){
+
+    openRouteDetail(route.id);
+
+   };
+
+   list.appendChild(item);
+
+  }
+ );
+
+}
+
+/* =========================================================
+   駅一覧
+========================================================= */
+
+function renderStationList(){
+
+ const list =
+  document.getElementById("stationList");
+
+ list.innerHTML="";
+
+ const stations =
+  state.nodes.filter(
+   n=>n.type==="station"
+  );
+
+ if(stations.length===0){
+
+  list.innerHTML=
+   '<div class="empty">駅はまだありません</div>';
+
+  return;
+ }
+
+ stations.forEach(
+  station=>{
+
+   const item =
+    document.createElement("button");
+
+   item.type="button";
+   item.className="listItem";
+
+   const routes =
+    getRoutesForNode(station.id);
+
+   item.innerHTML=
+    '<div class="listIcon">'+
+    '<div class="stationIcon"></div>'+
+    '</div>'+
+
+    '<div class="listMain">'+
+
+    '<div class="listName">'+
+    escapeHTML(station.name)+
+    '</div>'+
+
+    '<div class="listSub">'+
+    routes.length+
+    "路線"+
+    '</div>';
+
+   item.onclick=function(){
+
+    openStationDetail(station.id);
+
+   };
+
+   list.appendChild(item);
+
+  }
+ );
+
+}
+
+/* =========================================================
+   路線詳細
+========================================================= */
+
+function openRouteDetail(routeId){
+
+ const route =
+  getRoute(routeId);
+
+ if(!route){
+  return;
+ }
+
+ const content =
+  document.getElementById("detailContent");
+
+ content.innerHTML="";
+
+ const back =
+  document.createElement("button");
+
+ back.className="back";
+ back.textContent="← 路線一覧へ戻る";
+
+ back.onclick=function(){
+
+  switchPanel("routesPanel");
+
+ };
+
+ content.appendChild(back);
+
+ const header =
+  document.createElement("div");
+
+ header.className="detailHeader";
+
+ header.innerHTML=
+  '<div class="detailRouteIcon" style="background:'+
+  escapeAttribute(route.color)+
+  '">' +
+
+  '<span>'+
+  escapeHTML(route.code||"●")+
+  '</span>'+
+
+  '</div>'+
+
+  '<div class="detailTitle">'+
+
+  '<h2>'+
+  escapeHTML(route.name)+
+  '</h2>'+
+
+  '<p>'+
+  (
+   route.code
+    ? "路線コード："+escapeHTML(route.code)
+    : "路線コード未設定"
+  )+
+  '</p>'+
+
+  '</div>';
+
+ content.appendChild(header);
+
+ const editTitle =
+  document.createElement("div");
+
+ editTitle.className="title";
+ editTitle.textContent="路線情報";
+
+ content.appendChild(editTitle);
+
+ const form =
+  document.createElement("div");
+
+ form.innerHTML=
+
+  '<div class="formGroup">'+
+  '<label>路線名</label>'+
+  '<input id="editRouteName" type="text" value="'+
+  escapeAttribute(route.name)+
+  '">'+
+  '</div>'+
+
+  '<div class="formGroup">'+
+  '<label>路線アルファベット</label>'+
+  '<input id="editRouteCode" type="text" maxlength="6" value="'+
+  escapeAttribute(route.code||"")+
+  '">'+
+  '</div>'+
+
+  '<div class="formGroup">'+
+  '<label>路線色</label>'+
+  '<input id="editRouteColor" type="color" value="'+
+  escapeAttribute(route.color)+
+  '">'+
+  '</div>'+
+
+  '<button id="saveRoute" class="full primary" type="button">'+
+  '路線情報を保存'+
+  '</button>'+
+
+  '<div class="spacer"></div>'+
+
+  '<button id="connectRoute" class="full" type="button">'+
+  'この路線を接続する'+
+  '</button>'+
+
+  '<div class="spacer"></div>'+
+
+  '<button id="deleteRoute" class="full danger" type="button">'+
+  'この路線を削除'+
+  '</button>';
+
+ content.appendChild(form);
+
+ document
+  .getElementById("saveRoute")
+  .onclick=function(){
+
+   const newName =
+    document
+     .getElementById("editRouteName")
+     .value.trim();
+
+   const newCode =
+    document
+     .getElementById("editRouteCode")
+     .value.trim();
+
+   const newColor =
+    document
+     .getElementById("editRouteColor")
+     .value;
+
+   if(!newName){
+
+    setStatus(
+     "路線名を入力してください"
+    );
+
+    return;
+   }
+
+   route.name=newName;
+   route.code=newCode;
+   route.color=newColor;
+
+   save();
+   renderAll();
+
+   openRouteDetail(route.id);
+
+   setStatus(
+    "路線情報を保存しました"
+   );
+
+  };
+
+ document
+  .getElementById("connectRoute")
+  .onclick=function(){
+
+   state.connectingRouteId=route.id;
+   state.connectLastNodeId=null;
+
+   setMode("connect");
+
+   switchPanel("mapPanel");
+
+   setStatus(
+    route.name+
+    "を接続中：駅・分岐点を順番にクリック"
+   );
+
+  };
+
+ document
+  .getElementById("deleteRoute")
+  .onclick=function(){
+
+   state.edges =
+    state.edges.filter(
+     e=>e.routeId!==route.id
+    );
+
+   state.routes =
+    state.routes.filter(
+     r=>r.id!==route.id
+    );
+
+   if(
+    state.connectingRouteId===route.id
+   ){
+
+    state.connectingRouteId=null;
+    state.connectLastNodeId=null;
+
+   }
+
+   save();
+   renderAll();
+
+   switchPanel("routesPanel");
+
+   setStatus(
+    "路線を削除しました"
+   );
+
+  };
+
+ const stationTitle =
+  document.createElement("div");
+
+ stationTitle.className="title";
+ stationTitle.style.marginTop="22px";
+ stationTitle.textContent="路線上の駅・分岐点";
+
+ content.appendChild(stationTitle);
+
+ const nodes =
+  getRouteNodes(route.id);
+
+ if(nodes.length===0){
+
+  const empty =
+   document.createElement("div");
+
+  empty.className="empty";
+  empty.textContent=
+   "まだ駅・分岐点が接続されていません";
+
+  content.appendChild(empty);
+
+ }else{
+
+  nodes.forEach(
+   (node,index)=>{
+
+    const row =
+     document.createElement("div");
+
+    row.className="stationRow";
+
+    row.innerHTML=
+     '<div class="stationNumber">'+
+     (index+1)+
+     '</div>'+
+
+     '<div>'+
+      '<div class="stationRowName">'+
+       escapeHTML(node.name)+
+      '</div>'+
+      '<div class="stationRowType">'+
+       (
+        node.type==="station"
+         ? "駅"
+         : "分岐点"
+       )+
+      '</div>'+
+     '</div>';
+
+    row.onclick=function(){
+
+     openStationDetail(node.id);
+
+    };
+
+    content.appendChild(row);
+
+   }
+  );
+
+ }
+
+ switchPanel("detailPanel");
+
+}
+
+/* =========================================================
+   駅詳細
+========================================================= */
+
+function openStationDetail(nodeId){
+
+ const node =
+  getNode(nodeId);
+
+ if(!node){
+  return;
+ }
+
+ const content =
+  document.getElementById("detailContent");
+
+ content.innerHTML="";
+
+ const back =
+  document.createElement("button");
+
+ back.className="back";
+ back.textContent="← 駅一覧へ戻る";
+
+ back.onclick=function(){
+
+  switchPanel("stationsPanel");
+
+ };
+
+ content.appendChild(back);
+
+ const title =
+  document.createElement("div");
+
+ title.className="title";
+
+ title.textContent =
+  node.type==="station"
+   ? "駅詳細"
+   : "分岐点詳細";
+
+ content.appendChild(title);
+
+ const form =
+  document.createElement("div");
+
+ form.innerHTML=
+  '<div class="formGroup">'+
+
+   '<label>'+
+   (
+    node.type==="station"
+     ? "駅名"
+     : "分岐点名"
+   )+
+   '</label>'+
+
+   '<input id="editNodeName" type="text" value="'+
+   escapeAttribute(node.name)+
+   '">'+
+
+  '</div>'+
+
+  '<button id="saveNode" class="full primary" type="button">'+
+  '名前を保存'+
+  '</button>';
+
+ content.appendChild(form);
+
+ document
+  .getElementById("saveNode")
+  .onclick=function(){
+
+   const name =
+    document
+     .getElementById("editNodeName")
+     .value.trim();
+
+   if(!name){
+
+    setStatus(
+     "名前を入力してください"
+    );
+
+    return;
+   }
+
+   node.name=name;
+
+   save();
+   renderAll();
+
+   openStationDetail(node.id);
+
+   setStatus(
+    "名前を変更しました"
+   );
+
+  };
+
+ const routeTitle =
+  document.createElement("div");
+
+ routeTitle.className="title";
+ routeTitle.style.marginTop="22px";
+ routeTitle.textContent="通っている路線";
+
+ content.appendChild(routeTitle);
+
+ const routes =
+  getRoutesForNode(node.id);
+
+ if(routes.length===0){
+
+  const empty =
+   document.createElement("div");
+
+  empty.className="empty";
+  empty.textContent=
+   "この駅・分岐点に接続されている路線はありません";
+
+  content.appendChild(empty);
+
+ }else{
+
+  routes.forEach(
+   route=>{
+
+    const item =
+     document.createElement("button");
+
+    item.type="button";
+    item.className="listItem";
+
+    item.innerHTML=
+     '<div class="listIcon">'+
+     routeIconHTML(route)+
+     '</div>'+
+
+     '<div class="listMain">'+
+
+     '<div class="listName">'+
+     escapeHTML(route.name)+
+     '</div>'+
+
+     '<div class="listSub">'+
+     (
+      route.code
+       ? escapeHTML(route.code)
+       : "路線コードなし"
+     )+
+     '</div>'+
+
+     '</div>'+
+
+     '<div style="font-size:20px">›</div>';
+
+    item.onclick=function(){
+
+     openRouteDetail(route.id);
+
+    };
+
+    content.appendChild(item);
+
+   }
+  );
+
+ }
+
+ const mapButton =
+  document.createElement("button");
+
+ mapButton.className="full";
+ mapButton.style.marginTop="12px";
+ mapButton.textContent=
+  "地図上のこの点へ移動";
+
+ mapButton.onclick=function(){
+
+  map.setView(
+   [node.lat,node.lng],
+   Math.max(
+    map.getZoom(),
+    15
+   )
+  );
+
+  switchPanel("mapPanel");
+
+ };
+
+ content.appendChild(mapButton);
+
+ switchPanel("detailPanel");
+
+}
+
+/* =========================================================
+   路線のノード一覧
+========================================================= */
+
+function getRouteNodes(routeId){
+
+ const edges =
+  state.edges.filter(
+   e=>e.routeId===routeId
+  );
+
+ if(edges.length===0){
+  return [];
+ }
+
+ /*
+  路線の接続グラフを作成
+ */
+
+ const graph =
+  new Map();
+
+ edges.forEach(
+  edge=>{
+
+   if(!graph.has(edge.from)){
+    graph.set(edge.from,[]);
+   }
+
+   if(!graph.has(edge.to)){
+    graph.set(edge.to,[]);
+   }
+
+   graph
+    .get(edge.from)
+    .push({
+     node:edge.to,
+     edge:edge.id
+    });
+
+   graph
+    .get(edge.to)
+    .push({
+     node:edge.from,
+     edge:edge.id
+    });
+
+  }
+ );
+
+ /*
+  端点からたどる
+ */
+
+ let start =
+  edges[0].from;
+
+ for(
+  const [nodeId,list]
+  of graph.entries()
+ ){
+
+  if(list.length===1){
+
+   start=nodeId;
+   break;
+
+  }
+
+ }
+
+ const result=[];
+ const visitedEdges=new Set();
+
+ let current=start;
+ let previous=null;
+
+ while(current!==null){
+
+  const node =
+   getNode(current);
+
+  if(node){
+   result.push(node);
+  }
+
+  const candidates =
+   (graph.get(current)||[])
+   .filter(
+    item=>
+     item.node!==previous &&
+     !visitedEdges.has(item.edge)
+   );
+
+  if(candidates.length===0){
+   break;
+  }
+
+  const next =
+   candidates[0];
+
+  visitedEdges.add(next.edge);
+
+  previous=current;
+  current=next.node;
+
+ }
+
+ /*
+  環状線などで未取得の点があれば追加
+ */
+
+ const used =
+  new Set(
+   result.map(n=>n.id)
+  );
+
+ edges.forEach(
+  edge=>{
+
+   if(!used.has(edge.from)){
+
+    const node =
+     getNode(edge.from);
+
+    if(node){
+     result.push(node);
+     used.add(node.id);
+    }
+
+   }
+
+   if(!used.has(edge.to)){
+
+    const node =
+     getNode(edge.to);
+
+    if(node){
+     result.push(node);
+     used.add(node.id);
+    }
+
+   }
+
+  }
+ );
+
+ return result;
+
+}
+
+/* =========================================================
+   ヘルパー
 ========================================================= */
 
 function getNode(id){
 
-  return data.nodes.find(
-    n=>n.id===id
-  );
+ return state.nodes.find(
+  n=>n.id===id
+ );
 
 }
 
 function getRoute(id){
 
-  return data.routes.find(
-    r=>r.id===id
-  );
+ return state.routes.find(
+  r=>r.id===id
+ );
 
 }
 
-function getNodeRouteNumbers(node){
+function getRoutesForNode(nodeId){
 
-  return data.routes
-    .filter(
-      route=>
-        route.stations.includes(
-          node.id
-        )
-    )
-    .map(
-      route=>{
+ const ids=new Set();
 
-        const index =
-          route.stations.indexOf(
-            node.id
-          );
+ state.edges.forEach(
+  edge=>{
 
-        return route.numbering
-          ? route.code+
-            String(index+1).padStart(2,"0")
-          : route.code;
+   if(
+    edge.from===nodeId ||
+    edge.to===nodeId
+   ){
 
-      }
-    );
+    ids.add(edge.routeId);
 
-}
+   }
 
-function getNodeRouteNumber(
-  node,
-  routeId
-){
-
-  const route =
-    getRoute(routeId);
-
-  if(!route){
-    return "";
   }
+ );
 
-  const index =
-    route.stations.indexOf(
-      node.id
-    );
-
-  if(index<0){
-    return "";
-  }
-
-  return route.numbering
-    ? route.code+
-      String(index+1).padStart(2,"0")
-    : route.code;
-
-}
-
-function getFirstRouteColor(node){
-
-  const route =
-    data.routes.find(
-      r=>r.stations.includes(
-        node.id
-      )
-    );
-
-  return route
-    ? route.color
-    : "#777";
-
-}
-
-function escapeHtml(value){
-
-  return String(value)
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#039;");
+ return state.routes.filter(
+  route=>ids.has(route.id)
+ );
 
 }
 
 /* =========================================================
-   MODALS
+   表示設定
 ========================================================= */
 
-function closeModal(id){
+lineWidth.oninput=function(){
 
-  document
-    .getElementById(id)
-    .classList.remove("show");
+ state.lineWidth =
+  Number(lineWidth.value);
+
+ lineWidthValue.textContent =
+  state.lineWidth+"px";
+
+ save();
+ renderEdges();
+
+};
+
+nodeSize.oninput=function(){
+
+ state.nodeSize =
+  Number(nodeSize.value);
+
+ nodeSizeValue.textContent =
+  state.nodeSize+"px";
+
+ save();
+ renderNodes();
+
+};
+
+/* =========================================================
+   パネル切り替え
+========================================================= */
+
+function switchPanel(id){
+
+ document
+  .querySelectorAll(".panel")
+  .forEach(
+   panel=>{
+    panel.classList.remove("active");
+   }
+  );
+
+ const target =
+  document.getElementById(id);
+
+ if(target){
+  target.classList.add("active");
+ }
+
+ document
+  .querySelectorAll(".menuButton")
+  .forEach(
+   button=>{
+
+    button.classList.toggle(
+     "active",
+     button.dataset.panel===id
+    );
+
+   }
+  );
 
 }
+
+/* =========================================================
+   メニュー
+========================================================= */
 
 document
-  .querySelectorAll(
-    "[data-close]"
-  )
-  .forEach(button=>{
+ .querySelectorAll(".menuButton")
+ .forEach(
+  button=>{
 
-    button.addEventListener(
-      "click",
-      ()=>{
-        closeModal(
-          button.dataset.close
-        );
-      }
+   button.onclick=function(){
+
+    switchPanel(
+     button.dataset.panel
     );
 
-  });
+   };
+
+  }
+ );
+
+/* =========================================================
+   モバイルメニュー
+========================================================= */
 
 document
-  .querySelectorAll(
-    ".modal-backdrop"
-  )
-  .forEach(backdrop=>{
+ .getElementById("mobileMenu")
+ .onclick=function(){
 
-    backdrop.addEventListener(
-      "click",
-      e=>{
+  document
+   .getElementById("sidebar")
+   .classList.toggle("open");
 
-        if(e.target===backdrop){
-
-          backdrop.classList.remove(
-            "show"
-          );
-
-        }
-
-      }
-    );
-
-  });
+ };
 
 /* =========================================================
-   UI EVENTS
+   エスケープ
 ========================================================= */
 
-function bindUI(){
+function escapeHTML(value){
 
-  map.on(
-    "click",
-    handleMapClick
-  );
+ return String(value)
+  .replaceAll("&","&amp;")
+  .replaceAll("<","&lt;")
+  .replaceAll(">","&gt;")
+  .replaceAll('"',"&quot;")
+  .replaceAll("'","&#039;");
 
-  document
-    .querySelectorAll(".mode-btn")
-    .forEach(button=>{
+}
 
-      button.addEventListener(
-        "click",
-        ()=>{
+function escapeAttribute(value){
 
-          setMode(
-            button.dataset.mode
-          );
-
-        }
-      );
-
-    });
-
-  document
-    .getElementById(
-      "addStationBtn"
-    )
-    .addEventListener(
-      "click",
-      ()=>{
-        startAddNode("station");
-      }
-    );
-
-  document
-    .getElementById(
-      "addJunctionBtn"
-    )
-    .addEventListener(
-      "click",
-      ()=>{
-        startAddNode("junction");
-      }
-    );
-
-  document
-    .getElementById(
-      "addRouteBtn"
-    )
-    .addEventListener(
-      "click",
-      ()=>{
-
-        document
-          .getElementById(
-            "routeCreateModal"
-          )
-          .classList.add("show");
-
-        setTimeout(
-          ()=>{
-            document
-              .getElementById(
-                "newRouteName"
-              )
-              .focus();
-          },
-          50
-        );
-
-      }
-    );
-
-  document
-    .getElementById(
-      "routeDetailBtn"
-    )
-    .addEventListener(
-      "click",
-      ()=>{
-
-        if(selectedRouteId){
-
-          openRouteDetail(
-            selectedRouteId
-          );
-
-        }
-
-      }
-    );
-
-  document
-    .getElementById(
-      "createRouteConfirm"
-    )
-    .addEventListener(
-      "click",
-      createRoute
-    );
-
-  document
-    .getElementById(
-      "applyStyleBtn"
-    )
-    .addEventListener(
-      "click",
-      applyGlobalStyle
-    );
-
-  document
-    .getElementById(
-      "saveBtn"
-    )
-    .addEventListener(
-      "click",
-      ()=>{
-
-        saveData();
-
-        setStatus(
-          "保存しました。"
-        );
-
-      }
-    );
-
-  document
-    .getElementById(
-      "menuToggle"
-    )
-    .addEventListener(
-      "click",
-      ()=>{
-
-        document
-          .getElementById(
-            "sidebar"
-          )
-          .classList.toggle(
-            "open"
-          );
-
-      }
-    );
+ return escapeHTML(value);
 
 }
 
 /* =========================================================
-   STORAGE
+   全描画
 ========================================================= */
 
-function saveData(){
+function renderAll(){
 
-  localStorage.setItem(
-    "railway-map-maker-data",
-    JSON.stringify(data)
-  );
+ lineWidth.value =
+  state.lineWidth;
 
-}
+ nodeSize.value =
+  state.nodeSize;
 
-function loadData(){
+ lineWidthValue.textContent =
+  state.lineWidth+"px";
 
-  try{
+ nodeSizeValue.textContent =
+  state.nodeSize+"px";
 
-    const raw =
-      localStorage.getItem(
-        "railway-map-maker-data"
-      );
-
-    if(raw){
-
-      const parsed =
-        JSON.parse(raw);
-
-      if(
-        parsed &&
-        parsed.nodes &&
-        parsed.routes
-      ){
-
-        return parsed;
-
-      }
-
-    }
-
-  }catch(e){
-
-  }
-
-  return structuredClone(
-    defaultData
-  );
+ renderEdges();
+ renderNodes();
+ renderRouteList();
+ renderStationList();
 
 }
 
 /* =========================================================
-   SAVE ON PAGE EXIT
+   初期化
 ========================================================= */
 
-window.addEventListener(
-  "beforeunload",
-  ()=>{
-    saveData();
-  }
-);
+load();
+
+renderAll();
+
+setMode("move");
+
+/*
+  初期データは完全に空。
+  サンプル路線・サンプル駅・ナンバリングは
+  データとして一切登録しない。
+*/
 
 </script>
 
 </body>
-</html>
+  </html>
